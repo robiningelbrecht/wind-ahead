@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wind Analyzer</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='5' fill='%23FC4C02'/><path d='M12 3L7 13h3.5l-1.5 7 8-10h-4l2.5-7z' fill='white'/></svg>" />
+  <link rel="icon" href="logo.svg" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.4.0/dist/driver.css" />
   <style>
@@ -62,14 +62,16 @@
       gap: 12px;
       margin-bottom: 24px;
     }
-    .logo {
-      width: 34px; height: 34px;
-      background: var(--orange);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
+
+    .logo{
+      width: 34px;
+      height: 34px;
     }
-    .logo svg { width: 18px; height: 18px; }
+    .logo img {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+    }
     header h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; }
     header .buttons { margin-left: auto; display: flex; align-items: center; column-gap: 5px }
     .button {
@@ -661,9 +663,7 @@
 <div class="container" x-data="windAnalyzer()" x-effect="onAnalysisChange()">
   <header>
     <div class="logo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 2L6 14h4l-2 8 10-12h-5l3-8z"/>
-      </svg>
+      <img src="logo.svg" alt="logo" title="logo">
     </div>
     <h1>Wind Analyzer</h1>
     <div class="buttons">
