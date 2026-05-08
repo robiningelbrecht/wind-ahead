@@ -8,7 +8,6 @@ export class Tour {
             popoverClass: 'driver-popover',
             steps: [
                 { element: '#tour-datebar', popover: { title: 'Date & Speed', description: 'Pick when you plan to ride and set your average speed. The analysis updates automatically.', side: 'bottom' } },
-                { element: '#tour-besttime', popover: { title: 'Best Departure Time', description: 'We scan all 24 hours and show the top 3 start times with the least headwind. Click one to jump to that hour.', side: 'bottom' } },
                 { element: '#tour-map', popover: { title: 'Route Map', description: 'Your route colored by wind effect: green = tailwind, red = headwind. Toggle the wind overlay arrows in the top-right.', side: 'bottom' } },
                 { element: '#tour-strip', popover: { title: 'Wind Strip', description: 'A minimap of wind along your route. Hover to see details and a marker on the map.', side: 'top' } },
                 { element: '#tour-breakdown', popover: { title: 'Wind Breakdown', description: 'How much of your route faces headwind, tailwind, or crosswind \u2014 shown as percentages and averages.', side: 'top' } },

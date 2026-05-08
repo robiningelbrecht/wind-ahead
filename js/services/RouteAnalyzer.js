@@ -53,29 +53,6 @@ export class RouteAnalyzer {
         return result;
     }
 
-    findBestHours(points, windData, avgSpeedKmh) {
-        const results = [];
-        const avgSpeedMs = avgSpeedKmh / 3.6;
-        const maxIdx = windData.speeds.length - 1;
-        for (let startH = 0; startH <= maxIdx; startH++) {
-            let totalDist = 0, weightedHead = 0, cumDist = 0;
-            for (let i = 0; i < points.length - 1; i++) {
-                const p1 = points[i], p2 = points[i + 1];
-                const dist = GeoUtils.haversine(p1.lat, p1.lon, p2.lat, p2.lon);
-                if (dist < 0.5) continue;
-                const wIdx = Math.min(startH + Math.floor((cumDist / avgSpeedMs) / 3600), maxIdx);
-                const brng = GeoUtils.bearing(p1.lat, p1.lon, p2.lat, p2.lon);
-                const relAngle = GeoUtils.toRad(windData.dirs[wIdx] - brng);
-                weightedHead += windData.speeds[wIdx] * Math.cos(relAngle) * dist;
-                cumDist += dist;
-                totalDist += dist;
-            }
-            results.push({ hour: startH, avgHead: totalDist > 0 ? weightedHead / totalDist : 0 });
-        }
-        results.sort((a, b) => a.avgHead - b.avgHead);
-        return results.slice(0, 3);
-    }
-
     buildWindRose(segments) {
         const DIRS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
         const bins = DIRS.map(() => ({ dist: 0, headW: 0 }));

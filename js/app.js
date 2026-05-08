@@ -35,7 +35,6 @@ window.windAnalyzer = function () {
         windSpeed: 0,
         weatherLabel: '',
         dateNote: '',
-        bestHours: [],
         windRose: [],
         kmTable: [],
         kmTableOpen: false,
@@ -84,19 +83,6 @@ window.windAnalyzer = function () {
         },
 
         windLabelFn: GeoUtils.windLabel,
-
-        formatBestHour(bh) {
-            const t = String(bh.hour).padStart(2, '0') + ':00';
-            if (bh.avgHead > 0.5) return t + ' \u2014 ' + bh.avgHead.toFixed(1) + ' km/h headwind';
-            if (bh.avgHead < -0.5) return t + ' \u2014 ' + Math.abs(bh.avgHead).toFixed(1) + ' km/h tailwind';
-            return t + ' \u2014 neutral';
-        },
-
-        selectHour(hour) {
-            const base = this.dateTime.split('T')[0];
-            this.dateTime = base + 'T' + String(hour).padStart(2, '0') + ':00';
-            this.runAnalysis();
-        },
 
         onStripHover(event) {
             if (!windStrip.segments.length || !mapRenderer.map) return;
@@ -211,7 +197,6 @@ window.windAnalyzer = function () {
                 this.windDir = w.wind_direction_10m;
                 this.windSpeed = w.wind_speed_10m;
 
-                this.bestHours = routeAnalyzer.findBestHours(this.points, windData, this.avgSpeed);
                 this.windRose = routeAnalyzer.buildWindRose(this.analysis.segments);
                 this.kmTable = routeAnalyzer.buildKmTable(this.analysis.segments);
 
@@ -235,7 +220,6 @@ window.windAnalyzer = function () {
             this.points = null;
             this.centroid = null;
             this.waypoints = [];
-            this.bestHours = [];
             this.windRose = [];
             this.kmTable = [];
             this.kmTableOpen = false;
