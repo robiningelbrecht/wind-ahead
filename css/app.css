@@ -1,0 +1,9 @@
+@import "tailwindcss" source(none);
+@import "./components/dark-mode.css";
+@source "../index.html";
+
+@theme {
+    --color-strava-orange: #F26722;
+}
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));

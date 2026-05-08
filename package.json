@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "webpack": "node_modules/.bin/webpack --config webpack.config.js",
+    "tailwind": "npx @tailwindcss/cli -i css/app.css -o dist/app.min.css --minify",
+    "build": "npm run webpack && npm run tailwind"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.2.4",
+    "webpack": "^5.102.1",
+    "webpack-cli": "^6.0.1"
+  }
+}
