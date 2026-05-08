@@ -1,0 +1,247 @@
+import { WEATHER_CODES } from './constants';
+import { GeoUtils } from './utils/GeoUtils';
+import { GpxParser } from './services/GpxParser';
+import { WeatherService } from './services/WeatherService';
+import { RouteAnalyzer } from './services/RouteAnalyzer';
+import { MapRenderer } from './components/MapRenderer';
+import { WindStrip } from './components/WindStrip';
+import { Tour } from './components/Tour';
+
+const gpxParser = new GpxParser();
+const weatherService = new WeatherService();
+const routeAnalyzer = new RouteAnalyzer();
+const mapRenderer = new MapRenderer();
+const windStrip = new WindStrip();
+const tour = new Tour();
+
+window.windAnalyzer = function () {
+    const savedTheme = localStorage.getItem('wind-analyzer-theme');
+    if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+
+    return {
+        view: 'upload',
+        loading: false,
+        error: null,
+        dateTime: '',
+        dateMin: '',
+        dateMax: '',
+        avgSpeed: parseInt(localStorage.getItem('wind-analyzer-speed')) || 25,
+        points: null,
+        centroid: null,
+        waypoints: [],
+        analysis: null,
+        weather: null,
+        windDir: 0,
+        windSpeed: 0,
+        weatherLabel: '',
+        dateNote: '',
+        bestHours: [],
+        windRose: [],
+        kmTable: [],
+        kmTableOpen: false,
+        _lastRenderKey: null,
+
+        get netColor() {
+            if (!this.analysis) return '';
+            if (this.analysis.avgHead > 0.5) return 'var(--red)';
+            if (this.analysis.avgHead < -0.5) return 'var(--green)';
+            return 'var(--amber)';
+        },
+        get netLabel() {
+            if (!this.analysis) return '';
+            if (this.analysis.avgHead > 0.5) return 'Net Headwind';
+            if (this.analysis.avgHead < -0.5) return 'Net Tailwind';
+            return 'Net Crosswind';
+        },
+        get dominantType() {
+            if (!this.analysis) return '';
+            const { pctHead: h, pctTail: t, pctCross: c } = this.analysis;
+            return h >= t && h >= c ? 'Headwind' : t >= c ? 'Tailwind' : 'Crosswind';
+        },
+        get dominantPct() {
+            if (!this.analysis) return 0;
+            return Math.max(this.analysis.pctHead, this.analysis.pctTail, this.analysis.pctCross).toFixed(0);
+        },
+        get dominantColor() {
+            if (this.dominantType === 'Headwind') return 'var(--red)';
+            if (this.dominantType === 'Tailwind') return 'var(--green)';
+            return 'var(--amber)';
+        },
+        get conditionText() {
+            if (!this.weather) return '';
+            return WEATHER_CODES[this.weather.weather_code] || `Code ${this.weather.weather_code}`;
+        },
+        get windRoseSvg() {
+            if (!this.windRose.length) return '';
+            let svg = this.windRose.map(p =>
+                `<path d="${p.path}" fill="${p.color}" fill-opacity="0.5" stroke="${p.color}" stroke-width="0.5"/>`
+            ).join('');
+            const toX = 50 + 22 * Math.sin(GeoUtils.toRad(this.windDir + 180));
+            const toY = 50 - 22 * Math.cos(GeoUtils.toRad(this.windDir + 180));
+            svg += `<line x1="50" y1="50" x2="${toX.toFixed(1)}" y2="${toY.toFixed(1)}" stroke="#FC4C02" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>`;
+            svg += `<circle cx="${toX.toFixed(1)}" cy="${toY.toFixed(1)}" r="2.5" fill="#FC4C02" opacity="0.8"/>`;
+            return svg;
+        },
+
+        windLabelFn: GeoUtils.windLabel,
+
+        formatBestHour(bh) {
+            const t = String(bh.hour).padStart(2, '0') + ':00';
+            if (bh.avgHead > 0.5) return t + ' \u2014 ' + bh.avgHead.toFixed(1) + ' km/h headwind';
+            if (bh.avgHead < -0.5) return t + ' \u2014 ' + Math.abs(bh.avgHead).toFixed(1) + ' km/h tailwind';
+            return t + ' \u2014 neutral';
+        },
+
+        selectHour(hour) {
+            const base = this.dateTime.split('T')[0];
+            this.dateTime = base + 'T' + String(hour).padStart(2, '0') + ':00';
+            this.runAnalysis();
+        },
+
+        onStripHover(event) {
+            if (!windStrip.segments.length || !mapRenderer.map) return;
+            const strip = event.currentTarget;
+            const rect = strip.getBoundingClientRect();
+            const pct = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+            const seg = windStrip.getSegmentAtPosition(pct);
+            if (!seg) return;
+            const midLat = (seg.p1.lat + seg.p2.lat) / 2;
+            const midLon = (seg.p1.lon + seg.p2.lon) / 2;
+            const km = (seg.cumDist / 1000).toFixed(1);
+            const typeClass = seg.type === 'headwind' ? 'st-head' : seg.type === 'tailwind' ? 'st-tail' : 'st-cross';
+            const tip = document.getElementById('stripTooltip');
+            tip.innerHTML = `<span class="st-type ${typeClass}">${seg.type.charAt(0).toUpperCase() + seg.type.slice(1)}</span> &middot; ${km} km<br>Head: ${seg.headComp.toFixed(1)} km/h &middot; Cross: ${Math.abs(seg.crossComp).toFixed(1)} km/h`;
+            tip.style.left = (event.clientX - rect.left) + 'px';
+            tip.classList.add('visible');
+            mapRenderer.showHoverMarker(midLat, midLon, seg.headFactor);
+        },
+
+        hideStripHover() {
+            const tip = document.getElementById('stripTooltip');
+            if (tip) tip.classList.remove('visible');
+            mapRenderer.removeHoverMarker();
+        },
+
+        startTour() {
+            if (this.view === 'results') tour.run();
+        },
+
+        onAnalysisChange() {
+            if (!this.analysis) return;
+            const key = JSON.stringify([this.windDir, this.windSpeed, this.analysis.totalDist, this.analysis.pctHead]);
+            if (key === this._lastRenderKey) return;
+            this._lastRenderKey = key;
+            this.$nextTick(() => {
+                mapRenderer.render(this.points, this.analysis, this.windDir, this.windSpeed, this.waypoints);
+                windStrip.render(this.analysis.segments);
+            });
+        },
+
+        toggleTheme() {
+            const next = mapRenderer.isDark() ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('wind-analyzer-theme', next);
+            mapRenderer.updateTiles();
+        },
+
+        saveSpeed() {
+            localStorage.setItem('wind-analyzer-speed', this.avgSpeed);
+        },
+
+        handleDrop(event) {
+            const file = event.dataTransfer.files[0];
+            if (file && file.name.endsWith('.gpx')) this.processFile(file);
+            else this.error = 'Please drop a .gpx file';
+        },
+
+        handleFileInput(event) {
+            if (event.target.files[0]) this.processFile(event.target.files[0]);
+        },
+
+        async processFile(file) {
+            this.view = 'results';
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const text = await file.text();
+                const parsed = gpxParser.parse(text);
+                this.points = parsed.points;
+                this.waypoints = parsed.waypoints;
+                this.centroid = this.points.reduce(
+                    (acc, p) => ({ lat: acc.lat + p.lat / this.points.length, lon: acc.lon + p.lon / this.points.length }),
+                    { lat: 0, lon: 0 }
+                );
+                const now = new Date();
+                now.setMinutes(0, 0, 0);
+                const maxDate = new Date(now);
+                maxDate.setDate(maxDate.getDate() + 7);
+                this.dateTime = GeoUtils.toLocalStr(now);
+                this.dateMin = GeoUtils.toLocalStr(now);
+                this.dateMax = GeoUtils.toLocalStr(maxDate);
+
+                await this.runAnalysis();
+                if (!tour.hasCompleted()) {
+                    setTimeout(() => tour.run(), 600);
+                    tour.markCompleted();
+                }
+            } catch (err) {
+                this.loading = false;
+                this.view = 'upload';
+                this.error = err.message || 'Something went wrong';
+            }
+        },
+
+        async runAnalysis() {
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const lat = this.centroid.lat.toFixed(4);
+                const lon = this.centroid.lon.toFixed(4);
+                const data = await weatherService.fetch(lat, lon, this.dateTime);
+                const w = weatherService.extract(data, this.dateTime);
+
+                const windData = { speeds: data.hourly.wind_speed_10m, dirs: data.hourly.wind_direction_10m };
+                const targetHour = this.dateTime.slice(0, 13);
+                let startIdx = data.hourly.time.findIndex(t => t.startsWith(targetHour));
+                if (startIdx === -1) startIdx = 0;
+                this.analysis = routeAnalyzer.analyze(this.points, windData, startIdx, this.avgSpeed);
+                this.weather = w;
+                this.windDir = w.wind_direction_10m;
+                this.windSpeed = w.wind_speed_10m;
+
+                this.bestHours = routeAnalyzer.findBestHours(this.points, windData, this.avgSpeed);
+                this.windRose = routeAnalyzer.buildWindRose(this.analysis.segments);
+                this.kmTable = routeAnalyzer.buildKmTable(this.analysis.segments);
+
+                const d = new Date(this.dateTime);
+                const opts = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                this.weatherLabel = `Weather \u2014 ${d.toLocaleDateString(undefined, opts)}`;
+                this.dateNote = d.toLocaleDateString(undefined, { weekday: 'short', ...opts });
+
+                this.loading = false;
+            } catch (err) {
+                this.loading = false;
+                this.error = err.message || 'Failed to fetch weather data';
+            }
+        },
+
+        reset() {
+            this.view = 'upload';
+            this.error = null;
+            this.analysis = null;
+            this.weather = null;
+            this.points = null;
+            this.centroid = null;
+            this.waypoints = [];
+            this.bestHours = [];
+            this.windRose = [];
+            this.kmTable = [];
+            this.kmTableOpen = false;
+            this._lastRenderKey = null;
+            document.getElementById('fileInput').value = '';
+            mapRenderer.destroy();
+        }
+    };
+};
