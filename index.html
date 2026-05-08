@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wind Analyzer</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='5' fill='%23FC4C02'/><path d='M12 3L7 13h3.5l-1.5 7 8-10h-4l2.5-7z' fill='white'/></svg>" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.4.0/dist/driver.css" />
+  <style>
+    :root, [data-theme="dark"] {
+      --orange: #FC4C02;
+      --orange-hover: #e04400;
+      --orange-muted: rgba(252, 76, 2, 0.15);
+      --bg: #0d0d0f;
+      --bg-card: #1a1a1e;
+      --bg-elevated: #242428;
+      --bg-input: #2d2d32;
+      --text: #f0f0f2;
+      --text-secondary: #a0a0a8;
+      --text-muted: #6d6d78;
+      --border: #2a2a2f;
+      --red: #ef4444;
+      --green: #4cd964;
+      --amber: #fbbf24;
+      --overlay-bg: rgba(13, 13, 15, 0.88);
+      --upload-hover: rgba(252, 76, 2, 0.03);
+    }
+
+    [data-theme="light"] {
+      --bg: #f2f2f5;
+      --bg-card: #ffffff;
+      --bg-elevated: #eeeef1;
+      --bg-input: #e4e4e8;
+      --text: #1a1a1e;
+      --text-secondary: #555560;
+      --text-muted: #8e8e9a;
+      --border: #d8d8dc;
+      --red: #dc2626;
+      --green: #16a34a;
+      --amber: #d97706;
+      --overlay-bg: rgba(255, 255, 255, 0.92);
+      --upload-hover: rgba(252, 76, 2, 0.05);
+    }
+
+    [x-cloak] { display: none !important; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .logo {
+      width: 34px; height: 34px;
+      background: var(--orange);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .logo svg { width: 18px; height: 18px; }
+    header h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; }
+    header .buttons { margin-left: auto; display: flex; align-items: center; column-gap: 5px }
+    .button {
+      width: 34px; height: 34px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted);
+      transition: background 0.2s, color 0.2s;
+      flex-shrink: 0;
+      padding: 0;
+    }
+    .button:hover { background: var(--bg-input); color: var(--text); }
+    .button svg { width: 16px; height: 16px; }
+    .button .icon-sun { display: none; }
+    .button .icon-moon { display: block; }
+    [data-theme="light"] .button .icon-sun { display: block; }
+    [data-theme="light"] .button .icon-moon { display: none; }
+
+    /* ── Upload ── */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 64px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.3s, background 0.3s;
+      background: var(--bg-card);
+      position: relative;
+    }
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: var(--orange);
+      background: var(--upload-hover);
+    }
+    .upload-icon {
+      width: 56px; height: 56px;
+      margin: 0 auto 16px;
+      background: var(--bg-elevated);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .upload-icon svg { width: 24px; height: 24px; stroke: var(--orange); fill: none; stroke-width: 1.5; }
+    .upload-zone h2 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+    .upload-zone p { color: var(--text-muted); font-size: 0.82rem; }
+    .upload-zone .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 32px;
+      background: var(--orange);
+      color: #fff;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: background 0.2s, transform 0.1s;
+      border: none;
+    }
+    .upload-zone .btn:hover { background: var(--orange-hover); }
+    .upload-zone .btn:active { transform: scale(0.97); }
+    .upload-zone input { display: none; }
+
+    /* ── Loading ── */
+    .loading {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(13, 13, 15, 0.6);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: var(--text-secondary);
+    }
+    .loading.visible { display: flex; }
+    .loading .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid rgba(255,255,255,0.15);
+      border-top-color: var(--orange);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-bottom: 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Results ── */
+    .results { animation: fadeUp 0.35s ease; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Date bar ── */
+    .date-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .date-bar label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .date-bar input[type="datetime-local"] {
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: var(--text);
+      font-family: inherit;
+      background: var(--bg-card);
+    }
+    .date-note { font-size: 0.7rem; color: var(--text-muted); margin-left: auto; }
+
+    .speed-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 8px;
+      padding-left: 12px;
+      border-left: 1px solid var(--border);
+      transition: opacity 0.2s;
+    }
+    .speed-group label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .speed-input {
+      width: 52px;
+      padding: 5px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: var(--text);
+      font-family: inherit;
+      background: var(--bg-card);
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+    .speed-unit { font-size: 0.72rem; color: var(--text-muted); }
+
+    /* ── Best time ── */
+    .best-time {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .best-time-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+    .best-time-pill {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      font-family: inherit;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+    .best-time-pill:hover { border-color: var(--orange); color: var(--text); }
+    .best-time-pill.top {
+      background: var(--orange-muted);
+      border-color: var(--orange);
+      color: var(--orange);
+      font-weight: 600;
+    }
+
+    /* ── Map ── */
+    .map-wrap { position: relative; }
+    #map {
+      height: 420px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      z-index: 1;
+    }
+    .legend {
+      position: absolute;
+      bottom: 10px; left: 10px;
+      background: var(--overlay-bg);
+      backdrop-filter: blur(8px);
+      padding: 8px 12px;
+      border-radius: 6px;
+      z-index: 500;
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .legend-title { font-weight: 600; margin-bottom: 5px; color: var(--text); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .legend-bar { width: 140px; height: 8px; border-radius: 4px; background: linear-gradient(to right, var(--green), var(--amber), var(--red)); }
+    .legend-labels { display: flex; justify-content: space-between; margin-top: 3px; font-size: 0.6rem; color: var(--text-muted); }
+
+    .wind-arrow-marker { background: none !important; border: none !important; }
+    .map-wind-toggle {
+      background: var(--overlay-bg);
+      backdrop-filter: blur(8px);
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      user-select: none;
+      line-height: 1.3;
+      text-align: center;
+    }
+    .map-wind-toggle:hover { background: var(--bg-elevated); }
+    .map-wind-toggle.active { color: var(--orange); }
+    .map-wind-toggle .toggle-label { font-size: 0.62rem; color: var(--text-muted); font-weight: 400; }
+
+    /* ── Wind strip ── */
+    .wind-strip-wrap {
+      margin-top: 4px;
+      padding: 12px 1px;
+      position: relative;
+      cursor: crosshair;
+    }
+    .wind-strip {
+      display: flex;
+      height: 10px;
+      border-radius: 5px;
+      overflow: hidden;
+      background: var(--bg-elevated);
+    }
+    .strip-tooltip {
+      display: none;
+      position: absolute;
+      bottom: 100%;
+      transform: translateX(-50%);
+      background: var(--overlay-bg);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 1000;
+      margin-bottom: 4px;
+    }
+    .strip-tooltip.visible { display: block; }
+    .strip-tooltip .st-type { font-weight: 600; }
+    .strip-tooltip .st-head { color: var(--red); }
+    .strip-tooltip .st-tail { color: var(--green); }
+    .strip-tooltip .st-cross { color: var(--amber); }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+    .stat-block {
+      background: var(--bg-card);
+      padding: 16px 18px;
+      text-align: center;
+    }
+    .stat-block .stat-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .stat-block .stat-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .stat-block .stat-unit {
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: var(--text-secondary);
+    }
+
+    /* ── Detail grid ── */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    @media (max-width: 768px) {
+      .detail-grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: 10px;
+      padding: 22px;
+      border: 1px solid var(--border);
+    }
+    .card-header {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+      font-weight: 600;
+    }
+
+    /* ── Donut chart ── */
+    .donut-wrap { display: flex; align-items: center; gap: 24px; }
+    .donut-chart { position: relative; width: 130px; height: 130px; flex-shrink: 0; }
+    .donut-chart svg { width: 100%; height: 100%; }
+    .donut-ring { fill: none; stroke: var(--bg-elevated); stroke-width: 3.5; }
+    .donut-segment { fill: none; stroke-width: 3.5; stroke-linecap: round; transition: stroke-dasharray 0.6s ease; }
+    .donut-center {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .donut-center .big { font-size: 1.4rem; font-weight: 800; line-height: 1.1; }
+    .donut-center .sub { font-size: 0.6rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.06em; margin-top: 2px; }
+
+    .donut-legend { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+    .donut-legend-item { display: flex; align-items: center; gap: 10px; }
+    .donut-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .donut-legend-item .dl-label { font-size: 0.82rem; color: var(--text-secondary); flex: 1; }
+    .donut-legend-item .dl-value { font-size: 0.95rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .donut-legend-item .dl-extra { font-size: 0.72rem; color: var(--text-muted); margin-left: 4px; }
+
+    /* ── Compass ── */
+    .compass-section {
+      display: flex; align-items: center; gap: 20px;
+      margin-bottom: 20px; padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .compass {
+      position: relative; width: 80px; height: 80px;
+      border: 2px solid var(--border); border-radius: 50%;
+      background: var(--bg-elevated); flex-shrink: 0;
+    }
+    .compass .cardinal { position: absolute; font-size: 0.55rem; font-weight: 700; color: var(--text-muted); }
+    .compass .c-n { top: 3px; left: 50%; transform: translateX(-50%); color: var(--text-secondary); }
+    .compass .c-s { bottom: 3px; left: 50%; transform: translateX(-50%); }
+    .compass .c-e { right: 5px; top: 50%; transform: translateY(-50%); }
+    .compass .c-w { left: 5px; top: 50%; transform: translateY(-50%); }
+    .compass-arrow {
+      position: absolute; top: 50%; left: 50%;
+      width: 4px; height: 28px; margin-left: -2px; margin-top: -28px;
+      transform-origin: 50% 100%; transition: transform 0.5s ease;
+    }
+    .compass-arrow::before {
+      content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      border-left: 5px solid transparent; border-right: 5px solid transparent;
+      border-bottom: 8px solid var(--orange);
+    }
+    .compass-arrow::after {
+      content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+      width: 2px; height: 20px; background: var(--orange);
+    }
+    .compass-info { flex: 1; }
+    .compass-info .ci-speed { font-size: 1.6rem; font-weight: 800; line-height: 1.1; }
+    .compass-info .ci-speed .ci-unit { font-size: 0.8rem; font-weight: 400; color: var(--text-secondary); }
+    .compass-info .ci-dir { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+    .compass-info .ci-gusts { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); }
+    .compass-info .ci-gusts span { color: var(--text-secondary); font-weight: 600; }
+
+    /* ── Weather grid ── */
+    .weather-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .weather-item { display: flex; flex-direction: column; gap: 2px; }
+    .weather-item .wl { font-size: 0.62rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .weather-item .wv { font-size: 1rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+    /* ── Wind rose ── */
+    .wind-rose { width: 130px; height: 130px; flex-shrink: 0; }
+    .wind-rose svg { width: 100%; height: 100%; }
+    .rose-wrap { display: flex; align-items: center; gap: 20px; }
+    .rose-legend { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .rose-legend-item { display: flex; align-items: center; gap: 6px; }
+    .rl-dir { font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); width: 22px; }
+    .rl-bar-bg { flex: 1; height: 5px; background: var(--bg-elevated); border-radius: 3px; overflow: hidden; }
+    .rl-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+    .rl-pct { font-size: 0.68rem; color: var(--text-muted); font-variant-numeric: tabular-nums; width: 28px; text-align: right; }
+
+    /* ── Segment table ── */
+    .segment-card { margin-top: 16px; }
+    .segment-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+    .segment-toggle .card-header { margin-bottom: 0; }
+    .segment-toggle .chevron {
+      width: 16px; height: 16px;
+      color: var(--text-muted);
+      transition: transform 0.2s;
+    }
+    .segment-toggle .chevron.open { transform: rotate(180deg); }
+    .segment-table-wrap {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-top: 14px;
+    }
+    .segment-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+    .segment-table th {
+      position: sticky;
+      top: 0;
+      background: var(--bg-card);
+      text-align: left;
+      padding: 8px 10px;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+    .segment-table td {
+      padding: 7px 10px;
+      font-variant-numeric: tabular-nums;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+    .segment-table tbody tr:nth-child(even) td { background: var(--bg-elevated); }
+    .type-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    /* ── Error ── */
+    .error-msg {
+      background: rgba(239, 68, 68, 0.08); color: var(--red);
+      padding: 14px; border-radius: 8px;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      text-align: center; margin-top: 16px; font-size: 0.85rem;
+    }
+
+    /* ── Results footer ── */
+    .footer { text-align: center; margin-top: 24px; }
+    .new-file-btn {
+      padding: 8px 24px; background: transparent;
+      border: 1px solid var(--border); border-radius: 20px;
+      cursor: pointer; font-size: 0.8rem; color: var(--text-muted);
+      font-family: inherit; transition: all 0.2s;
+    }
+    .new-file-btn:hover { border-color: var(--text-muted); color: var(--text-secondary); }
+
+    /* ── Site footer ── */
+    .site-footer {
+      text-align: center;
+      padding: 24px 20px 32px;
+      margin-top: 32px;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+    .site-footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 8px;
+    }
+    .site-footer-links a, .site-footer-links button {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.75rem;
+      font-family: inherit;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: color 0.2s;
+    }
+    .site-footer-links a:hover, .site-footer-links button:hover { color: var(--orange); }
+
+    /* ── FAQ dialog ── */
+    .faq-dialog {
+      background: var(--bg-card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0;
+      max-width: 560px;
+      width: 90vw;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      margin: 0;
+    }
+    .faq-dialog::backdrop { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+    .faq-dialog-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--bg-card);
+      z-index: 1;
+    }
+    .faq-dialog-header h2 { font-size: 0.95rem; font-weight: 700; }
+    .faq-dialog-close {
+      width: 28px; height: 28px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted);
+      font-size: 1rem;
+      line-height: 1;
+      padding: 0;
+      transition: background 0.2s, color 0.2s;
+    }
+    .faq-dialog-close:hover { background: var(--bg-input); color: var(--text); }
+    .faq-dialog-body { padding: 18px 22px 24px; }
+    .faq-item { margin-bottom: 18px; }
+    .faq-item:last-child { margin-bottom: 0; }
+    .faq-item dt {
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+    .faq-item dd {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ── Driver.js theme ── */
+    .driver-popover {
+      background: var(--bg-card) !important;
+      color: var(--text) !important;
+      border: 1px solid var(--border) !important;
+    }
+    .driver-popover .driver-popover-title { color: var(--text) !important; font-size: 0.9rem !important; }
+    .driver-popover .driver-popover-description { color: var(--text-secondary) !important; font-size: 0.8rem !important; }
+    .driver-popover .driver-popover-progress-text { color: var(--text-muted) !important; }
+    .driver-popover .driver-popover-prev-btn {
+      color: var(--text-muted) !important;
+      border-color: var(--border) !important;
+      background: transparent !important;
+    }
+    .driver-popover .driver-popover-next-btn,
+    .driver-popover .driver-popover-close-btn {
+      color: var(--orange) !important;
+      border: none !important;
+      text-shadow: none !important;
+    }
+    .driver-popover-arrow-side-left .driver-popover-arrow,
+    .driver-popover-arrow-side-right .driver-popover-arrow,
+    .driver-popover-arrow-side-top .driver-popover-arrow,
+    .driver-popover-arrow-side-bottom .driver-popover-arrow {
+      border-color: var(--bg-card) !important;
+    }
+  </style>
+</head>
+<body>
+<div class="container" x-data="windAnalyzer()" x-effect="onAnalysisChange()">
+  <header>
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L6 14h4l-2 8 10-12h-5l3-8z"/>
+      </svg>
+    </div>
+    <h1>Wind Analyzer</h1>
+    <div class="buttons">
+      <button class="button" x-show="view === 'results'" @click="startTour()" title="Take a tour">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </button>
+      <button class="button" @click="toggleTheme()" title="Toggle light/dark mode">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+    </div>
+
+  </header>
+
+  <!-- Upload -->
+  <div class="upload-zone" x-show="view === 'upload'"
+       @dragover.prevent="$el.classList.add('dragover')"
+       @dragleave="$el.classList.remove('dragover')"
+       @drop.prevent="$el.classList.remove('dragover'); handleDrop($event)">
+    <div class="upload-icon">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+    </div>
+    <h2>Upload a GPX file</h2>
+    <p>Drag &amp; drop or choose a file to analyze wind conditions</p>
+    <label class="btn" for="fileInput">Select GPX file</label>
+    <input type="file" id="fileInput" accept=".gpx" @change="handleFileInput($event)" />
+  </div>
+
+  <!-- Loading overlay -->
+  <div class="loading" :class="{ visible: loading }">
+    <div class="spinner"></div>
+    <p>Analyzing route&hellip;</p>
+  </div>
+
+  <!-- Error -->
+  <div class="error-msg" x-show="error" x-text="error"></div>
+
+  <!-- Results -->
+  <div class="results" x-show="view === 'results'" x-cloak>
+    <div id="tour-datebar" class="date-bar">
+      <label>When</label>
+      <input type="datetime-local" x-model="dateTime" :min="dateMin" :max="dateMax" @change="runAnalysis()" />
+      <div class="speed-group">
+        <label>Speed</label>
+        <input type="number" class="speed-input" x-model.number="avgSpeed" min="5" max="50" step="1" @change="saveSpeed(); runAnalysis()" />
+        <span class="speed-unit">km/h</span>
+      </div>
+      <span class="date-note" x-text="dateNote"></span>
+    </div>
+
+    <!-- Best departure time -->
+    <div id="tour-besttime" class="best-time" x-show="bestHours.length > 0">
+      <span class="best-time-label">Best start</span>
+      <template x-for="(bh, i) in bestHours" :key="bh.hour">
+        <button class="best-time-pill" :class="{ top: i === 0 }" @click="selectHour(bh.hour)" x-text="formatBestHour(bh)"></button>
+      </template>
+    </div>
+
+    <div id="tour-map" class="map-wrap">
+      <div id="map"></div>
+      <div class="legend">
+        <div class="legend-title">Wind Effect</div>
+        <div class="legend-bar"></div>
+        <div class="legend-labels">
+          <span>Tailwind</span><span>Cross</span><span>Headwind</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="tour-strip" class="wind-strip-wrap" @mouseleave="hideStripHover()">
+      <div class="wind-strip" id="windStrip" @mousemove="onStripHover($event)"></div>
+      <div class="strip-tooltip" id="stripTooltip"></div>
+    </div>
+
+    <!-- Stats row -->
+    <template x-if="analysis">
+      <div class="stats-row">
+        <div class="stat-block">
+          <div class="stat-value"><span x-text="(analysis.totalDist / 1000).toFixed(1)"></span> <span class="stat-unit">km</span></div>
+          <div class="stat-label">Distance</div>
+        </div>
+        <div class="stat-block" x-show="analysis.maxEle !== null">
+          <div class="stat-value"><span x-text="analysis.elevGain.toFixed(0)"></span> <span class="stat-unit">m</span></div>
+          <div class="stat-label">Elev. Gain</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-value" :style="{ color: netColor }"><span x-text="Math.abs(analysis.avgHead).toFixed(1)"></span> <span class="stat-unit">km/h</span></div>
+          <div class="stat-label" x-text="netLabel"></div>
+        </div>
+        <div class="stat-block" x-show="weather">
+          <div class="stat-value"><span x-text="weather?.temperature_2m"></span><span class="stat-unit">°C</span></div>
+          <div class="stat-label">Temperature</div>
+        </div>
+        <div class="stat-block" x-show="weather">
+          <div class="stat-value"><span x-text="weather?.wind_speed_10m"></span> <span class="stat-unit">km/h</span></div>
+          <div class="stat-label">Wind Speed</div>
+        </div>
+      </div>
+    </template>
+
+    <template x-if="analysis && weather">
+      <div class="detail-grid">
+        <!-- Wind breakdown card -->
+        <div id="tour-breakdown" class="card">
+          <div class="card-header">Wind Breakdown</div>
+          <div class="donut-wrap">
+            <div class="donut-chart">
+              <svg viewBox="0 0 36 36">
+                <circle class="donut-ring" cx="18" cy="18" r="15.9155"/>
+                <circle class="donut-segment" cx="18" cy="18" r="15.9155"
+                        stroke="var(--red)"
+                        :stroke-dasharray="analysis.pctHead + ' ' + (100 - analysis.pctHead)"
+                        stroke-dashoffset="25"/>
+                <circle class="donut-segment" cx="18" cy="18" r="15.9155"
+                        stroke="var(--green)"
+                        :stroke-dasharray="analysis.pctTail + ' ' + (100 - analysis.pctTail)"
+                        :stroke-dashoffset="25 - analysis.pctHead"/>
+                <circle class="donut-segment" cx="18" cy="18" r="15.9155"
+                        stroke="var(--amber)"
+                        :stroke-dasharray="analysis.pctCross + ' ' + (100 - analysis.pctCross)"
+                        :stroke-dashoffset="25 - analysis.pctHead - analysis.pctTail"/>
+              </svg>
+              <div class="donut-center">
+                <span class="big" :style="{ color: dominantColor }" x-text="dominantPct + '%'"></span>
+                <span class="sub" x-text="dominantType"></span>
+              </div>
+            </div>
+            <div class="donut-legend">
+              <div class="donut-legend-item">
+                <div class="donut-dot" style="background:var(--red)"></div>
+                <span class="dl-label">Headwind</span>
+                <span class="dl-value" x-text="analysis.pctHead.toFixed(0) + '%'"></span>
+                <span class="dl-extra" x-text="(analysis.avgHead > 0 ? analysis.avgHead.toFixed(1) : '0.0') + ' km/h avg'"></span>
+              </div>
+              <div class="donut-legend-item">
+                <div class="donut-dot" style="background:var(--green)"></div>
+                <span class="dl-label">Tailwind</span>
+                <span class="dl-value" x-text="analysis.pctTail.toFixed(0) + '%'"></span>
+                <span class="dl-extra" x-text="(analysis.avgHead < 0 ? Math.abs(analysis.avgHead).toFixed(1) : '0.0') + ' km/h avg'"></span>
+              </div>
+              <div class="donut-legend-item">
+                <div class="donut-dot" style="background:var(--amber)"></div>
+                <span class="dl-label">Crosswind</span>
+                <span class="dl-value" x-text="analysis.pctCross.toFixed(0) + '%'"></span>
+                <span class="dl-extra" x-text="analysis.avgCross.toFixed(1) + ' km/h avg'"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wind rose card -->
+        <div id="tour-rose" class="card">
+          <div class="card-header">Wind Rose</div>
+          <div class="rose-wrap">
+            <div class="wind-rose">
+              <svg viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="38" fill="none" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="2,2"/>
+                <circle cx="50" cy="50" r="19" fill="none" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="2,2"/>
+                <g x-html="windRoseSvg"></g>
+                <text x="50" y="7" text-anchor="middle" fill="var(--text-muted)" font-size="5" font-weight="700">N</text>
+                <text x="95" y="52" text-anchor="end" fill="var(--text-muted)" font-size="5" font-weight="700">E</text>
+                <text x="50" y="98" text-anchor="middle" fill="var(--text-muted)" font-size="5" font-weight="700">S</text>
+                <text x="5" y="52" text-anchor="start" fill="var(--text-muted)" font-size="5" font-weight="700">W</text>
+              </svg>
+            </div>
+            <div class="rose-legend">
+              <template x-for="p in windRose" :key="p.label">
+                <div class="rose-legend-item">
+                  <span class="rl-dir" x-text="p.label"></span>
+                  <div class="rl-bar-bg">
+                    <div class="rl-bar-fill" :style="'width:' + p.pct + '%;background:' + p.color"></div>
+                  </div>
+                  <span class="rl-pct" x-text="p.distPct + '%'"></span>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weather card -->
+        <div id="tour-weather" class="card">
+          <div class="card-header" x-text="weatherLabel"></div>
+          <div class="compass-section">
+            <div class="compass">
+              <span class="cardinal c-n">N</span>
+              <span class="cardinal c-e">E</span>
+              <span class="cardinal c-s">S</span>
+              <span class="cardinal c-w">W</span>
+              <div class="compass-arrow" :style="'transform: rotate(' + ((windDir + 180) % 360) + 'deg)'"></div>
+            </div>
+            <div class="compass-info">
+              <div class="ci-speed"><span x-text="weather.wind_speed_10m"></span> <span class="ci-unit">km/h</span></div>
+              <div class="ci-dir" x-text="'From ' + windLabelFn(windDir) + ' (' + windDir + '°)'"></div>
+              <div class="ci-gusts">Gusts up to <span x-text="weather.wind_gusts_10m + ' km/h'"></span></div>
+            </div>
+          </div>
+          <div class="weather-grid">
+            <div class="weather-item">
+              <span class="wl">Condition</span>
+              <span class="wv" x-text="conditionText"></span>
+            </div>
+            <div class="weather-item">
+              <span class="wl">Feels like</span>
+              <span class="wv" x-text="weather.apparent_temperature + '°C'"></span>
+            </div>
+            <div class="weather-item">
+              <span class="wl">Humidity</span>
+              <span class="wv" x-text="weather.relative_humidity_2m + '%'"></span>
+            </div>
+            <div class="weather-item">
+              <span class="wl">Precip.</span>
+              <span class="wv" x-text="weather.precipitation + ' mm'"></span>
+            </div>
+            <div class="weather-item">
+              <span class="wl">Clouds</span>
+              <span class="wv" x-text="weather.cloud_cover + '%'"></span>
+            </div>
+            <div class="weather-item">
+              <span class="wl">Pressure</span>
+              <span class="wv" x-text="weather.surface_pressure + ' hPa'"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- Segment details table -->
+    <div id="tour-segments" class="card segment-card" x-show="kmTable && kmTable.length > 0">
+      <div class="segment-toggle" @click="kmTableOpen = !kmTableOpen">
+        <div class="card-header">Segment Details</div>
+        <svg class="chevron" :class="{ open: kmTableOpen }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+      <div class="segment-table-wrap" x-show="kmTableOpen" x-transition.duration.200ms>
+        <table class="segment-table">
+          <thead>
+          <tr>
+            <th>KM</th>
+            <th>Bearing</th>
+            <th>Headwind</th>
+            <th>Crosswind</th>
+            <th>Elev.</th>
+            <th>Type</th>
+          </tr>
+          </thead>
+          <tbody>
+          <template x-for="row in kmTable" :key="row.km">
+            <tr>
+              <td x-text="row.km"></td>
+              <td><span x-text="row.bearing.toFixed(0)"></span>° <span style="font-size:0.68rem;color:var(--text-muted)" x-text="windLabelFn(row.bearing)"></span></td>
+              <td :style="{ color: row.headComp > 0.5 ? 'var(--red)' : row.headComp < -0.5 ? 'var(--green)' : '' }" x-text="row.headComp.toFixed(1) + ' km/h'"></td>
+              <td x-text="row.crossComp.toFixed(1) + ' km/h'"></td>
+              <td x-text="row.elevation !== null ? row.elevation.toFixed(0) + ' m' : '—'"></td>
+              <td>
+                <span class="type-dot" :style="'background:' + (row.type === 'headwind' ? 'var(--red)' : row.type === 'tailwind' ? 'var(--green)' : 'var(--amber)')"></span>
+                <span x-text="row.type.charAt(0).toUpperCase() + row.type.slice(1)"></span>
+              </td>
+            </tr>
+          </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="footer">
+      <button class="new-file-btn" @click="reset()">Upload another file</button>
+    </div>
+  </div>
+
+  <!-- FAQ dialog -->
+  <dialog id="faqDialog" class="faq-dialog" @click="if ($event.target === $el) $el.close()">
+    <div class="faq-dialog-header">
+      <h2>Frequently Asked Questions</h2>
+      <button class="faq-dialog-close" @click="$el.closest('dialog').close()">&times;</button>
+    </div>
+    <div class="faq-dialog-body">
+      <dl>
+        <div class="faq-item">
+          <dt>Is my data stored anywhere?</dt>
+          <dd>No. Everything runs entirely in your browser. Your GPX file is parsed locally and never uploaded to any server. Weather data is fetched directly from the Open-Meteo API.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Where does the weather data come from?</dt>
+          <dd>Wind and weather forecasts are provided by the Open-Meteo API, a free and open-source weather service. Data is available for the current day plus 7 days ahead.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>How accurate is the wind analysis?</dt>
+          <dd>The analysis uses hourly wind forecasts sampled at the route's geographic center. Actual conditions may vary due to terrain, elevation, and local effects. Treat results as a useful estimate, not a guarantee.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>What does "Best start" mean?</dt>
+          <dd>We run the analysis for every hour of the selected day and rank them by net headwind. The top 3 hours with the least headwind (or most tailwind) are shown as suggestions.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>How does average speed affect the results?</dt>
+          <dd>Your speed determines how long you spend on each segment and which hourly forecast applies. A slower speed means the ride spans more hours, so wind shifts during the ride are taken into account.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>What GPX features are supported?</dt>
+          <dd>Track points, route points, waypoints, and elevation data. The file must contain at least 2 points. Most GPX files exported from Strava, Komoot, Garmin, or similar apps work out of the box.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Can I use this for running or walking?</dt>
+          <dd>Absolutely. Set the average speed to your pace (e.g. 10 km/h for running, 5 km/h for walking) and the analysis adjusts accordingly.</dd>
+        </div>
+      </dl>
+    </div>
+  </dialog>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-links">
+    <button onclick="document.getElementById('faqDialog').showModal()">FAQ</button>
+    <a href="#" target="_blank">GitHub</a>
+    <a href="https://open-meteo.com" target="_blank">Open-Meteo</a>
+  </div>
+  <span>Wind Analyzer &mdash; 100% client-side, no data stored</span>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/driver.js@1.4.0/dist/driver.js.iife.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+<script>
+  const WEATHER_CODES = {
+    0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
+    45: 'Fog', 48: 'Rime fog', 51: 'Light drizzle', 53: 'Drizzle', 55: 'Dense drizzle',
+    56: 'Freezing drizzle', 57: 'Heavy freezing drizzle',
+    61: 'Light rain', 63: 'Rain', 65: 'Heavy rain',
+    66: 'Freezing rain', 67: 'Heavy freezing rain',
+    71: 'Light snow', 73: 'Snow', 75: 'Heavy snow', 77: 'Snow grains',
+    80: 'Light showers', 81: 'Showers', 82: 'Heavy showers',
+    85: 'Light snow showers', 86: 'Heavy snow showers',
+    95: 'Thunderstorm', 96: 'Thunderstorm + hail', 99: 'Thunderstorm + heavy hail'
+  };
+  const WIND_LABELS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  const TILE_DARK = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+  const TILE_LIGHT = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+  const WEATHER_PARAMS = [
+    'temperature_2m', 'relative_humidity_2m', 'apparent_temperature',
+    'precipitation', 'weather_code', 'cloud_cover', 'surface_pressure',
+    'wind_speed_10m', 'wind_direction_10m', 'wind_gusts_10m'
+  ].join(',');
+
+  function toRad(d) { return d * Math.PI / 180; }
+  function toDeg(r) { return r * 180 / Math.PI; }
+
+  function windLabelFn(deg) {
+    return WIND_LABELS[Math.round(((deg % 360) + 360) % 360 / 22.5) % 16];
+  }
+
+  function bearing(lat1, lon1, lat2, lon2) {
+    const dLon = toRad(lon2 - lon1);
+    const y = Math.sin(dLon) * Math.cos(toRad(lat2));
+    const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2))
+            - Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLon);
+    return (toDeg(Math.atan2(y, x)) + 360) % 360;
+  }
+
+  function haversine(lat1, lon1, lat2, lon2) {
+    const R = 6371000;
+    const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  function parseGPX(xml) {
+    console.log('[GPX] Parsing GPX file (%d bytes)', xml.length);
+    const doc = new DOMParser().parseFromString(xml, 'application/xml');
+    if (doc.querySelector('parsererror')) throw new Error('Invalid GPX file');
+    const points = [];
+    const trkpts = doc.querySelectorAll('trkpt');
+    const rtepts = trkpts.length ? trkpts : doc.querySelectorAll('rtept');
+    console.log('[GPX] Found %d trackpoints, %d routepoints', trkpts.length, doc.querySelectorAll('rtept').length);
+    rtepts.forEach(pt => {
+      const lat = parseFloat(pt.getAttribute('lat'));
+      const lon = parseFloat(pt.getAttribute('lon'));
+      const eleEl = pt.querySelector('ele');
+      const ele = eleEl ? parseFloat(eleEl.textContent) : null;
+      if (!isNaN(lat) && !isNaN(lon)) points.push({ lat, lon, ele });
+    });
+    if (points.length < 2) throw new Error('GPX file needs at least 2 points');
+    console.log('[GPX] Parsed %d valid points, first: %o, last: %o', points.length, points[0], points[points.length - 1]);
+
+    const waypoints = [];
+    doc.querySelectorAll('wpt').forEach(wpt => {
+      const lat = parseFloat(wpt.getAttribute('lat'));
+      const lon = parseFloat(wpt.getAttribute('lon'));
+      const nameEl = wpt.querySelector('name');
+      const descEl = wpt.querySelector('desc');
+      if (!isNaN(lat) && !isNaN(lon)) {
+        waypoints.push({
+          lat, lon,
+          name: nameEl ? nameEl.textContent : null,
+          desc: descEl ? descEl.textContent : null
+        });
+      }
+    });
+    console.log('[GPX] Found %d waypoints', waypoints.length);
+    return { points, waypoints };
+  }
+
+  async function fetchWeather(lat, lon, date) {
+    const dateStr = date.split('T')[0];
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=${WEATHER_PARAMS}&start_date=${dateStr}&end_date=${dateStr}&wind_speed_unit=kmh&timezone=auto`;
+    console.log('[API] Fetching weather: %s', url);
+    const res = await fetch(url);
+    console.log('[API] Response status: %d %s', res.status, res.statusText);
+    if (!res.ok) throw new Error('Weather API request failed');
+    const data = await res.json();
+    console.log('[API] Response data:', data);
+    return data;
+  }
+
+  function extractWeather(data, targetDateTime) {
+    console.log('[Weather] Extracting weather for %s', targetDateTime);
+    const h = data.hourly;
+    const targetHour = targetDateTime.slice(0, 13);
+    let idx = h.time.findIndex(t => t.startsWith(targetHour));
+    if (idx === -1) {
+      const target = new Date(targetDateTime).getTime();
+      let minDiff = Infinity;
+      h.time.forEach((t, i) => {
+        const diff = Math.abs(new Date(t).getTime() - target);
+        if (diff < minDiff) { minDiff = diff; idx = i; }
+      });
+    }
+    console.log('[Weather] Using hourly index %d (%s): wind %d km/h from %d°, temp %d°C', idx, h.time[idx], h.wind_speed_10m[idx], h.wind_direction_10m[idx], h.temperature_2m[idx]);
+    return {
+      temperature_2m: h.temperature_2m[idx],
+      relative_humidity_2m: h.relative_humidity_2m[idx],
+      apparent_temperature: h.apparent_temperature[idx],
+      precipitation: h.precipitation[idx],
+      weather_code: h.weather_code[idx],
+      cloud_cover: h.cloud_cover[idx],
+      surface_pressure: h.surface_pressure[idx],
+      wind_speed_10m: h.wind_speed_10m[idx],
+      wind_direction_10m: h.wind_direction_10m[idx],
+      wind_gusts_10m: h.wind_gusts_10m[idx],
+    };
+  }
+
+  function analyzeRoute(points, windData, startIdx, avgSpeedKmh) {
+    console.log('[Analysis] Analyzing %d points, %d wind hours, startIdx=%d, avgSpeed=%d km/h', points.length, windData.speeds.length, startIdx, avgSpeedKmh);
+    const segments = [];
+    let totalDist = 0, headwindDist = 0, tailwindDist = 0, crosswindDist = 0;
+    let weightedHeadwind = 0, weightedCrosswind = 0;
+    let elevGain = 0, elevLoss = 0, cumDist = 0;
+    const avgSpeedMs = avgSpeedKmh / 3.6;
+    const maxIdx = windData.speeds.length - 1;
+
+    for (let i = 0; i < points.length - 1; i++) {
+      const p1 = points[i], p2 = points[i + 1];
+      const dist = haversine(p1.lat, p1.lon, p2.lat, p2.lon);
+      if (dist < 0.5) continue;
+      const wIdx = Math.min(startIdx + Math.floor((cumDist / avgSpeedMs) / 3600), maxIdx);
+      const windSpeed = windData.speeds[wIdx];
+      const windDir = windData.dirs[wIdx];
+      const brng = bearing(p1.lat, p1.lon, p2.lat, p2.lon);
+      const relAngle = toRad(windDir - brng);
+      const headComp = windSpeed * Math.cos(relAngle);
+      const crossComp = windSpeed * Math.sin(relAngle);
+      const headFactor = Math.cos(relAngle);
+      const absRel = Math.abs(((toDeg(relAngle) % 360) + 360) % 360);
+      const norm = absRel > 180 ? 360 - absRel : absRel;
+      const type = norm < 50 ? 'headwind' : norm > 130 ? 'tailwind' : 'crosswind';
+      if (type === 'headwind') headwindDist += dist;
+      else if (type === 'tailwind') tailwindDist += dist;
+      else crosswindDist += dist;
+      weightedHeadwind += headComp * dist;
+      weightedCrosswind += Math.abs(crossComp) * dist;
+      cumDist += dist;
+      totalDist += dist;
+      if (p1.ele !== null && p2.ele !== null) {
+        const diff = p2.ele - p1.ele;
+        if (diff > 0) elevGain += diff; else elevLoss += Math.abs(diff);
+      }
+      segments.push({ p1, p2, dist, brng, headComp, crossComp, headFactor, type });
+    }
+    console.log('[Analysis] Processed %d segments, total distance: %s km', segments.length, (totalDist / 1000).toFixed(2));
+    const elevations = points.map(p => p.ele).filter(e => e !== null);
+    const result = {
+      segments, totalDist,
+      avgHead: totalDist > 0 ? weightedHeadwind / totalDist : 0,
+      avgCross: totalDist > 0 ? weightedCrosswind / totalDist : 0,
+      pctHead: totalDist > 0 ? headwindDist / totalDist * 100 : 0,
+      pctTail: totalDist > 0 ? tailwindDist / totalDist * 100 : 0,
+      pctCross: totalDist > 0 ? crosswindDist / totalDist * 100 : 0,
+      elevGain, elevLoss,
+      maxEle: elevations.length ? Math.max(...elevations) : null,
+      minEle: elevations.length ? Math.min(...elevations) : null,
+    };
+    console.log('[Analysis] Result: headwind %.0f%%, tailwind %.0f%%, crosswind %.0f%%, avg headwind: %.1f km/h', result.pctHead, result.pctTail, result.pctCross, result.avgHead);
+    return result;
+  }
+
+  function findBestHours(points, windData, avgSpeedKmh) {
+    const results = [];
+    const avgSpeedMs = avgSpeedKmh / 3.6;
+    const maxIdx = windData.speeds.length - 1;
+    for (let startH = 0; startH <= maxIdx; startH++) {
+      let totalDist = 0, weightedHead = 0, cumDist = 0;
+      for (let i = 0; i < points.length - 1; i++) {
+        const p1 = points[i], p2 = points[i + 1];
+        const dist = haversine(p1.lat, p1.lon, p2.lat, p2.lon);
+        if (dist < 0.5) continue;
+        const wIdx = Math.min(startH + Math.floor((cumDist / avgSpeedMs) / 3600), maxIdx);
+        const brng = bearing(p1.lat, p1.lon, p2.lat, p2.lon);
+        const relAngle = toRad(windData.dirs[wIdx] - brng);
+        weightedHead += windData.speeds[wIdx] * Math.cos(relAngle) * dist;
+        cumDist += dist;
+        totalDist += dist;
+      }
+      results.push({ hour: startH, avgHead: totalDist > 0 ? weightedHead / totalDist : 0 });
+    }
+    results.sort((a, b) => a.avgHead - b.avgHead);
+    console.log('[BestTime] Top 3 hours:', results.slice(0, 3));
+    return results.slice(0, 3);
+  }
+
+  function buildWindRose(segments) {
+    const DIRS = ['N','NE','E','SE','S','SW','W','NW'];
+    const bins = DIRS.map(() => ({ dist: 0, headW: 0 }));
+    let totalDist = 0;
+    for (const seg of segments) {
+      const idx = Math.round(seg.brng / 45) % 8;
+      bins[idx].dist += seg.dist;
+      bins[idx].headW += seg.headFactor * seg.dist;
+      totalDist += seg.dist;
+    }
+    const maxDist = Math.max(...bins.map(b => b.dist), 1);
+    const cx = 50, cy = 50, maxR = 36;
+    return DIRS.map((label, i) => {
+      const b = bins[i];
+      const pctOfMax = b.dist / maxDist;
+      const r = maxR * Math.max(pctOfMax, 0.06);
+      const angleDeg = i * 45;
+      const avgHeadFactor = b.dist > 0 ? b.headW / b.dist : 0;
+      const a1 = toRad(angleDeg - 22.5 - 90);
+      const a2 = toRad(angleDeg + 22.5 - 90);
+      const x1 = cx + r * Math.cos(a1);
+      const y1 = cy + r * Math.sin(a1);
+      const x2 = cx + r * Math.cos(a2);
+      const y2 = cy + r * Math.sin(a2);
+      return {
+        label,
+        path: `M${cx},${cy} L${x1.toFixed(1)},${y1.toFixed(1)} A${r.toFixed(1)},${r.toFixed(1)} 0 0,1 ${x2.toFixed(1)},${y2.toFixed(1)} Z`,
+        color: segmentColor(avgHeadFactor),
+        pct: (pctOfMax * 100).toFixed(0),
+        distPct: totalDist > 0 ? (b.dist / totalDist * 100).toFixed(0) : '0',
+      };
+    });
+  }
+
+  function buildKmTable(segments) {
+    const rows = [];
+    let cumDist = 0, bucketDist = 0;
+    let bucketHeadW = 0, bucketCrossW = 0;
+    let bucketBrngX = 0, bucketBrngY = 0;
+    let lastEle = null;
+    let nextKm = 1000;
+    for (const seg of segments) {
+      cumDist += seg.dist;
+      bucketDist += seg.dist;
+      bucketHeadW += seg.headComp * seg.dist;
+      bucketCrossW += Math.abs(seg.crossComp) * seg.dist;
+      bucketBrngX += Math.cos(toRad(seg.brng)) * seg.dist;
+      bucketBrngY += Math.sin(toRad(seg.brng)) * seg.dist;
+      lastEle = seg.p2.ele;
+      if (cumDist >= nextKm) {
+        const avgHead = bucketDist > 0 ? bucketHeadW / bucketDist : 0;
+        const avgCross = bucketDist > 0 ? bucketCrossW / bucketDist : 0;
+        const avgBrng = (toDeg(Math.atan2(bucketBrngY, bucketBrngX)) + 360) % 360;
+        const type = avgHead > 2 ? 'headwind' : avgHead < -2 ? 'tailwind' : 'crosswind';
+        rows.push({ km: rows.length + 1, bearing: avgBrng, headComp: avgHead, crossComp: avgCross, elevation: lastEle, type });
+        bucketDist = 0; bucketHeadW = 0; bucketCrossW = 0; bucketBrngX = 0; bucketBrngY = 0;
+        nextKm += 1000;
+      }
+    }
+    if (bucketDist > 100) {
+      const avgHead = bucketHeadW / bucketDist;
+      const avgCross = bucketCrossW / bucketDist;
+      const avgBrng = (toDeg(Math.atan2(bucketBrngY, bucketBrngX)) + 360) % 360;
+      const type = avgHead > 2 ? 'headwind' : avgHead < -2 ? 'tailwind' : 'crosswind';
+      rows.push({ km: rows.length + 1, bearing: avgBrng, headComp: avgHead, crossComp: avgCross, elevation: lastEle, type });
+    }
+    console.log('[KmTable] Built %d rows', rows.length);
+    return rows;
+  }
+
+  function segmentColor(headFactor) {
+    const norm = (headFactor + 1) / 2;
+    if (norm <= 0.5) {
+      const t = norm / 0.5;
+      return `rgb(${Math.round(76 + 175 * t)},${Math.round(217 - 26 * t)},${Math.round(100 - 64 * t)})`;
+    }
+    const t = (norm - 0.5) / 0.5;
+    return `rgb(${Math.round(251 - 12 * t)},${Math.round(191 - 123 * t)},${Math.round(36 + 32 * t)})`;
+  }
+
+  function toLocalStr(d) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+
+  // ── Leaflet (imperative) ──
+  let leafletMap = null;
+  let tileLayer = null;
+  let layerGroup = null;
+  let windOverlayGroup = null;
+  let cachedWindDir = 0;
+  let windOverlayVisible = true;
+  let hoverMarker = null;
+
+  function isDark() { return document.documentElement.getAttribute('data-theme') !== 'light'; }
+
+  function createWindArrowIcon(blowsTo) {
+    return L.divIcon({
+      className: 'wind-arrow-marker',
+      html: `<svg viewBox="0 0 24 24" width="24" height="24" style="transform:rotate(${blowsTo}deg)"><path d="M12 2 L16.5 11 L12 8.5 L7.5 11 Z" fill="#FC4C02" fill-opacity="0.35"/></svg>`,
+      iconSize: [24, 24], iconAnchor: [12, 12]
+    });
+  }
+
+  function updateWindOverlay() {
+    if (!leafletMap || !windOverlayGroup) return;
+    windOverlayGroup.clearLayers();
+    if (!windOverlayVisible) return;
+    const bounds = leafletMap.getBounds();
+    const rows = 5, cols = 5;
+    const latStep = (bounds.getNorth() - bounds.getSouth()) / (rows + 1);
+    const lonStep = (bounds.getEast() - bounds.getWest()) / (cols + 1);
+    const arrowDir = (cachedWindDir + 180) % 360;
+    for (let i = 1; i <= rows; i++)
+      for (let j = 1; j <= cols; j++)
+        L.marker([bounds.getSouth() + i * latStep, bounds.getWest() + j * lonStep],
+                { icon: createWindArrowIcon(arrowDir), interactive: false }).addTo(windOverlayGroup);
+  }
+
+  function renderMap(points, analysis, wDir, wSpeed, waypoints) {
+    console.log('[Render] Drawing map with %d segments, wind: %d km/h from %s (%d°)', analysis.segments.length, wSpeed, windLabelFn(wDir), wDir);
+    if (leafletMap) { leafletMap.remove(); leafletMap = null; }
+    cachedWindDir = wDir;
+    windOverlayVisible = true;
+    leafletMap = L.map('map');
+    tileLayer = L.tileLayer(isDark() ? TILE_DARK : TILE_LIGHT, { attribution: '&copy; OSM &copy; CARTO' }).addTo(leafletMap);
+    layerGroup = L.layerGroup().addTo(leafletMap);
+    analysis.segments.forEach(seg => {
+      const line = L.polyline([[seg.p1.lat, seg.p1.lon], [seg.p2.lat, seg.p2.lon]],
+              { color: segmentColor(seg.headFactor), weight: 4, opacity: 0.9 });
+      line.bindPopup(`<b>${seg.type.charAt(0).toUpperCase() + seg.type.slice(1)}</b><br>Bearing: ${seg.brng.toFixed(0)}°<br>Headwind: ${seg.headComp.toFixed(1)} km/h<br>Crosswind: ${Math.abs(seg.crossComp).toFixed(1)} km/h`);
+      layerGroup.addLayer(line);
+    });
+    const latlngs = points.map(p => [p.lat, p.lon]);
+    leafletMap.fitBounds(L.latLngBounds(latlngs).pad(0.1));
+    L.circleMarker(latlngs[0], { radius: 7, color: '#303030', fillColor: '#4cd964', fillOpacity: 1, weight: 2.5 }).bindTooltip('Start').addTo(leafletMap);
+    L.circleMarker(latlngs[latlngs.length - 1], { radius: 7, color: '#303030', fillColor: '#FC4C02', fillOpacity: 1, weight: 2.5 }).bindTooltip('End').addTo(leafletMap);
+
+    windOverlayGroup = L.layerGroup().addTo(leafletMap);
+    const WindToggle = L.Control.extend({
+      options: { position: 'topright' },
+      onAdd() {
+        const btn = L.DomUtil.create('div', 'map-wind-toggle active');
+        btn.innerHTML = `Wind<br><span class="toggle-label">${windLabelFn(wDir)} ${wSpeed} km/h</span>`;
+        btn.title = 'Toggle wind overlay';
+        L.DomEvent.disableClickPropagation(btn);
+        btn.addEventListener('click', () => {
+          windOverlayVisible = !windOverlayVisible;
+          btn.classList.toggle('active', windOverlayVisible);
+          updateWindOverlay();
+        });
+        return btn;
+      }
+    });
+    leafletMap.addControl(new WindToggle());
+    leafletMap.on('moveend', updateWindOverlay);
+    updateWindOverlay();
+  }
+
+  let stripSegments = [];
+
+  function renderWindStrip(segments) {
+    const strip = document.getElementById('windStrip');
+    strip.innerHTML = '';
+    stripSegments = [];
+    let cumDist = 0;
+    segments.forEach(seg => {
+      const div = document.createElement('div');
+      div.style.flex = `${seg.dist} 0 0`;
+      div.style.background = segmentColor(seg.headFactor);
+      strip.appendChild(div);
+      cumDist += seg.dist;
+      stripSegments.push({ ...seg, cumDist });
+    });
+  }
+
+  // ── Tour ──
+  const TOUR_KEY = 'wind-analyzer-tour-done';
+
+  function runResultsTour() {
+    const d = window.driver.js.driver;
+    const tour = d({
+      showProgress: true,
+      popoverClass: 'driver-popover',
+      steps: [
+        { element: '#tour-datebar', popover: { title: 'Date & Speed', description: 'Pick when you plan to ride and set your average speed. The analysis updates automatically.', side: 'bottom' }},
+        { element: '#tour-besttime', popover: { title: 'Best Departure Time', description: 'We scan all 24 hours and show the top 3 start times with the least headwind. Click one to jump to that hour.', side: 'bottom' }},
+        { element: '#tour-map', popover: { title: 'Route Map', description: 'Your route colored by wind effect: green = tailwind, red = headwind. Toggle the wind overlay arrows in the top-right.', side: 'bottom' }},
+        { element: '#tour-strip', popover: { title: 'Wind Strip', description: 'A minimap of wind along your route. Hover to see details and a marker on the map.', side: 'top' }},
+        { element: '#tour-breakdown', popover: { title: 'Wind Breakdown', description: 'How much of your route faces headwind, tailwind, or crosswind — shown as percentages and averages.', side: 'top' }},
+        { element: '#tour-rose', popover: { title: 'Wind Rose', description: 'Shows which directions your route travels. Petal size = distance, color = wind effect. The orange arrow shows wind direction.', side: 'top' }},
+        { element: '#tour-weather', popover: { title: 'Weather Conditions', description: 'Forecast details for the selected hour: temperature, humidity, precipitation, wind speed & gusts with compass.', side: 'top' }},
+        { element: '#tour-segments', popover: { title: 'Segment Details', description: 'Click to expand a per-kilometer table with bearing, headwind, crosswind, and elevation for each km.', side: 'top' }},
+      ]
+    });
+    tour.drive();
+  }
+
+  // ── Alpine component ──
+  function windAnalyzer() {
+    const savedTheme = localStorage.getItem('wind-analyzer-theme');
+    if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+
+    return {
+      view: 'upload',
+      loading: false,
+      error: null,
+      dateTime: '',
+      dateMin: '',
+      dateMax: '',
+      avgSpeed: parseInt(localStorage.getItem('wind-analyzer-speed')) || 25,
+      points: null,
+      centroid: null,
+      waypoints: [],
+      analysis: null,
+      weather: null,
+      windDir: 0,
+      windSpeed: 0,
+      weatherLabel: '',
+      dateNote: '',
+      bestHours: [],
+      windRose: [],
+      kmTable: [],
+      kmTableOpen: false,
+      _lastRenderKey: null,
+
+      get netColor() {
+        if (!this.analysis) return '';
+        if (this.analysis.avgHead > 0.5) return 'var(--red)';
+        if (this.analysis.avgHead < -0.5) return 'var(--green)';
+        return 'var(--amber)';
+      },
+      get netLabel() {
+        if (!this.analysis) return '';
+        if (this.analysis.avgHead > 0.5) return 'Net Headwind';
+        if (this.analysis.avgHead < -0.5) return 'Net Tailwind';
+        return 'Net Crosswind';
+      },
+      get dominantType() {
+        if (!this.analysis) return '';
+        const { pctHead: h, pctTail: t, pctCross: c } = this.analysis;
+        return h >= t && h >= c ? 'Headwind' : t >= c ? 'Tailwind' : 'Crosswind';
+      },
+      get dominantPct() {
+        if (!this.analysis) return 0;
+        return Math.max(this.analysis.pctHead, this.analysis.pctTail, this.analysis.pctCross).toFixed(0);
+      },
+      get dominantColor() {
+        if (this.dominantType === 'Headwind') return 'var(--red)';
+        if (this.dominantType === 'Tailwind') return 'var(--green)';
+        return 'var(--amber)';
+      },
+      get conditionText() {
+        if (!this.weather) return '';
+        return WEATHER_CODES[this.weather.weather_code] || `Code ${this.weather.weather_code}`;
+      },
+      get windRoseSvg() {
+        if (!this.windRose.length) return '';
+        let svg = this.windRose.map(p =>
+                `<path d="${p.path}" fill="${p.color}" fill-opacity="0.5" stroke="${p.color}" stroke-width="0.5"/>`
+        ).join('');
+        const toX = 50 + 22 * Math.sin(toRad(this.windDir + 180));
+        const toY = 50 - 22 * Math.cos(toRad(this.windDir + 180));
+        svg += `<line x1="50" y1="50" x2="${toX.toFixed(1)}" y2="${toY.toFixed(1)}" stroke="#FC4C02" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>`;
+        svg += `<circle cx="${toX.toFixed(1)}" cy="${toY.toFixed(1)}" r="2.5" fill="#FC4C02" opacity="0.8"/>`;
+        return svg;
+      },
+
+      windLabelFn,
+
+      formatBestHour(bh) {
+        const t = String(bh.hour).padStart(2, '0') + ':00';
+        if (bh.avgHead > 0.5) return t + ' \u2014 ' + bh.avgHead.toFixed(1) + ' km/h headwind';
+        if (bh.avgHead < -0.5) return t + ' \u2014 ' + Math.abs(bh.avgHead).toFixed(1) + ' km/h tailwind';
+        return t + ' \u2014 neutral';
+      },
+
+      selectHour(hour) {
+        const base = this.dateTime.split('T')[0];
+        this.dateTime = base + 'T' + String(hour).padStart(2, '0') + ':00';
+        this.runAnalysis();
+      },
+
+      onStripHover(event) {
+        if (!stripSegments.length || !leafletMap) return;
+        const strip = event.currentTarget;
+        const rect = strip.getBoundingClientRect();
+        const pct = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+        const totalDist = stripSegments[stripSegments.length - 1].cumDist;
+        const targetDist = pct * totalDist;
+        const seg = stripSegments.find(s => s.cumDist >= targetDist) || stripSegments[stripSegments.length - 1];
+        const midLat = (seg.p1.lat + seg.p2.lat) / 2;
+        const midLon = (seg.p1.lon + seg.p2.lon) / 2;
+        const km = (seg.cumDist / 1000).toFixed(1);
+        const typeClass = seg.type === 'headwind' ? 'st-head' : seg.type === 'tailwind' ? 'st-tail' : 'st-cross';
+        const tip = document.getElementById('stripTooltip');
+        tip.innerHTML = `<span class="st-type ${typeClass}">${seg.type.charAt(0).toUpperCase() + seg.type.slice(1)}</span> &middot; ${km} km<br>Head: ${seg.headComp.toFixed(1)} km/h &middot; Cross: ${Math.abs(seg.crossComp).toFixed(1)} km/h`;
+        tip.style.left = (event.clientX - rect.left) + 'px';
+        tip.classList.add('visible');
+        if (!hoverMarker) {
+          hoverMarker = L.circleMarker([midLat, midLon], {
+            radius: 7, color: '#fff', fillColor: segmentColor(seg.headFactor),
+            fillOpacity: 1, weight: 2
+          }).addTo(leafletMap);
+        } else {
+          hoverMarker.setLatLng([midLat, midLon]);
+          hoverMarker.setStyle({ fillColor: segmentColor(seg.headFactor) });
+        }
+      },
+
+      hideStripHover() {
+        const tip = document.getElementById('stripTooltip');
+        if (tip) tip.classList.remove('visible');
+        if (hoverMarker && leafletMap) {
+          leafletMap.removeLayer(hoverMarker);
+          hoverMarker = null;
+        }
+      },
+
+      startTour() {
+        if (this.view === 'results') runResultsTour();
+      },
+
+      onAnalysisChange() {
+        if (!this.analysis) return;
+        const key = JSON.stringify([this.windDir, this.windSpeed, this.analysis.totalDist, this.analysis.pctHead]);
+        if (key === this._lastRenderKey) return;
+        this._lastRenderKey = key;
+        this.$nextTick(() => {
+          renderMap(this.points, this.analysis, this.windDir, this.windSpeed, this.waypoints);
+          renderWindStrip(this.analysis.segments);
+        });
+      },
+
+      toggleTheme() {
+        const next = isDark() ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('wind-analyzer-theme', next);
+        if (leafletMap && tileLayer) tileLayer.setUrl(next === 'light' ? TILE_LIGHT : TILE_DARK);
+      },
+
+      saveSpeed() {
+        localStorage.setItem('wind-analyzer-speed', this.avgSpeed);
+      },
+
+      handleDrop(event) {
+        const file = event.dataTransfer.files[0];
+        if (file && file.name.endsWith('.gpx')) this.processFile(file);
+        else this.error = 'Please drop a .gpx file';
+      },
+
+      handleFileInput(event) {
+        if (event.target.files[0]) this.processFile(event.target.files[0]);
+      },
+
+      async processFile(file) {
+        console.log('[Upload] File received: %s (%d bytes)', file.name, file.size);
+        this.view = 'results';
+        this.loading = true;
+        this.error = null;
+
+        try {
+          const text = await file.text();
+          const parsed = parseGPX(text);
+          this.points = parsed.points;
+          this.waypoints = parsed.waypoints;
+          this.centroid = this.points.reduce(
+                  (acc, p) => ({ lat: acc.lat + p.lat / this.points.length, lon: acc.lon + p.lon / this.points.length }),
+                  { lat: 0, lon: 0 }
+          );
+          console.log('[Upload] Route centroid: lat=%s, lon=%s', this.centroid.lat.toFixed(4), this.centroid.lon.toFixed(4));
+
+          const now = new Date();
+          now.setMinutes(0, 0, 0);
+          const maxDate = new Date(now);
+          maxDate.setDate(maxDate.getDate() + 7);
+          this.dateTime = toLocalStr(now);
+          this.dateMin = toLocalStr(now);
+          this.dateMax = toLocalStr(maxDate);
+
+          await this.runAnalysis();
+          if (!localStorage.getItem(TOUR_KEY)) {
+            setTimeout(runResultsTour, 600);
+            localStorage.setItem(TOUR_KEY, '1');
+          }
+        } catch (err) {
+          this.loading = false;
+          this.view = 'upload';
+          this.error = err.message || 'Something went wrong';
+        }
+      },
+
+      async runAnalysis() {
+        console.log('[Run] Starting analysis, target: %s', this.dateTime);
+        this.loading = true;
+        this.error = null;
+
+        try {
+          const lat = this.centroid.lat.toFixed(4);
+          const lon = this.centroid.lon.toFixed(4);
+          const data = await fetchWeather(lat, lon, this.dateTime);
+          const w = extractWeather(data, this.dateTime);
+
+          const windData = { speeds: data.hourly.wind_speed_10m, dirs: data.hourly.wind_direction_10m };
+          const targetHour = this.dateTime.slice(0, 13);
+          let startIdx = data.hourly.time.findIndex(t => t.startsWith(targetHour));
+          if (startIdx === -1) startIdx = 0;
+          console.log('[Run] %d hourly entries, startIdx=%d, avgSpeed=%d km/h', windData.speeds.length, startIdx, this.avgSpeed);
+
+          this.analysis = analyzeRoute(this.points, windData, startIdx, this.avgSpeed);
+          this.weather = w;
+          this.windDir = w.wind_direction_10m;
+          this.windSpeed = w.wind_speed_10m;
+
+          this.bestHours = findBestHours(this.points, windData, this.avgSpeed);
+          this.windRose = buildWindRose(this.analysis.segments);
+          this.kmTable = buildKmTable(this.analysis.segments);
+
+          const d = new Date(this.dateTime);
+          const opts = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+          this.weatherLabel = `Weather \u2014 ${d.toLocaleDateString(undefined, opts)}`;
+          this.dateNote = d.toLocaleDateString(undefined, { weekday: 'short', ...opts });
+
+          this.loading = false;
+          console.log('[Run] Done');
+        } catch (err) {
+          console.error('[Run] Error:', err);
+          this.loading = false;
+          this.error = err.message || 'Failed to fetch weather data';
+        }
+      },
+
+      reset() {
+        this.view = 'upload';
+        this.error = null;
+        this.analysis = null;
+        this.weather = null;
+        this.points = null;
+        this.centroid = null;
+        this.waypoints = [];
+        this.bestHours = [];
+        this.windRose = [];
+        this.kmTable = [];
+        this.kmTableOpen = false;
+        this._lastRenderKey = null;
+        document.getElementById('fileInput').value = '';
+        if (leafletMap) { leafletMap.remove(); leafletMap = null; }
+      }
+    };
+  }
+</script>
+</body>
+</html>
