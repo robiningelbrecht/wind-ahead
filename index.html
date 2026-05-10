@@ -241,14 +241,14 @@
           </div>
         </template>
         <!-- Segment details table -->
-        <div data-driver="segments" class="card" x-show="kmTable && kmTable.length > 0">
-          <div class="flex items-center justify-between cursor-pointer select-none" @click="kmTableOpen = !kmTableOpen">
-            <div class="card-title">Segment Details</div>
-            <svg class="size-4 text-gray-500 transition-transform" :class="{ 'rotate-180': kmTableOpen }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <div data-driver="segments" class="card" x-show="segmentTable && segmentTable.length > 0">
+          <div class="flex items-center justify-between cursor-pointer select-none" @click="segmentTableOpen = !segmentTableOpen">
+            <div class="card-title">Segment details</div>
+            <svg class="size-4 text-gray-500 transition-transform" :class="{ 'rotate-180': segmentTableOpen }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="6 9 12 15 18 9"/>
             </svg>
           </div>
-          <div class="max-h-100 overflow-y-auto mt-3.5" x-show="kmTableOpen">
+          <div class="max-h-100 overflow-y-auto mt-3.5" x-show="segmentTableOpen">
             <table class="w-full border-collapse text-[0.78rem]">
               <thead>
               <tr>
@@ -261,9 +261,9 @@
               </tr>
               </thead>
               <tbody>
-              <template x-for="row in kmTable" :key="row.km">
+              <template x-for="row in segmentTable" :key="row.index">
                 <tr class="even:bg-gray-50">
-                  <td x-text="row.km"></td>
+                  <td x-text="row.index"></td>
                   <td><span x-text="row.bearing.toFixed(0)"></span>° <span class="text-[0.68rem] text-gray-500" x-text="windLabelFn(row.bearing)"></span></td>
                   <td :class="row.headComp > 0.5 ? 'text-red-600' : row.headComp < -0.5 ? 'text-green-600' : ''" x-text="row.headComp.toFixed(1) + '\u{00A0}km/h'"></td>
                   <td x-text="row.crossComp.toFixed(1) + '\u{00A0}km/h'"></td>

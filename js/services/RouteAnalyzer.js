@@ -1,19 +1,19 @@
 import { GeoUtils } from '../utils/GeoUtils';
 
 export class RouteAnalyzer {
-    analyze(points, windData, startIdx, avgSpeedKmh) {
+    analyze(points, windData, startIdx, avgSpeed) {
         const segments = [];
         let totalDist = 0, headwindDist = 0, tailwindDist = 0, crosswindDist = 0;
         let weightedHeadwind = 0, weightedCrosswind = 0;
         let elevGain = 0, elevLoss = 0, cumDist = 0;
-        const avgSpeedMs = avgSpeedKmh / 3.6;
+        const baseSpeed = avgSpeed / 3.6;
         const maxIdx = windData.speeds.length - 1;
 
         for (let i = 0; i < points.length - 1; i++) {
             const p1 = points[i], p2 = points[i + 1];
             const dist = GeoUtils.haversine(p1.lat, p1.lon, p2.lat, p2.lon);
             if (dist < 0.5) continue;
-            const wIdx = Math.min(startIdx + Math.floor((cumDist / avgSpeedMs) / 3600), maxIdx);
+            const wIdx = Math.min(startIdx + Math.floor((cumDist / baseSpeed) / 3600), maxIdx);
             const windSpeed = windData.speeds[wIdx];
             const windDir = windData.dirs[wIdx];
             const brng = GeoUtils.bearing(p1.lat, p1.lon, p2.lat, p2.lon);
@@ -87,13 +87,13 @@ export class RouteAnalyzer {
         });
     }
 
-    buildKmTable(segments) {
+    buildSegmentTable(segments) {
         const rows = [];
         let cumDist = 0, bucketDist = 0;
         let bucketHeadW = 0, bucketCrossW = 0;
         let bucketBrngX = 0, bucketBrngY = 0;
         let lastEle = null;
-        let nextKm = 1000;
+        let nextInterval = 1000;
         for (const seg of segments) {
             cumDist += seg.dist;
             bucketDist += seg.dist;
@@ -102,14 +102,14 @@ export class RouteAnalyzer {
             bucketBrngX += Math.cos(GeoUtils.toRad(seg.brng)) * seg.dist;
             bucketBrngY += Math.sin(GeoUtils.toRad(seg.brng)) * seg.dist;
             lastEle = seg.p2.ele;
-            if (cumDist >= nextKm) {
+            if (cumDist >= nextInterval) {
                 const avgHead = bucketDist > 0 ? bucketHeadW / bucketDist : 0;
                 const avgCross = bucketDist > 0 ? bucketCrossW / bucketDist : 0;
                 const avgBrng = (GeoUtils.toDeg(Math.atan2(bucketBrngY, bucketBrngX)) + 360) % 360;
                 const type = avgHead > 2 ? 'headwind' : avgHead < -2 ? 'tailwind' : 'crosswind';
-                rows.push({ km: rows.length + 1, bearing: avgBrng, headComp: avgHead, crossComp: avgCross, elevation: lastEle, type });
+                rows.push({ index: rows.length + 1, bearing: avgBrng, headComp: avgHead, crossComp: avgCross, elevation: lastEle, type });
                 bucketDist = 0; bucketHeadW = 0; bucketCrossW = 0; bucketBrngX = 0; bucketBrngY = 0;
-                nextKm += 1000;
+                nextInterval += 1000;
             }
         }
         if (bucketDist > 100) {
@@ -117,7 +117,7 @@ export class RouteAnalyzer {
             const avgCross = bucketCrossW / bucketDist;
             const avgBrng = (GeoUtils.toDeg(Math.atan2(bucketBrngY, bucketBrngX)) + 360) % 360;
             const type = avgHead > 2 ? 'headwind' : avgHead < -2 ? 'tailwind' : 'crosswind';
-            rows.push({ km: rows.length + 1, bearing: avgBrng, headComp: avgHead, crossComp: avgCross, elevation: lastEle, type });
+            rows.push({ index: rows.length + 1, bearing: avgBrng, headComp: avgHead, crossComp: avgCross, elevation: lastEle, type });
         }
         return rows;
     }

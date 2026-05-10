@@ -37,8 +37,8 @@ Alpine.data('windAnalyzer', () => {
         weatherLabel: '',
         dateNote: '',
         windRose: [],
-        kmTable: [],
-        kmTableOpen: false,
+        segmentTable: [],
+        segmentTableOpen: false,
         _lastRenderKey: null,
 
         get netColorClass() {
@@ -94,10 +94,10 @@ Alpine.data('windAnalyzer', () => {
             if (!seg) return;
             const midLat = (seg.p1.lat + seg.p2.lat) / 2;
             const midLon = (seg.p1.lon + seg.p2.lon) / 2;
-            const km = (seg.cumDist / 1000).toFixed(1);
+            const dist = (seg.cumDist / 1000).toFixed(1);
             const typeClass = seg.type === 'headwind' ? 'text-red-600' : seg.type === 'tailwind' ? 'text-green-600' : 'text-amber-600';
             const tip = document.getElementById('stripTooltip');
-            tip.innerHTML = `<span class="font-semibold ${typeClass}">${seg.type.charAt(0).toUpperCase() + seg.type.slice(1)}</span> &middot; ${km} km<br>Head: ${seg.headComp.toFixed(1)} km/h &middot; Cross: ${Math.abs(seg.crossComp).toFixed(1)} km/h`;
+            tip.innerHTML = `<span class="font-semibold ${typeClass}">${seg.type.charAt(0).toUpperCase() + seg.type.slice(1)}</span> &middot; ${dist} km<br>Head: ${seg.headComp.toFixed(1)} km/h &middot; Cross: ${Math.abs(seg.crossComp).toFixed(1)} km/h`;
             tip.style.left = (event.clientX - rect.left) + 'px';
             tip.classList.remove('hidden');
             mapRenderer.showHoverMarker(midLat, midLon, seg.headFactor);
@@ -199,7 +199,7 @@ Alpine.data('windAnalyzer', () => {
                 this.windSpeed = w.wind_speed_10m;
 
                 this.windRose = routeAnalyzer.buildWindRose(this.analysis.segments);
-                this.kmTable = routeAnalyzer.buildKmTable(this.analysis.segments);
+                this.segmentTable = routeAnalyzer.buildSegmentTable(this.analysis.segments);
 
                 const d = new Date(this.dateTime);
                 const opts = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -221,8 +221,8 @@ Alpine.data('windAnalyzer', () => {
             this.centroid = null;
             this.waypoints = [];
             this.windRose = [];
-            this.kmTable = [];
-            this.kmTableOpen = false;
+            this.segmentTable = [];
+            this.segmentTableOpen = false;
             this._lastRenderKey = null;
             document.getElementById('fileInput').value = '';
             mapRenderer.destroy();
