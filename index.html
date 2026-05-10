@@ -66,7 +66,7 @@
       <div class="grid grid-cols-1 gap-4">
         <!-- Inputs -->
         <div class="card">
-          <div id="tour-datebar" class="flex items-center gap-2.5 flex-wrap">
+          <div data-driver="input" class="flex items-center gap-2.5 flex-wrap">
             <label class="form-label">When</label>
             <input type="datetime-local" class="form-input" x-model="dateTime" :min="dateMin" :max="dateMax" @change="runAnalysis()" />
             <div class="flex items-center gap-1.5 ml-2 pl-3 border-l border-gray-200 transition-opacity">
@@ -79,8 +79,8 @@
         </div>
         <div>
           <!-- Leaflet map -->
-          <div id="tour-map" class="relative">
-            <div id="map" class="h-105 rounded-[10px] border border-gray-200 z-1"></div>
+          <div class="relative">
+            <div id="map" data-driver="map" class="h-105 rounded-[10px] border border-gray-200 z-1"></div>
             <div class="absolute bottom-2.5 left-2.5 bg-white/90 backdrop-blur-sm py-2 px-3 rounded-md z-500 text-[0.72rem] text-gray-600 border border-gray-200">
               <div class="font-semibold mb-1 text-gray-900 text-[0.68rem] uppercase tracking-wider">Wind Effect</div>
               <div class="w-35 h-2 rounded-sm bg-linear-to-r from-green-600 via-amber-600 to-red-600"></div>
@@ -90,7 +90,7 @@
             </div>
           </div>
           <!-- Strip -->
-          <div id="tour-strip" class="relative cursor-crosshair" @mouseleave="hideStripHover()">
+          <div data-driver="strip" class="relative cursor-crosshair mt-1" @mouseleave="hideStripHover()">
             <div class="flex h-2.5 rounded-[5px] overflow-hidden bg-gray-200" id="windStrip" @mousemove="onStripHover($event)"></div>
             <div class="hidden absolute bottom-full -translate-x-1/2 bg-white/90 backdrop-blur-[8px] border border-gray-200 rounded-md py-1.5 px-2.5 text-[0.7rem] text-gray-600 whitespace-nowrap pointer-events-none z-[1000] mb-1" id="stripTooltip"></div>
           </div>
@@ -123,7 +123,7 @@
         <template x-if="analysis && weather">
           <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4 max-md:grid-cols-1">
             <!-- Wind breakdown card -->
-            <div id="tour-breakdown" class="card">
+            <div data-driver="breakdown" class="card">
               <div class="card-title mb-4.5">Wind Breakdown</div>
               <div class="flex items-center gap-6">
                 <div class="relative size-32.5 shrink-0">
@@ -164,7 +164,7 @@
               </div>
             </div>
             <!-- Wind rose card -->
-            <div id="tour-rose" class="card">
+            <div data-driver="rose" class="card">
               <div class="card-title mb-4.5">Wind Rose</div>
               <div class="flex items-center gap-5">
                 <div class="size-32.5 shrink-0">
@@ -192,7 +192,7 @@
               </div>
             </div>
             <!-- Weather card -->
-            <div id="tour-weather" class="card">
+            <div data-driver="weather" class="card">
               <div class="card-title mb-4.5" x-text="weatherLabel"></div>
               <div class="flex items-center gap-5 mb-5 pb-4.5 border-b border-gray-200">
                 <div class="relative size-20 border-2 border-gray-200 rounded-full bg-gray-200 shrink-0">
@@ -238,7 +238,7 @@
           </div>
         </template>
         <!-- Segment details table -->
-        <div id="tour-segments" class="card" x-show="kmTable && kmTable.length > 0">
+        <div data-driver="segments" class="card" x-show="kmTable && kmTable.length > 0">
           <div class="flex items-center justify-between cursor-pointer select-none" @click="kmTableOpen = !kmTableOpen">
             <div class="card-title">Segment Details</div>
             <svg class="size-4 text-gray-500 transition-transform" :class="{ 'rotate-180': kmTableOpen }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
