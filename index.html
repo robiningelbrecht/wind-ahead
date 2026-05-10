@@ -121,21 +121,21 @@
           </div>
         </template>
         <template x-if="analysis && weather">
-          <div class="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4 max-md:grid-cols-1">
+          <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4 max-md:grid-cols-1">
             <!-- Wind breakdown card -->
             <div id="tour-breakdown" class="p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
               <div class="text-[0.68rem] uppercase tracking-[0.08em] text-gray-500 mb-4.5 font-semibold">Wind Breakdown</div>
               <div class="flex items-center gap-6">
                 <div class="relative size-32.5 shrink-0">
                   <svg class="w-full h-full" viewBox="0 0 36 36">
-                    <circle class="fill-none stroke-gray-200 [stroke-width:3.5]" cx="18" cy="18" r="15.9155"/>
-                    <circle class="fill-none [stroke-width:3.5] [stroke-linecap:round] [transition:stroke-dasharray_0.6s_ease] stroke-red-600" cx="18" cy="18" r="15.9155"
+                    <circle class="fill-none stroke-gray-200 stroke-[3.5]" cx="18" cy="18" r="15.9155"/>
+                    <circle class="fill-none stroke-[3.5] [stroke-linecap:round] [transition:stroke-dasharray_0.6s_ease] stroke-red-600" cx="18" cy="18" r="15.9155"
                             :stroke-dasharray="analysis.pctHead + ' ' + (100 - analysis.pctHead)"
                             stroke-dashoffset="25"/>
-                    <circle class="fill-none [stroke-width:3.5] [stroke-linecap:round] [transition:stroke-dasharray_0.6s_ease] stroke-green-600" cx="18" cy="18" r="15.9155"
+                    <circle class="fill-none stroke-[3.5] [stroke-linecap:round] [transition:stroke-dasharray_0.6s_ease] stroke-green-600" cx="18" cy="18" r="15.9155"
                             :stroke-dasharray="analysis.pctTail + ' ' + (100 - analysis.pctTail)"
                             :stroke-dashoffset="25 - analysis.pctHead"/>
-                    <circle class="fill-none [stroke-width:3.5] [stroke-linecap:round] [transition:stroke-dasharray_0.6s_ease] stroke-amber-600" cx="18" cy="18" r="15.9155"
+                    <circle class="fill-none stroke-[3.5] [stroke-linecap:round] [transition:stroke-dasharray_0.6s_ease] stroke-amber-600" cx="18" cy="18" r="15.9155"
                             :stroke-dasharray="analysis.pctCross + ' ' + (100 - analysis.pctCross)"
                             :stroke-dashoffset="25 - analysis.pctHead - analysis.pctTail"/>
                   </svg>
@@ -149,24 +149,20 @@
                     <div class="size-2.5 rounded-full shrink-0 bg-red-600"></div>
                     <span class="text-[0.82rem] text-gray-600 flex-1">Headwind</span>
                     <span class="text-[0.95rem] font-bold tabular-nums" x-text="analysis.pctHead.toFixed(0) + '%'"></span>
-                    <span class="text-[0.72rem] text-gray-500 ml-1" x-text="(analysis.avgHead > 0 ? analysis.avgHead.toFixed(1) : '0.0') + ' km/h avg'"></span>
                   </div>
                   <div class="flex items-center gap-2.5">
                     <div class="size-2.5 rounded-full shrink-0 bg-green-600"></div>
                     <span class="text-[0.82rem] text-gray-600 flex-1">Tailwind</span>
                     <span class="text-[0.95rem] font-bold tabular-nums" x-text="analysis.pctTail.toFixed(0) + '%'"></span>
-                    <span class="text-[0.72rem] text-gray-500 ml-1" x-text="(analysis.avgHead < 0 ? Math.abs(analysis.avgHead).toFixed(1) : '0.0') + ' km/h avg'"></span>
                   </div>
                   <div class="flex items-center gap-2.5">
                     <div class="size-2.5 rounded-full shrink-0 bg-amber-600"></div>
                     <span class="text-[0.82rem] text-gray-600 flex-1">Crosswind</span>
                     <span class="text-[0.95rem] font-bold tabular-nums" x-text="analysis.pctCross.toFixed(0) + '%'"></span>
-                    <span class="text-[0.72rem] text-gray-500 ml-1" x-text="analysis.avgCross.toFixed(1) + ' km/h avg'"></span>
                   </div>
                 </div>
               </div>
             </div>
-
             <!-- Wind rose card -->
             <div id="tour-rose" class="p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
               <div class="text-[0.68rem] uppercase tracking-[0.08em] text-gray-500 mb-4.5 font-semibold">Wind Rose</div>
@@ -195,7 +191,6 @@
                 </div>
               </div>
             </div>
-
             <!-- Weather card -->
             <div id="tour-weather" class="p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
               <div class="text-[0.68rem] uppercase tracking-[0.08em] text-gray-500 mb-4.5 font-semibold" x-text="weatherLabel"></div>
@@ -264,7 +259,7 @@
               </thead>
               <tbody>
               <template x-for="row in kmTable" :key="row.km">
-                <tr class="even:bg-gray-200">
+                <tr class="even:bg-gray-50">
                   <td class="py-1.75 px-2.5 tabular-nums border-b border-gray-200 text-gray-600" x-text="row.km"></td>
                   <td class="py-1.75 px-2.5 tabular-nums border-b border-gray-200 text-gray-600"><span x-text="row.bearing.toFixed(0)"></span>° <span class="text-[0.68rem] text-gray-500" x-text="windLabelFn(row.bearing)"></span></td>
                   <td class="py-1.75 px-2.5 tabular-nums border-b border-gray-200 text-gray-600" :class="row.headComp > 0.5 ? 'text-red-600' : row.headComp < -0.5 ? 'text-green-600' : ''" x-text="row.headComp.toFixed(1) + ' km/h'"></td>
@@ -340,7 +335,7 @@
     <button class="text-gray-600 no-underline text-xs font-[inherit] bg-none border-none cursor-pointer p-0 transition-colors hover:text-orange-600" onclick="document.getElementById('faqDialog').showModal()">FAQ</button>
     <a class="text-gray-600 no-underline text-xs transition-colors hover:text-orange-600" href="#" target="_blank">GitHub</a>
   </div>
-  <span>Wind Analyzer &mdash; 100% client-side, no data stored</span>
+  <span>Wind Analyzer - 100% client-side, no data stored</span>
 </footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
