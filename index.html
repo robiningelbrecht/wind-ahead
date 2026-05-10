@@ -19,17 +19,17 @@
         </div>
       </a>
       <div class="flex items-center text-gray-500 lg:order-2 gap-x-2">
-        <button class="size-8.5 bg-gray-200 border border-gray-200 rounded-full cursor-pointer flex items-center justify-center text-gray-500 transition-colors shrink-0 p-0 hover:bg-gray-300 hover:text-gray-900" x-show="view === 'results'" @click="reset()" title="Upload another file">
+        <button class="btn-icon" x-show="view === 'results'" @click="reset()" title="Upload another file">
           <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
           </svg>
         </button>
-        <button class="size-8.5 bg-gray-200 border border-gray-200 rounded-full cursor-pointer flex items-center justify-center text-gray-500 transition-colors shrink-0 p-0 hover:bg-gray-300 hover:text-gray-900" x-show="view === 'results'" @click="startTour()" title="Take a tour">
+        <button class="btn-icon" x-show="view === 'results'" @click="startTour()" title="Take a tour">
           <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
         </button>
-        <button class="size-8.5 bg-gray-200 border border-gray-200 rounded-full cursor-pointer flex items-center justify-center text-gray-500 transition-colors shrink-0 p-0 hover:bg-gray-300 hover:text-gray-900" @click="toggleTheme()" title="Toggle light/dark mode">
+        <button class="btn-icon" @click="toggleTheme()" title="Toggle light/dark mode">
           <svg class="size-4 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
           </svg>
@@ -56,7 +56,7 @@
       </div>
       <h2 class="text-base font-semibold mb-1.5">Upload a GPX file</h2>
       <p class="text-gray-500 text-[0.82rem]">Drag &amp; drop or choose a file to analyze wind conditions</p>
-      <label class="inline-block mt-5 py-2.5 px-8 bg-orange-600 text-white rounded-[20px] cursor-pointer font-semibold text-[0.85rem] transition-all border-none hover:bg-orange-700 active:scale-[0.97]" for="fileInput">Select GPX file</label>
+      <label class="btn-primary mt-5" for="fileInput">Select GPX file</label>
       <input type="file" id="fileInput" accept=".gpx" class="hidden" @change="handleFileInput($event)" />
     </div>
     <!-- Error -->
@@ -65,13 +65,13 @@
     <div class="animate-fade-up" x-show="view === 'results'" x-cloak>
       <div class="grid grid-cols-1 gap-4">
         <!-- Inputs -->
-        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
+        <div class="card">
           <div id="tour-datebar" class="flex items-center gap-2.5 flex-wrap">
-            <label class="text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider">When</label>
-            <input type="datetime-local" class="py-1.5 px-2.5 border border-gray-200 rounded-md text-[0.8rem] text-gray-900 font-[inherit] bg-white" x-model="dateTime" :min="dateMin" :max="dateMax" @change="runAnalysis()" />
+            <label class="form-label">When</label>
+            <input type="datetime-local" class="form-input" x-model="dateTime" :min="dateMin" :max="dateMax" @change="runAnalysis()" />
             <div class="flex items-center gap-1.5 ml-2 pl-3 border-l border-gray-200 transition-opacity">
-              <label class="text-[0.78rem] font-semibold text-gray-500 uppercase tracking-wider">Speed</label>
-              <input type="number" class="w-13 py-1.5 px-1.5 border border-gray-200 rounded-md text-[0.8rem] text-gray-900 font-[inherit] bg-white text-center tabular-nums" x-model.number="avgSpeed" min="5" max="50" step="1" @change="saveSpeed(); runAnalysis()" />
+              <label class="form-label">Speed</label>
+              <input type="number" class="form-input w-13 px-1.5 text-center tabular-nums" x-model.number="avgSpeed" min="5" max="50" step="1" @change="saveSpeed(); runAnalysis()" />
               <span class="text-[0.72rem] text-gray-500">km/h</span>
             </div>
             <span class="text-[0.7rem] text-gray-500 ml-auto" x-text="dateNote"></span>
@@ -97,7 +97,7 @@
         </div>
         <!-- Stats row -->
         <template x-if="analysis">
-          <div class="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] p-4 bg-white border border-gray-200 rounded-lg shadow-xs gap-y-4 divide-x divide-gray-200">
+          <div class="card grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-y-4 divide-x divide-gray-200">
             <div class="bg-white py-4 px-4.5 text-center">
               <div class="text-2xl font-extrabold tabular-nums tracking-[-0.02em] leading-[1.2]"><span x-text="(analysis.totalDist / 1000).toFixed(1)"></span> <span class="text-xs font-normal text-gray-600">km</span></div>
               <div class="text-[0.65rem] uppercase tracking-[0.08em] text-gray-500 mt-1">Distance</div>
@@ -123,8 +123,8 @@
         <template x-if="analysis && weather">
           <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4 max-md:grid-cols-1">
             <!-- Wind breakdown card -->
-            <div id="tour-breakdown" class="p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
-              <div class="text-[0.68rem] uppercase tracking-[0.08em] text-gray-500 mb-4.5 font-semibold">Wind Breakdown</div>
+            <div id="tour-breakdown" class="card">
+              <div class="card-title mb-4.5">Wind Breakdown</div>
               <div class="flex items-center gap-6">
                 <div class="relative size-32.5 shrink-0">
                   <svg class="w-full h-full" viewBox="0 0 36 36">
@@ -164,8 +164,8 @@
               </div>
             </div>
             <!-- Wind rose card -->
-            <div id="tour-rose" class="p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
-              <div class="text-[0.68rem] uppercase tracking-[0.08em] text-gray-500 mb-4.5 font-semibold">Wind Rose</div>
+            <div id="tour-rose" class="card">
+              <div class="card-title mb-4.5">Wind Rose</div>
               <div class="flex items-center gap-5">
                 <div class="size-32.5 shrink-0">
                   <svg class="w-full h-full" viewBox="0 0 100 100">
@@ -192,8 +192,8 @@
               </div>
             </div>
             <!-- Weather card -->
-            <div id="tour-weather" class="p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
-              <div class="text-[0.68rem] uppercase tracking-[0.08em] text-gray-500 mb-4.5 font-semibold" x-text="weatherLabel"></div>
+            <div id="tour-weather" class="card">
+              <div class="card-title mb-4.5" x-text="weatherLabel"></div>
               <div class="flex items-center gap-5 mb-5 pb-4.5 border-b border-gray-200">
                 <div class="relative size-20 border-2 border-gray-200 rounded-full bg-gray-200 shrink-0">
                   <span class="absolute text-[0.55rem] font-bold text-gray-600 top-0.75 left-1/2 -translate-x-1/2">N</span>
@@ -238,9 +238,9 @@
           </div>
         </template>
         <!-- Segment details table -->
-        <div id="tour-segments" class="p-4 bg-white border border-gray-200 rounded-lg shadow-xs" x-show="kmTable && kmTable.length > 0">
+        <div id="tour-segments" class="card" x-show="kmTable && kmTable.length > 0">
           <div class="flex items-center justify-between cursor-pointer select-none" @click="kmTableOpen = !kmTableOpen">
-            <div class="text-[0.68rem] uppercase tracking-[0.08em] text-gray-500 font-semibold">Segment Details</div>
+            <div class="card-title">Segment Details</div>
             <svg class="size-4 text-gray-500 transition-transform" :class="{ 'rotate-180': kmTableOpen }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="6 9 12 15 18 9"/>
             </svg>
@@ -249,23 +249,23 @@
             <table class="w-full border-collapse text-[0.78rem]">
               <thead>
               <tr>
-                <th class="sticky top-0 bg-white text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-gray-500 font-semibold border-b border-gray-200">KM</th>
-                <th class="sticky top-0 bg-white text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-gray-500 font-semibold border-b border-gray-200">Bearing</th>
-                <th class="sticky top-0 bg-white text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-gray-500 font-semibold border-b border-gray-200">Headwind</th>
-                <th class="sticky top-0 bg-white text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-gray-500 font-semibold border-b border-gray-200">Crosswind</th>
-                <th class="sticky top-0 bg-white text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-gray-500 font-semibold border-b border-gray-200">Elev.</th>
-                <th class="sticky top-0 bg-white text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-gray-500 font-semibold border-b border-gray-200">Type</th>
+                <th>KM</th>
+                <th>Bearing</th>
+                <th>Headwind</th>
+                <th>Crosswind</th>
+                <th>Elev.</th>
+                <th>Type</th>
               </tr>
               </thead>
               <tbody>
               <template x-for="row in kmTable" :key="row.km">
                 <tr class="even:bg-gray-50">
-                  <td class="py-1.75 px-2.5 tabular-nums border-b border-gray-200 text-gray-600" x-text="row.km"></td>
-                  <td class="py-1.75 px-2.5 tabular-nums border-b border-gray-200 text-gray-600"><span x-text="row.bearing.toFixed(0)"></span>° <span class="text-[0.68rem] text-gray-500" x-text="windLabelFn(row.bearing)"></span></td>
-                  <td class="py-1.75 px-2.5 tabular-nums border-b border-gray-200 text-gray-600" :class="row.headComp > 0.5 ? 'text-red-600' : row.headComp < -0.5 ? 'text-green-600' : ''" x-text="row.headComp.toFixed(1) + ' km/h'"></td>
-                  <td class="py-1.75 px-2.5 tabular-nums border-b border-gray-200 text-gray-600" x-text="row.crossComp.toFixed(1) + ' km/h'"></td>
-                  <td class="py-1.75 px-2.5 tabular-nums border-b border-gray-200 text-gray-600" x-text="row.elevation !== null ? row.elevation.toFixed(0) + ' m' : '—'"></td>
-                  <td class="py-1.75 px-2.5 tabular-nums border-b border-gray-200 text-gray-600">
+                  <td x-text="row.km"></td>
+                  <td><span x-text="row.bearing.toFixed(0)"></span>° <span class="text-[0.68rem] text-gray-500" x-text="windLabelFn(row.bearing)"></span></td>
+                  <td :class="row.headComp > 0.5 ? 'text-red-600' : row.headComp < -0.5 ? 'text-green-600' : ''" x-text="row.headComp.toFixed(1) + ' km/h'"></td>
+                  <td x-text="row.crossComp.toFixed(1) + ' km/h'"></td>
+                  <td x-text="row.elevation !== null ? row.elevation.toFixed(0) + ' m' : '—'"></td>
+                  <td>
                     <span class="inline-block size-2 rounded-full mr-1.5 align-middle" :class="row.type === 'headwind' ? 'bg-red-600' : row.type === 'tailwind' ? 'bg-green-600' : 'bg-amber-600'"></span>
                     <span x-text="row.type.charAt(0).toUpperCase() + row.type.slice(1)"></span>
                   </td>
@@ -286,44 +286,41 @@
     <div class="size-8 border-[3px] border-white/15 border-t-orange-600 rounded-full animate-spin mb-3"></div>
     <p>Analyzing route&hellip;</p>
   </div>
-
-
-
   <!-- FAQ dialog -->
   <dialog id="faqDialog" class="bg-white text-gray-900 border border-gray-200 rounded-xl p-0 max-w-140 w-[90vw] max-h-[80vh] overflow-y-auto shadow-[0_8px_32px_rgba(0,0,0,0.3)] fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 backdrop:bg-black/50 backdrop:backdrop-blur-sm" @click="if ($event.target === $el) $el.close()">
     <div class="flex items-center justify-between py-4.5 px-5.5 border-b border-gray-200 sticky top-0 bg-white z-[1]">
       <h2 class="text-[0.95rem] font-bold">Frequently Asked Questions</h2>
-      <button class="size-7 bg-gray-200 border border-gray-200 rounded-full cursor-pointer flex items-center justify-center text-gray-500 text-base leading-none p-0 transition-colors hover:bg-gray-300 hover:text-gray-900" @click="$el.closest('dialog').close()">&times;</button>
+      <button class="btn-icon-sm" @click="$el.closest('dialog').close()">&times;</button>
     </div>
     <div class="pt-4.5 px-5.5 pb-6">
       <dl>
         <div class="mb-4.5">
-          <dt class="text-[0.82rem] font-semibold mb-1 text-gray-900">Is my data stored anywhere?</dt>
-          <dd class="text-[0.78rem] text-gray-600 leading-relaxed">No. Everything runs entirely in your browser. Your GPX file is parsed locally and never uploaded to any server. Weather data is fetched directly from the Open-Meteo API.</dd>
+          <dt>Is my data stored anywhere?</dt>
+          <dd>No. Everything runs entirely in your browser. Your GPX file is parsed locally and never uploaded to any server. Weather data is fetched directly from the Open-Meteo API.</dd>
         </div>
         <div class="mb-4.5">
-          <dt class="text-[0.82rem] font-semibold mb-1 text-gray-900">Where does the weather data come from?</dt>
-          <dd class="text-[0.78rem] text-gray-600 leading-relaxed">Wind and weather forecasts are provided by the Open-Meteo API, a free and open-source weather service. Data is available for the current day plus 7 days ahead.</dd>
+          <dt>Where does the weather data come from?</dt>
+          <dd>Wind and weather forecasts are provided by the Open-Meteo API, a free and open-source weather service. Data is available for the current day plus 7 days ahead.</dd>
         </div>
         <div class="mb-4.5">
-          <dt class="text-[0.82rem] font-semibold mb-1 text-gray-900">How accurate is the wind analysis?</dt>
-          <dd class="text-[0.78rem] text-gray-600 leading-relaxed">The analysis uses hourly wind forecasts sampled at the route's geographic center. Actual conditions may vary due to terrain, elevation, and local effects. Treat results as a useful estimate, not a guarantee.</dd>
+          <dt>How accurate is the wind analysis?</dt>
+          <dd>The analysis uses hourly wind forecasts sampled at the route's geographic center. Actual conditions may vary due to terrain, elevation, and local effects. Treat results as a useful estimate, not a guarantee.</dd>
         </div>
         <div class="mb-4.5">
-          <dt class="text-[0.82rem] font-semibold mb-1 text-gray-900">What does "Best start" mean?</dt>
-          <dd class="text-[0.78rem] text-gray-600 leading-relaxed">We run the analysis for every hour of the selected day and rank them by net headwind. The top 3 hours with the least headwind (or most tailwind) are shown as suggestions.</dd>
+          <dt>What does "Best start" mean?</dt>
+          <dd>We run the analysis for every hour of the selected day and rank them by net headwind. The top 3 hours with the least headwind (or most tailwind) are shown as suggestions.</dd>
         </div>
         <div class="mb-4.5">
-          <dt class="text-[0.82rem] font-semibold mb-1 text-gray-900">How does average speed affect the results?</dt>
-          <dd class="text-[0.78rem] text-gray-600 leading-relaxed">Your speed determines how long you spend on each segment and which hourly forecast applies. A slower speed means the ride spans more hours, so wind shifts during the ride are taken into account.</dd>
+          <dt>How does average speed affect the results?</dt>
+          <dd>Your speed determines how long you spend on each segment and which hourly forecast applies. A slower speed means the ride spans more hours, so wind shifts during the ride are taken into account.</dd>
         </div>
         <div class="mb-4.5">
-          <dt class="text-[0.82rem] font-semibold mb-1 text-gray-900">What GPX features are supported?</dt>
-          <dd class="text-[0.78rem] text-gray-600 leading-relaxed">Track points, route points, waypoints, and elevation data. The file must contain at least 2 points. Most GPX files exported from Strava, Komoot, Garmin, or similar apps work out of the box.</dd>
+          <dt>What GPX features are supported?</dt>
+          <dd>Track points, route points, waypoints, and elevation data. The file must contain at least 2 points. Most GPX files exported from Strava, Komoot, Garmin, or similar apps work out of the box.</dd>
         </div>
         <div class="mb-0">
-          <dt class="text-[0.82rem] font-semibold mb-1 text-gray-900">Can I use this for running or walking?</dt>
-          <dd class="text-[0.78rem] text-gray-600 leading-relaxed">Absolutely. Set the average speed to your pace (e.g. 10 km/h for running, 5 km/h for walking) and the analysis adjusts accordingly.</dd>
+          <dt>Can I use this for running or walking?</dt>
+          <dd>Absolutely. Set the average speed to your pace (e.g. 10 km/h for running, 5 km/h for walking) and the analysis adjusts accordingly.</dd>
         </div>
       </dl>
     </div>
