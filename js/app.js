@@ -40,6 +40,7 @@ Alpine.data('windAnalyzer', () => {
         segmentTable: [],
         segmentTableOpen: false,
         _lastRenderKey: null,
+        _weatherCache: null,
 
         get netColorClass() {
             if (!this.analysis) return '';
@@ -182,11 +183,21 @@ Alpine.data('windAnalyzer', () => {
         async runAnalysis() {
             this.loading = true;
             this.error = null;
+            await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
             try {
                 const lat = this.centroid.lat.toFixed(4);
                 const lon = this.centroid.lon.toFixed(4);
-                const data = await weatherService.fetch(lat, lon, this.dateTime);
+                const dateStr = this.dateTime.split('T')[0];
+                const cacheKey = `${lat},${lon},${dateStr}`;
+
+                let data;
+                if (this._weatherCache && this._weatherCache.key === cacheKey) {
+                    data = this._weatherCache.data;
+                } else {
+                    data = await weatherService.fetch(lat, lon, this.dateTime);
+                    this._weatherCache = { key: cacheKey, data };
+                }
                 const w = weatherService.extract(data, this.dateTime);
 
                 const windData = { speeds: data.hourly.wind_speed_10m, dirs: data.hourly.wind_direction_10m };
@@ -224,6 +235,7 @@ Alpine.data('windAnalyzer', () => {
             this.segmentTable = [];
             this.segmentTableOpen = false;
             this._lastRenderKey = null;
+            this._weatherCache = null;
             document.getElementById('fileInput').value = '';
             mapRenderer.destroy();
         }
