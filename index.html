@@ -6,11 +6,10 @@
   <title>Wind Analyzer</title>
   <link rel="icon" href="logo.svg" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.4.0/dist/driver.css" />
   <link rel="stylesheet" href="dist/app.min.css" />
 </head>
-<body class="font-sans bg-gray-50 min-h-screen antialiased">
-<div x-data="windAnalyzer()" x-effect="onAnalysisChange()">
+<body class="font-sans bg-gray-50 min-h-screen antialiased flex flex-col">
+<div class="flex-1" x-data="windAnalyzer" x-effect="onAnalysisChange()">
   <nav class="text-gray-900 bg-white border-b border-gray-200 px-4 py-2.5 fixed left-0 right-0 top-0 z-1100">
     <div class="flex flex-wrap justify-between items-center">
       <a href="/" class="flex items-center justify-between mr-4" aria-selected="false">
@@ -20,6 +19,11 @@
         </div>
       </a>
       <div class="flex items-center text-gray-500 lg:order-2 gap-x-2">
+        <button class="size-8.5 bg-elevated border border-edge rounded-full cursor-pointer flex items-center justify-center text-muted transition-colors shrink-0 p-0 hover:bg-input-bg hover:text-primary" x-show="view === 'results'" @click="reset()" title="Upload another file">
+          <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </button>
         <button class="size-8.5 bg-elevated border border-edge rounded-full cursor-pointer flex items-center justify-center text-muted transition-colors shrink-0 p-0 hover:bg-input-bg hover:text-primary" x-show="view === 'results'" @click="startTour()" title="Take a tour">
           <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
@@ -72,32 +76,24 @@
             </div>
             <span class="text-[0.7rem] text-muted ml-auto" x-text="dateNote"></span>
           </div>
-
-          <!-- Best departure time -->
-          <div id="tour-besttime" class="flex items-center gap-2 mb-2.5 flex-wrap" x-show="bestHours.length > 0">
-            <span class="text-[0.68rem] font-semibold uppercase tracking-wider text-muted">Best start</span>
-            <template x-for="(bh, i) in bestHours" :key="bh.hour">
-              <button class="py-1 px-3 rounded-xl text-[0.72rem] font-[inherit] cursor-pointer border border-edge bg-elevated text-secondary transition-all hover:border-accent hover:text-primary"
-                      :class="i === 0 ? 'bg-accent-muted! border-accent! text-accent! font-semibold!' : ''"
-                      @click="selectHour(bh.hour)" x-text="formatBestHour(bh)"></button>
-            </template>
-          </div>
         </div>
-        <!-- Leaflet map -->
-        <div id="tour-map" class="relative">
-          <div id="map" class="h-105 rounded-[10px] border border-edge z-1"></div>
-          <div class="absolute bottom-2.5 left-2.5 bg-overlay backdrop-blur-sm py-2 px-3 rounded-md z-500 text-[0.72rem] text-secondary border border-edge">
-            <div class="font-semibold mb-1 text-primary text-[0.68rem] uppercase tracking-wider">Wind Effect</div>
-            <div class="w-35 h-2 rounded-sm bg-linear-to-r from-success via-warning to-danger"></div>
-            <div class="flex justify-between mt-0.5 text-[0.6rem] text-muted">
-              <span>Tailwind</span><span>Cross</span><span>Headwind</span>
+        <div>
+          <!-- Leaflet map -->
+          <div id="tour-map" class="relative">
+            <div id="map" class="h-105 rounded-[10px] border border-edge z-1"></div>
+            <div class="absolute bottom-2.5 left-2.5 bg-overlay backdrop-blur-sm py-2 px-3 rounded-md z-500 text-[0.72rem] text-secondary border border-edge">
+              <div class="font-semibold mb-1 text-primary text-[0.68rem] uppercase tracking-wider">Wind Effect</div>
+              <div class="w-35 h-2 rounded-sm bg-linear-to-r from-success via-warning to-danger"></div>
+              <div class="flex justify-between mt-0.5 text-[0.6rem] text-muted">
+                <span>Tailwind</span><span>Cross</span><span>Headwind</span>
+              </div>
             </div>
           </div>
-        </div>
-        <!-- Strip -->
-        <div id="tour-strip" class="relative cursor-crosshair" @mouseleave="hideStripHover()">
-          <div class="flex h-2.5 rounded-[5px] overflow-hidden bg-elevated" id="windStrip" @mousemove="onStripHover($event)"></div>
-          <div class="strip-tooltip hidden absolute bottom-full -translate-x-1/2 bg-overlay backdrop-blur-[8px] border border-edge rounded-md py-1.5 px-2.5 text-[0.7rem] text-secondary whitespace-nowrap pointer-events-none z-[1000] mb-1" id="stripTooltip"></div>
+          <!-- Strip -->
+          <div id="tour-strip" class="relative cursor-crosshair" @mouseleave="hideStripHover()">
+            <div class="flex h-2.5 rounded-[5px] overflow-hidden bg-elevated" id="windStrip" @mousemove="onStripHover($event)"></div>
+            <div class="strip-tooltip hidden absolute bottom-full -translate-x-1/2 bg-overlay backdrop-blur-[8px] border border-edge rounded-md py-1.5 px-2.5 text-[0.7rem] text-secondary whitespace-nowrap pointer-events-none z-[1000] mb-1" id="stripTooltip"></div>
+          </div>
         </div>
         <!-- Stats row -->
         <template x-if="analysis">
@@ -124,180 +120,177 @@
             </div>
           </div>
         </template>
-      </div>
-      <template x-if="analysis && weather">
-        <div class="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4 mt-4 max-md:grid-cols-1">
-          <!-- Wind breakdown card -->
-          <div id="tour-breakdown" class="p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
-            <div class="text-[0.68rem] uppercase tracking-[0.08em] text-muted mb-4.5 font-semibold">Wind Breakdown</div>
-            <div class="flex items-center gap-6">
-              <div class="relative size-32.5 shrink-0">
-                <svg class="w-full h-full" viewBox="0 0 36 36">
-                  <circle class="donut-ring" cx="18" cy="18" r="15.9155"/>
-                  <circle class="donut-segment" cx="18" cy="18" r="15.9155"
-                          stroke="var(--red)"
-                          :stroke-dasharray="analysis.pctHead + ' ' + (100 - analysis.pctHead)"
-                          stroke-dashoffset="25"/>
-                  <circle class="donut-segment" cx="18" cy="18" r="15.9155"
-                          stroke="var(--green)"
-                          :stroke-dasharray="analysis.pctTail + ' ' + (100 - analysis.pctTail)"
-                          :stroke-dashoffset="25 - analysis.pctHead"/>
-                  <circle class="donut-segment" cx="18" cy="18" r="15.9155"
-                          stroke="var(--amber)"
-                          :stroke-dasharray="analysis.pctCross + ' ' + (100 - analysis.pctCross)"
-                          :stroke-dashoffset="25 - analysis.pctHead - analysis.pctTail"/>
-                </svg>
-                <div class="absolute inset-0 flex flex-col items-center justify-center">
-                  <span class="text-[1.4rem] font-extrabold leading-[1.1]" :style="{ color: dominantColor }" x-text="dominantPct + '%'"></span>
-                  <span class="text-[0.6rem] uppercase text-muted tracking-[0.06em] mt-0.5" x-text="dominantType"></span>
-                </div>
-              </div>
-              <div class="flex flex-col gap-3 flex-1">
-                <div class="flex items-center gap-2.5">
-                  <div class="size-2.5 rounded-full shrink-0" style="background:var(--red)"></div>
-                  <span class="text-[0.82rem] text-secondary flex-1">Headwind</span>
-                  <span class="text-[0.95rem] font-bold tabular-nums" x-text="analysis.pctHead.toFixed(0) + '%'"></span>
-                  <span class="text-[0.72rem] text-muted ml-1" x-text="(analysis.avgHead > 0 ? analysis.avgHead.toFixed(1) : '0.0') + ' km/h avg'"></span>
-                </div>
-                <div class="flex items-center gap-2.5">
-                  <div class="size-2.5 rounded-full shrink-0" style="background:var(--green)"></div>
-                  <span class="text-[0.82rem] text-secondary flex-1">Tailwind</span>
-                  <span class="text-[0.95rem] font-bold tabular-nums" x-text="analysis.pctTail.toFixed(0) + '%'"></span>
-                  <span class="text-[0.72rem] text-muted ml-1" x-text="(analysis.avgHead < 0 ? Math.abs(analysis.avgHead).toFixed(1) : '0.0') + ' km/h avg'"></span>
-                </div>
-                <div class="flex items-center gap-2.5">
-                  <div class="size-2.5 rounded-full shrink-0" style="background:var(--amber)"></div>
-                  <span class="text-[0.82rem] text-secondary flex-1">Crosswind</span>
-                  <span class="text-[0.95rem] font-bold tabular-nums" x-text="analysis.pctCross.toFixed(0) + '%'"></span>
-                  <span class="text-[0.72rem] text-muted ml-1" x-text="analysis.avgCross.toFixed(1) + ' km/h avg'"></span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Wind rose card -->
-          <div id="tour-rose" class="p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
-            <div class="text-[0.68rem] uppercase tracking-[0.08em] text-muted mb-[18px] font-semibold">Wind Rose</div>
-            <div class="flex items-center gap-5">
-              <div class="size-[130px] shrink-0">
-                <svg class="w-full h-full" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="38" fill="none" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="2,2"/>
-                  <circle cx="50" cy="50" r="19" fill="none" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="2,2"/>
-                  <g x-html="windRoseSvg"></g>
-                  <text x="50" y="7" text-anchor="middle" fill="var(--text-muted)" font-size="5" font-weight="700">N</text>
-                  <text x="95" y="52" text-anchor="end" fill="var(--text-muted)" font-size="5" font-weight="700">E</text>
-                  <text x="50" y="98" text-anchor="middle" fill="var(--text-muted)" font-size="5" font-weight="700">S</text>
-                  <text x="5" y="52" text-anchor="start" fill="var(--text-muted)" font-size="5" font-weight="700">W</text>
-                </svg>
-              </div>
-              <div class="flex flex-col gap-1 flex-1">
-                <template x-for="p in windRose" :key="p.label">
-                  <div class="flex items-center gap-1.5">
-                    <span class="text-[0.72rem] font-semibold text-secondary w-[22px]" x-text="p.label"></span>
-                    <div class="flex-1 h-[5px] bg-elevated rounded-sm overflow-hidden">
-                      <div class="h-full rounded-sm transition-[width] duration-400" :style="'width:' + p.pct + '%;background:' + p.color"></div>
-                    </div>
-                    <span class="text-[0.68rem] text-muted tabular-nums w-7 text-right" x-text="p.distPct + '%'"></span>
+        <template x-if="analysis && weather">
+          <div class="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4 max-md:grid-cols-1">
+            <!-- Wind breakdown card -->
+            <div id="tour-breakdown" class="p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
+              <div class="text-[0.68rem] uppercase tracking-[0.08em] text-muted mb-4.5 font-semibold">Wind Breakdown</div>
+              <div class="flex items-center gap-6">
+                <div class="relative size-32.5 shrink-0">
+                  <svg class="w-full h-full" viewBox="0 0 36 36">
+                    <circle class="donut-ring" cx="18" cy="18" r="15.9155"/>
+                    <circle class="donut-segment" cx="18" cy="18" r="15.9155"
+                            stroke="var(--red)"
+                            :stroke-dasharray="analysis.pctHead + ' ' + (100 - analysis.pctHead)"
+                            stroke-dashoffset="25"/>
+                    <circle class="donut-segment" cx="18" cy="18" r="15.9155"
+                            stroke="var(--green)"
+                            :stroke-dasharray="analysis.pctTail + ' ' + (100 - analysis.pctTail)"
+                            :stroke-dashoffset="25 - analysis.pctHead"/>
+                    <circle class="donut-segment" cx="18" cy="18" r="15.9155"
+                            stroke="var(--amber)"
+                            :stroke-dasharray="analysis.pctCross + ' ' + (100 - analysis.pctCross)"
+                            :stroke-dashoffset="25 - analysis.pctHead - analysis.pctTail"/>
+                  </svg>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span class="text-[1.4rem] font-extrabold leading-[1.1]" :style="{ color: dominantColor }" x-text="dominantPct + '%'"></span>
+                    <span class="text-[0.6rem] uppercase text-muted tracking-[0.06em] mt-0.5" x-text="dominantType"></span>
                   </div>
-                </template>
+                </div>
+                <div class="flex flex-col gap-3 flex-1">
+                  <div class="flex items-center gap-2.5">
+                    <div class="size-2.5 rounded-full shrink-0" style="background:var(--red)"></div>
+                    <span class="text-[0.82rem] text-secondary flex-1">Headwind</span>
+                    <span class="text-[0.95rem] font-bold tabular-nums" x-text="analysis.pctHead.toFixed(0) + '%'"></span>
+                    <span class="text-[0.72rem] text-muted ml-1" x-text="(analysis.avgHead > 0 ? analysis.avgHead.toFixed(1) : '0.0') + ' km/h avg'"></span>
+                  </div>
+                  <div class="flex items-center gap-2.5">
+                    <div class="size-2.5 rounded-full shrink-0" style="background:var(--green)"></div>
+                    <span class="text-[0.82rem] text-secondary flex-1">Tailwind</span>
+                    <span class="text-[0.95rem] font-bold tabular-nums" x-text="analysis.pctTail.toFixed(0) + '%'"></span>
+                    <span class="text-[0.72rem] text-muted ml-1" x-text="(analysis.avgHead < 0 ? Math.abs(analysis.avgHead).toFixed(1) : '0.0') + ' km/h avg'"></span>
+                  </div>
+                  <div class="flex items-center gap-2.5">
+                    <div class="size-2.5 rounded-full shrink-0" style="background:var(--amber)"></div>
+                    <span class="text-[0.82rem] text-secondary flex-1">Crosswind</span>
+                    <span class="text-[0.95rem] font-bold tabular-nums" x-text="analysis.pctCross.toFixed(0) + '%'"></span>
+                    <span class="text-[0.72rem] text-muted ml-1" x-text="analysis.avgCross.toFixed(1) + ' km/h avg'"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Wind rose card -->
+            <div id="tour-rose" class="p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
+              <div class="text-[0.68rem] uppercase tracking-[0.08em] text-muted mb-[18px] font-semibold">Wind Rose</div>
+              <div class="flex items-center gap-5">
+                <div class="size-[130px] shrink-0">
+                  <svg class="w-full h-full" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="38" fill="none" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="2,2"/>
+                    <circle cx="50" cy="50" r="19" fill="none" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="2,2"/>
+                    <g x-html="windRoseSvg"></g>
+                    <text x="50" y="7" text-anchor="middle" fill="var(--text-muted)" font-size="5" font-weight="700">N</text>
+                    <text x="95" y="52" text-anchor="end" fill="var(--text-muted)" font-size="5" font-weight="700">E</text>
+                    <text x="50" y="98" text-anchor="middle" fill="var(--text-muted)" font-size="5" font-weight="700">S</text>
+                    <text x="5" y="52" text-anchor="start" fill="var(--text-muted)" font-size="5" font-weight="700">W</text>
+                  </svg>
+                </div>
+                <div class="flex flex-col gap-1 flex-1">
+                  <template x-for="p in windRose" :key="p.label">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-[0.72rem] font-semibold text-secondary w-[22px]" x-text="p.label"></span>
+                      <div class="flex-1 h-[5px] bg-elevated rounded-sm overflow-hidden">
+                        <div class="h-full rounded-sm transition-[width] duration-400" :style="'width:' + p.pct + '%;background:' + p.color"></div>
+                      </div>
+                      <span class="text-[0.68rem] text-muted tabular-nums w-7 text-right" x-text="p.distPct + '%'"></span>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </div>
+
+            <!-- Weather card -->
+            <div id="tour-weather" class="p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
+              <div class="text-[0.68rem] uppercase tracking-[0.08em] text-muted mb-4.5 font-semibold" x-text="weatherLabel"></div>
+              <div class="flex items-center gap-5 mb-5 pb-4.5 border-b border-edge">
+                <div class="relative size-20 border-2 border-edge rounded-full bg-elevated shrink-0">
+                  <span class="absolute text-[0.55rem] font-bold text-secondary top-0.75 left-1/2 -translate-x-1/2">N</span>
+                  <span class="absolute text-[0.55rem] font-bold text-muted right-1.25 top-1/2 -translate-y-1/2">E</span>
+                  <span class="absolute text-[0.55rem] font-bold text-muted bottom-0.75 left-1/2 -translate-x-1/2">S</span>
+                  <span class="absolute text-[0.55rem] font-bold text-muted left-1.25 top-1/2 -translate-y-1/2">W</span>
+                  <div class="compass-arrow" :style="'transform: rotate(' + ((windDir + 180) % 360) + 'deg)'"></div>
+                </div>
+                <div class="flex-1">
+                  <div class="text-[1.6rem] font-extrabold leading-[1.1]"><span x-text="weather.wind_speed_10m"></span> <span class="text-[0.8rem] font-normal text-secondary">km/h</span></div>
+                  <div class="text-[0.78rem] text-muted mt-0.5" x-text="'From ' + windLabelFn(windDir) + ' (' + windDir + '°)'"></div>
+                  <div class="text-[0.72rem] text-muted mt-1.5 pt-1.5 border-t border-edge">Gusts up to <span class="text-secondary font-semibold" x-text="weather.wind_gusts_10m + ' km/h'"></span></div>
+                </div>
+              </div>
+              <div class="grid grid-cols-3 gap-4">
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-[0.62rem] text-muted uppercase tracking-wider">Condition</span>
+                  <span class="text-base font-bold tabular-nums" x-text="conditionText"></span>
+                </div>
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-[0.62rem] text-muted uppercase tracking-wider">Feels like</span>
+                  <span class="text-base font-bold tabular-nums" x-text="weather.apparent_temperature + '°C'"></span>
+                </div>
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-[0.62rem] text-muted uppercase tracking-wider">Humidity</span>
+                  <span class="text-base font-bold tabular-nums" x-text="weather.relative_humidity_2m + '%'"></span>
+                </div>
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-[0.62rem] text-muted uppercase tracking-wider">Precip.</span>
+                  <span class="text-base font-bold tabular-nums" x-text="weather.precipitation + ' mm'"></span>
+                </div>
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-[0.62rem] text-muted uppercase tracking-wider">Clouds</span>
+                  <span class="text-base font-bold tabular-nums" x-text="weather.cloud_cover + '%'"></span>
+                </div>
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-[0.62rem] text-muted uppercase tracking-wider">Pressure</span>
+                  <span class="text-base font-bold tabular-nums" x-text="weather.surface_pressure + ' hPa'"></span>
+                </div>
               </div>
             </div>
           </div>
-
-          <!-- Weather card -->
-          <div id="tour-weather" class="p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
-            <div class="text-[0.68rem] uppercase tracking-[0.08em] text-muted mb-4.5 font-semibold" x-text="weatherLabel"></div>
-            <div class="flex items-center gap-5 mb-5 pb-4.5 border-b border-edge">
-              <div class="relative size-20 border-2 border-edge rounded-full bg-elevated shrink-0">
-                <span class="absolute text-[0.55rem] font-bold text-secondary top-0.75 left-1/2 -translate-x-1/2">N</span>
-                <span class="absolute text-[0.55rem] font-bold text-muted right-1.25 top-1/2 -translate-y-1/2">E</span>
-                <span class="absolute text-[0.55rem] font-bold text-muted bottom-0.75 left-1/2 -translate-x-1/2">S</span>
-                <span class="absolute text-[0.55rem] font-bold text-muted left-1.25 top-1/2 -translate-y-1/2">W</span>
-                <div class="compass-arrow" :style="'transform: rotate(' + ((windDir + 180) % 360) + 'deg)'"></div>
-              </div>
-              <div class="flex-1">
-                <div class="text-[1.6rem] font-extrabold leading-[1.1]"><span x-text="weather.wind_speed_10m"></span> <span class="text-[0.8rem] font-normal text-secondary">km/h</span></div>
-                <div class="text-[0.78rem] text-muted mt-0.5" x-text="'From ' + windLabelFn(windDir) + ' (' + windDir + '°)'"></div>
-                <div class="text-[0.72rem] text-muted mt-1.5 pt-1.5 border-t border-edge">Gusts up to <span class="text-secondary font-semibold" x-text="weather.wind_gusts_10m + ' km/h'"></span></div>
-              </div>
-            </div>
-            <div class="grid grid-cols-3 gap-4">
-              <div class="flex flex-col gap-0.5">
-                <span class="text-[0.62rem] text-muted uppercase tracking-wider">Condition</span>
-                <span class="text-base font-bold tabular-nums" x-text="conditionText"></span>
-              </div>
-              <div class="flex flex-col gap-0.5">
-                <span class="text-[0.62rem] text-muted uppercase tracking-wider">Feels like</span>
-                <span class="text-base font-bold tabular-nums" x-text="weather.apparent_temperature + '°C'"></span>
-              </div>
-              <div class="flex flex-col gap-0.5">
-                <span class="text-[0.62rem] text-muted uppercase tracking-wider">Humidity</span>
-                <span class="text-base font-bold tabular-nums" x-text="weather.relative_humidity_2m + '%'"></span>
-              </div>
-              <div class="flex flex-col gap-0.5">
-                <span class="text-[0.62rem] text-muted uppercase tracking-wider">Precip.</span>
-                <span class="text-base font-bold tabular-nums" x-text="weather.precipitation + ' mm'"></span>
-              </div>
-              <div class="flex flex-col gap-0.5">
-                <span class="text-[0.62rem] text-muted uppercase tracking-wider">Clouds</span>
-                <span class="text-base font-bold tabular-nums" x-text="weather.cloud_cover + '%'"></span>
-              </div>
-              <div class="flex flex-col gap-0.5">
-                <span class="text-[0.62rem] text-muted uppercase tracking-wider">Pressure</span>
-                <span class="text-base font-bold tabular-nums" x-text="weather.surface_pressure + ' hPa'"></span>
-              </div>
-            </div>
+        </template>
+        <!-- Segment details table -->
+        <div id="tour-segments" class="p-4 bg-white border border-gray-200 rounded-lg shadow-xs" x-show="kmTable && kmTable.length > 0">
+          <div class="flex items-center justify-between cursor-pointer select-none" @click="kmTableOpen = !kmTableOpen">
+            <div class="text-[0.68rem] uppercase tracking-[0.08em] text-muted font-semibold">Segment Details</div>
+            <svg class="size-4 text-muted transition-transform" :class="{ 'rotate-180': kmTableOpen }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
           </div>
-        </div>
-      </template>
-
-      <!-- Segment details table -->
-      <div id="tour-segments" class="bg-card rounded-[10px] p-5.5 border border-edge mt-4" x-show="kmTable && kmTable.length > 0">
-        <div class="flex items-center justify-between cursor-pointer select-none" @click="kmTableOpen = !kmTableOpen">
-          <div class="text-[0.68rem] uppercase tracking-[0.08em] text-muted font-semibold">Segment Details</div>
-          <svg class="size-4 text-muted transition-transform" :class="{ 'rotate-180': kmTableOpen }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </div>
-        <div class="max-h-[400px] overflow-y-auto mt-3.5" x-show="kmTableOpen" x-transition.duration.200ms>
-          <table class="segment-table w-full border-collapse text-[0.78rem]">
-            <thead>
-            <tr>
-              <th class="sticky top-0 bg-card text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-muted font-semibold border-b border-edge">KM</th>
-              <th class="sticky top-0 bg-card text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-muted font-semibold border-b border-edge">Bearing</th>
-              <th class="sticky top-0 bg-card text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-muted font-semibold border-b border-edge">Headwind</th>
-              <th class="sticky top-0 bg-card text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-muted font-semibold border-b border-edge">Crosswind</th>
-              <th class="sticky top-0 bg-card text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-muted font-semibold border-b border-edge">Elev.</th>
-              <th class="sticky top-0 bg-card text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-muted font-semibold border-b border-edge">Type</th>
-            </tr>
-            </thead>
-            <tbody>
-            <template x-for="row in kmTable" :key="row.km">
+          <div class="max-h-100 overflow-y-auto mt-3.5" x-show="kmTableOpen">
+            <table class="segment-table w-full border-collapse text-[0.78rem]">
+              <thead>
               <tr>
-                <td class="py-[7px] px-2.5 tabular-nums border-b border-edge text-secondary" x-text="row.km"></td>
-                <td class="py-[7px] px-2.5 tabular-nums border-b border-edge text-secondary"><span x-text="row.bearing.toFixed(0)"></span>° <span class="text-[0.68rem] text-muted" x-text="windLabelFn(row.bearing)"></span></td>
-                <td class="py-[7px] px-2.5 tabular-nums border-b border-edge text-secondary" :style="{ color: row.headComp > 0.5 ? 'var(--red)' : row.headComp < -0.5 ? 'var(--green)' : '' }" x-text="row.headComp.toFixed(1) + ' km/h'"></td>
-                <td class="py-[7px] px-2.5 tabular-nums border-b border-edge text-secondary" x-text="row.crossComp.toFixed(1) + ' km/h'"></td>
-                <td class="py-[7px] px-2.5 tabular-nums border-b border-edge text-secondary" x-text="row.elevation !== null ? row.elevation.toFixed(0) + ' m' : '—'"></td>
-                <td class="py-[7px] px-2.5 tabular-nums border-b border-edge text-secondary">
-                  <span class="inline-block size-2 rounded-full mr-1.5 align-middle" :style="'background:' + (row.type === 'headwind' ? 'var(--red)' : row.type === 'tailwind' ? 'var(--green)' : 'var(--amber)')"></span>
-                  <span x-text="row.type.charAt(0).toUpperCase() + row.type.slice(1)"></span>
-                </td>
+                <th class="sticky top-0 bg-card text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-muted font-semibold border-b border-edge">KM</th>
+                <th class="sticky top-0 bg-card text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-muted font-semibold border-b border-edge">Bearing</th>
+                <th class="sticky top-0 bg-card text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-muted font-semibold border-b border-edge">Headwind</th>
+                <th class="sticky top-0 bg-card text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-muted font-semibold border-b border-edge">Crosswind</th>
+                <th class="sticky top-0 bg-card text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-muted font-semibold border-b border-edge">Elev.</th>
+                <th class="sticky top-0 bg-card text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-muted font-semibold border-b border-edge">Type</th>
               </tr>
-            </template>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+              <template x-for="row in kmTable" :key="row.km">
+                <tr>
+                  <td class="py-1.75 px-2.5 tabular-nums border-b border-edge text-secondary" x-text="row.km"></td>
+                  <td class="py-1.75 px-2.5 tabular-nums border-b border-edge text-secondary"><span x-text="row.bearing.toFixed(0)"></span>° <span class="text-[0.68rem] text-muted" x-text="windLabelFn(row.bearing)"></span></td>
+                  <td class="py-1.75 px-2.5 tabular-nums border-b border-edge text-secondary" :style="{ color: row.headComp > 0.5 ? 'var(--red)' : row.headComp < -0.5 ? 'var(--green)' : '' }" x-text="row.headComp.toFixed(1) + ' km/h'"></td>
+                  <td class="py-1.75 px-2.5 tabular-nums border-b border-edge text-secondary" x-text="row.crossComp.toFixed(1) + ' km/h'"></td>
+                  <td class="py-1.75 px-2.5 tabular-nums border-b border-edge text-secondary" x-text="row.elevation !== null ? row.elevation.toFixed(0) + ' m' : '—'"></td>
+                  <td class="py-1.75 px-2.5 tabular-nums border-b border-edge text-secondary">
+                    <span class="inline-block size-2 rounded-full mr-1.5 align-middle" :style="'background:' + (row.type === 'headwind' ? 'var(--red)' : row.type === 'tailwind' ? 'var(--green)' : 'var(--amber)')"></span>
+                    <span x-text="row.type.charAt(0).toUpperCase() + row.type.slice(1)"></span>
+                  </td>
+                </tr>
+              </template>
+              </tbody>
+            </table>
+          </div>
         </div>
+
       </div>
 
-      <div class="text-center mt-6">
-        <button class="py-2 px-6 bg-transparent border border-edge rounded-[20px] cursor-pointer text-[0.8rem] text-muted font-[inherit] transition-all hover:border-muted hover:text-secondary" @click="reset()">Upload another file</button>
-      </div>
     </div>
   </main>
 
   <!-- Loading overlay -->
-  <div class="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center flex-col text-secondary" x-show="loading" x-cloak>
+  <div class="fixed inset-0 z-9999 bg-black/60 backdrop-blur-sm flex items-center justify-center flex-col text-secondary" x-show="loading" x-cloak>
     <div class="size-8 border-[3px] border-white/15 border-t-accent rounded-full animate-spin mb-3"></div>
     <p>Analyzing route&hellip;</p>
   </div>
@@ -305,34 +298,34 @@
 
 
   <!-- FAQ dialog -->
-  <dialog id="faqDialog" class="bg-card text-primary border border-edge rounded-xl p-0 max-w-[560px] w-[90vw] max-h-[80vh] overflow-y-auto shadow-[0_8px_32px_rgba(0,0,0,0.3)] fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0" @click="if ($event.target === $el) $el.close()">
-    <div class="flex items-center justify-between py-[18px] px-[22px] border-b border-edge sticky top-0 bg-card z-[1]">
+  <dialog id="faqDialog" class="bg-card text-primary border border-edge rounded-xl p-0 max-w-140 w-[90vw] max-h-[80vh] overflow-y-auto shadow-[0_8px_32px_rgba(0,0,0,0.3)] fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0" @click="if ($event.target === $el) $el.close()">
+    <div class="flex items-center justify-between py-4.5 px-5.5 border-b border-edge sticky top-0 bg-card z-[1]">
       <h2 class="text-[0.95rem] font-bold">Frequently Asked Questions</h2>
       <button class="size-7 bg-elevated border border-edge rounded-full cursor-pointer flex items-center justify-center text-muted text-base leading-none p-0 transition-colors hover:bg-input-bg hover:text-primary" @click="$el.closest('dialog').close()">&times;</button>
     </div>
-    <div class="pt-[18px] px-[22px] pb-6">
+    <div class="pt-4.5 px-5.5 pb-6">
       <dl>
-        <div class="mb-[18px]">
+        <div class="mb-4.5">
           <dt class="text-[0.82rem] font-semibold mb-1 text-primary">Is my data stored anywhere?</dt>
           <dd class="text-[0.78rem] text-secondary leading-relaxed">No. Everything runs entirely in your browser. Your GPX file is parsed locally and never uploaded to any server. Weather data is fetched directly from the Open-Meteo API.</dd>
         </div>
-        <div class="mb-[18px]">
+        <div class="mb-4.5">
           <dt class="text-[0.82rem] font-semibold mb-1 text-primary">Where does the weather data come from?</dt>
           <dd class="text-[0.78rem] text-secondary leading-relaxed">Wind and weather forecasts are provided by the Open-Meteo API, a free and open-source weather service. Data is available for the current day plus 7 days ahead.</dd>
         </div>
-        <div class="mb-[18px]">
+        <div class="mb-4.5">
           <dt class="text-[0.82rem] font-semibold mb-1 text-primary">How accurate is the wind analysis?</dt>
           <dd class="text-[0.78rem] text-secondary leading-relaxed">The analysis uses hourly wind forecasts sampled at the route's geographic center. Actual conditions may vary due to terrain, elevation, and local effects. Treat results as a useful estimate, not a guarantee.</dd>
         </div>
-        <div class="mb-[18px]">
+        <div class="mb-4.5">
           <dt class="text-[0.82rem] font-semibold mb-1 text-primary">What does "Best start" mean?</dt>
           <dd class="text-[0.78rem] text-secondary leading-relaxed">We run the analysis for every hour of the selected day and rank them by net headwind. The top 3 hours with the least headwind (or most tailwind) are shown as suggestions.</dd>
         </div>
-        <div class="mb-[18px]">
+        <div class="mb-4.5">
           <dt class="text-[0.82rem] font-semibold mb-1 text-primary">How does average speed affect the results?</dt>
           <dd class="text-[0.78rem] text-secondary leading-relaxed">Your speed determines how long you spend on each segment and which hourly forecast applies. A slower speed means the ride spans more hours, so wind shifts during the ride are taken into account.</dd>
         </div>
-        <div class="mb-[18px]">
+        <div class="mb-4.5">
           <dt class="text-[0.82rem] font-semibold mb-1 text-primary">What GPX features are supported?</dt>
           <dd class="text-[0.78rem] text-secondary leading-relaxed">Track points, route points, waypoints, and elevation data. The file must contain at least 2 points. Most GPX files exported from Strava, Komoot, Garmin, or similar apps work out of the box.</dd>
         </div>
@@ -345,18 +338,15 @@
   </dialog>
 </div>
 
-<footer class="text-center pt-6 px-5 pb-8 mt-8 border-t border-edge text-[0.72rem] text-muted">
+<footer class="text-center pt-6 px-5 pb-8 mt-8 border-t border-edge bg-white text-[0.72rem] text-muted">
   <div class="flex justify-center gap-5 mb-2">
     <button class="text-secondary no-underline text-xs font-[inherit] bg-none border-none cursor-pointer p-0 transition-colors hover:text-accent" onclick="document.getElementById('faqDialog').showModal()">FAQ</button>
     <a class="text-secondary no-underline text-xs transition-colors hover:text-accent" href="#" target="_blank">GitHub</a>
-    <a class="text-secondary no-underline text-xs transition-colors hover:text-accent" href="https://open-meteo.com" target="_blank">Open-Meteo</a>
   </div>
   <span>Wind Analyzer &mdash; 100% client-side, no data stored</span>
 </footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/driver.js@1.4.0/dist/driver.js.iife.js"></script>
 <script src="dist/app.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
 </body>
 </html>

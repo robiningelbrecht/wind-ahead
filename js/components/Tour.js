@@ -1,9 +1,9 @@
+import { driver } from 'driver.js';
 import { TOUR_KEY } from '../constants';
 
 export class Tour {
     run() {
-        const d = window.driver.js.driver;
-        const tour = d({
+        const tour = driver({
             showProgress: true,
             popoverClass: 'driver-popover',
             steps: [

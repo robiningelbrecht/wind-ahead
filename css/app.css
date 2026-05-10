@@ -1,4 +1,5 @@
 @import "tailwindcss" source(none);
+@import "driver.js/dist/driver.css";
 @import "./components/dark-mode.css";
 @source "../index.html";
 

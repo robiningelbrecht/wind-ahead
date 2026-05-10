@@ -1,3 +1,4 @@
+import Alpine from 'alpinejs';
 import { WEATHER_CODES } from './constants';
 import { GeoUtils } from './utils/GeoUtils';
 import { GpxParser } from './services/GpxParser';
@@ -14,7 +15,7 @@ const mapRenderer = new MapRenderer();
 const windStrip = new WindStrip();
 const tour = new Tour();
 
-window.windAnalyzer = function () {
+Alpine.data('windAnalyzer', () => {
     const savedTheme = localStorage.getItem('wind-analyzer-theme');
     if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
 
@@ -228,4 +229,6 @@ window.windAnalyzer = function () {
             mapRenderer.destroy();
         }
     };
-};
+});
+
+Alpine.start();
