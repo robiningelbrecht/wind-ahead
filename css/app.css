@@ -4,66 +4,10 @@
 @source "../index.html";
 
 @theme {
-    --color-strava-orange: #F26722;
-
-    --color-surface: var(--bg);
-    --color-card: var(--bg-card);
-    --color-elevated: var(--bg-elevated);
-    --color-input-bg: var(--bg-input);
-    --color-primary: var(--text);
-    --color-secondary: var(--text-secondary);
-    --color-muted: var(--text-muted);
-    --color-edge: var(--border);
-    --color-danger: var(--red);
-    --color-success: var(--green);
-    --color-warning: var(--amber);
-    --color-accent: var(--orange);
-    --color-accent-hover: var(--orange-hover);
-    --color-accent-muted: var(--orange-muted);
-    --color-overlay: var(--overlay-bg);
-    --color-upload-hover: var(--upload-hover);
-
     --animate-fade-up: fade-up 0.35s ease;
 }
 
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
-
 @layer base {
-    :root, [data-theme="dark"] {
-        --orange: #FC4C02;
-        --orange-hover: #e04400;
-        --orange-muted: rgba(252, 76, 2, 0.15);
-        --bg: #0d0d0f;
-        --bg-card: #1a1a1e;
-        --bg-elevated: #242428;
-        --bg-input: #2d2d32;
-        --text: #f0f0f2;
-        --text-secondary: #a0a0a8;
-        --text-muted: #6d6d78;
-        --border: #2a2a2f;
-        --red: #ef4444;
-        --green: #4cd964;
-        --amber: #fbbf24;
-        --overlay-bg: rgba(13, 13, 15, 0.88);
-        --upload-hover: rgba(252, 76, 2, 0.03);
-    }
-
-    [data-theme="light"] {
-        --bg: #f2f2f5;
-        --bg-card: #ffffff;
-        --bg-elevated: #eeeef1;
-        --bg-input: #e4e4e8;
-        --text: #1a1a1e;
-        --text-secondary: #555560;
-        --text-muted: #8e8e9a;
-        --border: #d8d8dc;
-        --red: #dc2626;
-        --green: #16a34a;
-        --amber: #d97706;
-        --overlay-bg: rgba(255, 255, 255, 0.92);
-        --upload-hover: rgba(252, 76, 2, 0.05);
-    }
-
     [x-cloak] { display: none !important; }
 }
 
@@ -80,10 +24,10 @@
 [data-theme="light"] .icon-moon { display: none; }
 
 /* Dragover state (added by JS) */
-.dragover { border-color: var(--orange) !important; background: var(--upload-hover) !important; }
+.dragover { border-color: var(--color-orange-600) !important; background: rgba(249, 115, 22, 0.05) !important; }
 
 /* Donut chart SVG */
-.donut-ring { fill: none; stroke: var(--bg-elevated); stroke-width: 3.5; }
+.donut-ring { fill: none; stroke: var(--color-gray-200); stroke-width: 3.5; }
 .donut-segment { fill: none; stroke-width: 3.5; stroke-linecap: round; transition: stroke-dasharray 0.6s ease; }
 
 /* Compass arrow pseudo-elements */
@@ -95,56 +39,57 @@
 .compass-arrow::before {
     content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
     border-left: 5px solid transparent; border-right: 5px solid transparent;
-    border-bottom: 8px solid var(--orange);
+    border-bottom: 8px solid var(--color-orange-600);
 }
 .compass-arrow::after {
     content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
-    width: 2px; height: 20px; background: var(--orange);
+    width: 2px; height: 20px; background: var(--color-orange-600);
 }
 
 /* Leaflet markers & controls (JS-injected) */
 .wind-arrow-marker { background: none !important; border: none !important; }
 .map-wind-toggle {
-    background: var(--overlay-bg); backdrop-filter: blur(8px);
+    background: color-mix(in srgb, var(--color-white) 92%, transparent);
+    backdrop-filter: blur(8px);
     padding: 6px 10px; border-radius: 6px; cursor: pointer;
-    font-size: 0.72rem; font-weight: 600; color: var(--text-secondary);
-    border: 1px solid var(--border); user-select: none;
+    font-size: 0.72rem; font-weight: 600; color: var(--color-gray-600);
+    border: 1px solid var(--color-gray-200); user-select: none;
     line-height: 1.3; text-align: center;
 }
-.map-wind-toggle:hover { background: var(--bg-elevated); }
-.map-wind-toggle.active { color: var(--orange); }
-.map-wind-toggle .toggle-label { font-size: 0.62rem; color: var(--text-muted); font-weight: 400; }
+.map-wind-toggle:hover { background: var(--color-gray-200); }
+.map-wind-toggle.active { color: var(--color-orange-600); }
+.map-wind-toggle .toggle-label { font-size: 0.62rem; color: var(--color-gray-500); font-weight: 400; }
 
 /* Strip tooltip (JS-controlled) */
 .strip-tooltip.visible { display: block; }
 .st-type { font-weight: 600; }
-.st-head { color: var(--red); }
-.st-tail { color: var(--green); }
-.st-cross { color: var(--amber); }
+.st-head { color: var(--color-red-600); }
+.st-tail { color: var(--color-green-600); }
+.st-cross { color: var(--color-amber-600); }
 
 /* Table striping */
-.segment-table tbody tr:nth-child(even) td { background: var(--bg-elevated); }
+.segment-table tbody tr:nth-child(even) td { background: var(--color-gray-200); }
 
 /* FAQ dialog backdrop */
 dialog::backdrop { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
 
 /* Driver.js theme overrides */
 .driver-popover {
-    background: var(--bg-card) !important;
-    color: var(--text) !important;
-    border: 1px solid var(--border) !important;
+    background: var(--color-white) !important;
+    color: var(--color-gray-900) !important;
+    border: 1px solid var(--color-gray-200) !important;
 }
-.driver-popover .driver-popover-title { color: var(--text) !important; font-size: 0.9rem !important; }
-.driver-popover .driver-popover-description { color: var(--text-secondary) !important; font-size: 0.8rem !important; }
-.driver-popover .driver-popover-progress-text { color: var(--text-muted) !important; }
+.driver-popover .driver-popover-title { color: var(--color-gray-900) !important; font-size: 0.9rem !important; }
+.driver-popover .driver-popover-description { color: var(--color-gray-600) !important; font-size: 0.8rem !important; }
+.driver-popover .driver-popover-progress-text { color: var(--color-gray-500) !important; }
 .driver-popover .driver-popover-prev-btn {
-    color: var(--text-muted) !important;
-    border-color: var(--border) !important;
+    color: var(--color-gray-500) !important;
+    border-color: var(--color-gray-200) !important;
     background: transparent !important;
 }
 .driver-popover .driver-popover-next-btn,
 .driver-popover .driver-popover-close-btn {
-    color: var(--orange) !important;
+    color: var(--color-orange-600) !important;
     border: none !important;
     text-shadow: none !important;
 }
@@ -152,5 +97,5 @@ dialog::backdrop { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
 .driver-popover-arrow-side-right .driver-popover-arrow,
 .driver-popover-arrow-side-top .driver-popover-arrow,
 .driver-popover-arrow-side-bottom .driver-popover-arrow {
-    border-color: var(--bg-card) !important;
+    border-color: var(--color-white) !important;
 }

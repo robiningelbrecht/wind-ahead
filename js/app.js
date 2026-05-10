@@ -16,8 +16,8 @@ const windStrip = new WindStrip();
 const tour = new Tour();
 
 Alpine.data('windAnalyzer', () => {
-    const savedTheme = localStorage.getItem('wind-analyzer-theme');
-    if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+    const savedTheme = localStorage.getItem('wind-analyzer-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
 
     return {
         view: 'upload',
@@ -41,11 +41,11 @@ Alpine.data('windAnalyzer', () => {
         kmTableOpen: false,
         _lastRenderKey: null,
 
-        get netColor() {
+        get netColorClass() {
             if (!this.analysis) return '';
-            if (this.analysis.avgHead > 0.5) return 'var(--red)';
-            if (this.analysis.avgHead < -0.5) return 'var(--green)';
-            return 'var(--amber)';
+            if (this.analysis.avgHead > 0.5) return 'text-red-600';
+            if (this.analysis.avgHead < -0.5) return 'text-green-600';
+            return 'text-amber-600';
         },
         get netLabel() {
             if (!this.analysis) return '';
@@ -62,10 +62,10 @@ Alpine.data('windAnalyzer', () => {
             if (!this.analysis) return 0;
             return Math.max(this.analysis.pctHead, this.analysis.pctTail, this.analysis.pctCross).toFixed(0);
         },
-        get dominantColor() {
-            if (this.dominantType === 'Headwind') return 'var(--red)';
-            if (this.dominantType === 'Tailwind') return 'var(--green)';
-            return 'var(--amber)';
+        get dominantColorClass() {
+            if (this.dominantType === 'Headwind') return 'text-red-600';
+            if (this.dominantType === 'Tailwind') return 'text-green-600';
+            return 'text-amber-600';
         },
         get conditionText() {
             if (!this.weather) return '';
