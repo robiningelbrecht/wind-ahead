@@ -203,9 +203,8 @@ Alpine.data('windAnalyzer', () => {
 
                 const d = new Date(this.dateTime);
                 const opts = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-                this.weatherLabel = `Weather \u2014 ${d.toLocaleDateString(undefined, opts)}`;
+                this.weatherLabel = `Weather - ${d.toLocaleDateString(undefined, opts)}`;
                 this.dateNote = d.toLocaleDateString(undefined, { weekday: 'short', ...opts });
-
                 this.loading = false;
             } catch (err) {
                 this.loading = false;

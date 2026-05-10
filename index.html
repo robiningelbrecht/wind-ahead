@@ -121,11 +121,11 @@
           </div>
         </template>
         <template x-if="analysis && weather">
-          <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4 max-md:grid-cols-1">
+          <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4 max-md:grid-cols-1">
             <!-- Wind breakdown card -->
-            <div data-driver="breakdown" class="card">
+            <div data-driver="breakdown" class="card flex flex-col">
               <div class="card-title mb-4.5">Wind Breakdown</div>
-              <div class="flex items-center gap-6">
+              <div class="grow flex items-center gap-6">
                 <div class="relative size-32.5 shrink-0">
                   <svg class="w-full h-full" viewBox="0 0 36 36">
                     <circle class="fill-none stroke-gray-200 stroke-[3.5]" cx="18" cy="18" r="15.9155"/>
@@ -164,9 +164,9 @@
               </div>
             </div>
             <!-- Wind rose card -->
-            <div data-driver="rose" class="card">
+            <div data-driver="rose" class="card flex flex-col">
               <div class="card-title mb-4.5">Wind Rose</div>
-              <div class="flex items-center gap-5">
+              <div class="grow flex items-center gap-5">
                 <div class="size-32.5 shrink-0">
                   <svg class="w-full h-full" viewBox="0 0 100 100">
                     <circle cx="50" cy="50" r="38" fill="none" class="stroke-gray-200" stroke-width="0.5" stroke-dasharray="2,2"/>
@@ -192,9 +192,9 @@
               </div>
             </div>
             <!-- Weather card -->
-            <div data-driver="weather" class="card">
+            <div data-driver="weather" class="card flex flex-col">
               <div class="card-title mb-4.5" x-text="weatherLabel"></div>
-              <div class="flex items-center gap-5 mb-5 pb-4.5 border-b border-gray-200">
+              <div class="grow flex items-center gap-5 mb-5 pb-4.5 border-b border-gray-200">
                 <div class="relative size-20 border-2 border-gray-200 rounded-full bg-gray-200 shrink-0">
                   <span class="absolute text-[0.55rem] font-bold text-gray-600 top-0.75 left-1/2 -translate-x-1/2">N</span>
                   <span class="absolute text-[0.55rem] font-bold text-gray-500 right-1.25 top-1/2 -translate-y-1/2">E</span>
@@ -203,9 +203,12 @@
                   <div class="absolute top-1/2 left-1/2 w-1 h-7 -ml-0.5 -mt-7 origin-bottom transition-transform duration-500 before:content-[''] before:absolute before:top-0 before:left-1/2 before:-translate-x-1/2 before:border-l-[5px] before:border-l-transparent before:border-r-[5px] before:border-r-transparent before:border-b-[8px] before:border-b-orange-600 after:content-[''] after:absolute after:top-2 after:left-1/2 after:-translate-x-1/2 after:w-0.5 after:h-5 after:bg-orange-600" :style="'transform: rotate(' + ((windDir + 180) % 360) + 'deg)'"></div>
                 </div>
                 <div class="flex-1">
-                  <div class="text-[1.6rem] font-extrabold leading-[1.1]"><span x-text="weather.wind_speed_10m"></span> <span class="text-[0.8rem] font-normal text-gray-600">km/h</span></div>
-                  <div class="text-[0.78rem] text-gray-500 mt-0.5" x-text="'From ' + windLabelFn(windDir) + ' (' + windDir + '°)'"></div>
-                  <div class="text-[0.72rem] text-gray-500 mt-1.5 pt-1.5 border-t border-gray-200">Gusts up to <span class="text-gray-600 font-semibold" x-text="weather.wind_gusts_10m + ' km/h'"></span></div>
+                  <div class="text-[0.8rem] font-normal text-gray-600">
+                    <span class="font-extrabold leading-[1.1]" x-text="weather.wind_speed_10m"></span>
+                    <span>km/h - </span>
+                    <span x-text="windLabelFn(windDir) + ' (' + windDir + '°)'"></span>
+                  </div>
+                  <div class="text-[0.72rem] text-gray-500 mt-2">Gusts up to <span class="text-gray-600 font-semibold" x-text="weather.wind_gusts_10m + ' km/h'"></span></div>
                 </div>
               </div>
               <div class="grid grid-cols-3 gap-4">
@@ -262,9 +265,9 @@
                 <tr class="even:bg-gray-50">
                   <td x-text="row.km"></td>
                   <td><span x-text="row.bearing.toFixed(0)"></span>° <span class="text-[0.68rem] text-gray-500" x-text="windLabelFn(row.bearing)"></span></td>
-                  <td :class="row.headComp > 0.5 ? 'text-red-600' : row.headComp < -0.5 ? 'text-green-600' : ''" x-text="row.headComp.toFixed(1) + ' km/h'"></td>
-                  <td x-text="row.crossComp.toFixed(1) + ' km/h'"></td>
-                  <td x-text="row.elevation !== null ? row.elevation.toFixed(0) + ' m' : '—'"></td>
+                  <td :class="row.headComp > 0.5 ? 'text-red-600' : row.headComp < -0.5 ? 'text-green-600' : ''" x-text="row.headComp.toFixed(1) + '\u{00A0}km/h'"></td>
+                  <td x-text="row.crossComp.toFixed(1) + '\u{00A0}km/h'"></td>
+                  <td x-text="row.elevation !== null ? row.elevation.toFixed(0) + '\u{00A0}m' : '-'"></td>
                   <td>
                     <span class="inline-block size-2 rounded-full mr-1.5 align-middle" :class="row.type === 'headwind' ? 'bg-red-600' : row.type === 'tailwind' ? 'bg-green-600' : 'bg-amber-600'"></span>
                     <span x-text="row.type.charAt(0).toUpperCase() + row.type.slice(1)"></span>
@@ -275,9 +278,7 @@
             </table>
           </div>
         </div>
-
       </div>
-
     </div>
   </main>
 
