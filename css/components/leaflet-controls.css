@@ -1,0 +1,18 @@
+.wind-arrow-marker {
+    @apply bg-none! border-none!;
+}
+.map-wind-toggle {
+    @apply bg-white/90 backdrop-blur-md py-1.5 px-2.5 rounded-md cursor-pointer
+           text-[0.72rem] font-semibold text-gray-600
+           border border-gray-200 select-none
+           leading-tight text-center;
+}
+.map-wind-toggle:hover {
+    @apply bg-gray-200;
+}
+.map-wind-toggle.active {
+    @apply text-orange-600;
+}
+.map-wind-toggle .toggle-label {
+    @apply text-[0.62rem] text-gray-500 font-normal;
+}

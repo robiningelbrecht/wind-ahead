@@ -44,9 +44,9 @@
     <!-- Upload -->
     <div class="border-2 border-dashed border-gray-200 rounded-xl py-16 px-6 text-center cursor-pointer transition-all bg-white relative hover:border-orange-600 hover:bg-orange-500/5"
          x-show="view === 'upload'"
-         @dragover.prevent="$el.classList.add('dragover')"
-         @dragleave="$el.classList.remove('dragover')"
-         @drop.prevent="$el.classList.remove('dragover'); handleDrop($event)">
+         @dragover.prevent="$el.classList.add('!border-orange-600', '!bg-orange-500/5')"
+         @dragleave="$el.classList.remove('!border-orange-600', '!bg-orange-500/5')"
+         @drop.prevent="$el.classList.remove('!border-orange-600', '!bg-orange-500/5'); handleDrop($event)">
       <div class="size-14 mx-auto mb-4 bg-gray-200 rounded-full flex items-center justify-center">
         <svg class="size-6 stroke-orange-600 fill-none [stroke-width:1.5]" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -92,7 +92,7 @@
           <!-- Strip -->
           <div id="tour-strip" class="relative cursor-crosshair" @mouseleave="hideStripHover()">
             <div class="flex h-2.5 rounded-[5px] overflow-hidden bg-gray-200" id="windStrip" @mousemove="onStripHover($event)"></div>
-            <div class="strip-tooltip hidden absolute bottom-full -translate-x-1/2 bg-white/90 backdrop-blur-[8px] border border-gray-200 rounded-md py-1.5 px-2.5 text-[0.7rem] text-gray-600 whitespace-nowrap pointer-events-none z-[1000] mb-1" id="stripTooltip"></div>
+            <div class="hidden absolute bottom-full -translate-x-1/2 bg-white/90 backdrop-blur-[8px] border border-gray-200 rounded-md py-1.5 px-2.5 text-[0.7rem] text-gray-600 whitespace-nowrap pointer-events-none z-[1000] mb-1" id="stripTooltip"></div>
           </div>
         </div>
         <!-- Stats row -->
@@ -128,14 +128,14 @@
               <div class="flex items-center gap-6">
                 <div class="relative size-32.5 shrink-0">
                   <svg class="w-full h-full" viewBox="0 0 36 36">
-                    <circle class="donut-ring" cx="18" cy="18" r="15.9155"/>
-                    <circle class="donut-segment stroke-red-600" cx="18" cy="18" r="15.9155"
+                    <circle class="fill-none stroke-gray-200 [stroke-width:3.5]" cx="18" cy="18" r="15.9155"/>
+                    <circle class="fill-none [stroke-width:3.5] [stroke-linecap:round] [transition:stroke-dasharray_0.6s_ease] stroke-red-600" cx="18" cy="18" r="15.9155"
                             :stroke-dasharray="analysis.pctHead + ' ' + (100 - analysis.pctHead)"
                             stroke-dashoffset="25"/>
-                    <circle class="donut-segment stroke-green-600" cx="18" cy="18" r="15.9155"
+                    <circle class="fill-none [stroke-width:3.5] [stroke-linecap:round] [transition:stroke-dasharray_0.6s_ease] stroke-green-600" cx="18" cy="18" r="15.9155"
                             :stroke-dasharray="analysis.pctTail + ' ' + (100 - analysis.pctTail)"
                             :stroke-dashoffset="25 - analysis.pctHead"/>
-                    <circle class="donut-segment stroke-amber-600" cx="18" cy="18" r="15.9155"
+                    <circle class="fill-none [stroke-width:3.5] [stroke-linecap:round] [transition:stroke-dasharray_0.6s_ease] stroke-amber-600" cx="18" cy="18" r="15.9155"
                             :stroke-dasharray="analysis.pctCross + ' ' + (100 - analysis.pctCross)"
                             :stroke-dashoffset="25 - analysis.pctHead - analysis.pctTail"/>
                   </svg>
@@ -169,9 +169,9 @@
 
             <!-- Wind rose card -->
             <div id="tour-rose" class="p-4 bg-white border border-gray-200 rounded-lg shadow-xs">
-              <div class="text-[0.68rem] uppercase tracking-[0.08em] text-gray-500 mb-[18px] font-semibold">Wind Rose</div>
+              <div class="text-[0.68rem] uppercase tracking-[0.08em] text-gray-500 mb-4.5 font-semibold">Wind Rose</div>
               <div class="flex items-center gap-5">
-                <div class="size-[130px] shrink-0">
+                <div class="size-32.5 shrink-0">
                   <svg class="w-full h-full" viewBox="0 0 100 100">
                     <circle cx="50" cy="50" r="38" fill="none" class="stroke-gray-200" stroke-width="0.5" stroke-dasharray="2,2"/>
                     <circle cx="50" cy="50" r="19" fill="none" class="stroke-gray-200" stroke-width="0.5" stroke-dasharray="2,2"/>
@@ -185,8 +185,8 @@
                 <div class="flex flex-col gap-1 flex-1">
                   <template x-for="p in windRose" :key="p.label">
                     <div class="flex items-center gap-1.5">
-                      <span class="text-[0.72rem] font-semibold text-gray-600 w-[22px]" x-text="p.label"></span>
-                      <div class="flex-1 h-[5px] bg-gray-200 rounded-sm overflow-hidden">
+                      <span class="text-[0.72rem] font-semibold text-gray-600 w-5.5" x-text="p.label"></span>
+                      <div class="flex-1 h-1.25 bg-gray-200 rounded-sm overflow-hidden">
                         <div class="h-full rounded-sm transition-[width] duration-400" :style="'width:' + p.pct + '%;background:' + p.color"></div>
                       </div>
                       <span class="text-[0.68rem] text-gray-500 tabular-nums w-7 text-right" x-text="p.distPct + '%'"></span>
@@ -205,7 +205,7 @@
                   <span class="absolute text-[0.55rem] font-bold text-gray-500 right-1.25 top-1/2 -translate-y-1/2">E</span>
                   <span class="absolute text-[0.55rem] font-bold text-gray-500 bottom-0.75 left-1/2 -translate-x-1/2">S</span>
                   <span class="absolute text-[0.55rem] font-bold text-gray-500 left-1.25 top-1/2 -translate-y-1/2">W</span>
-                  <div class="compass-arrow" :style="'transform: rotate(' + ((windDir + 180) % 360) + 'deg)'"></div>
+                  <div class="absolute top-1/2 left-1/2 w-1 h-7 -ml-0.5 -mt-7 origin-bottom transition-transform duration-500 before:content-[''] before:absolute before:top-0 before:left-1/2 before:-translate-x-1/2 before:border-l-[5px] before:border-l-transparent before:border-r-[5px] before:border-r-transparent before:border-b-[8px] before:border-b-orange-600 after:content-[''] after:absolute after:top-2 after:left-1/2 after:-translate-x-1/2 after:w-0.5 after:h-5 after:bg-orange-600" :style="'transform: rotate(' + ((windDir + 180) % 360) + 'deg)'"></div>
                 </div>
                 <div class="flex-1">
                   <div class="text-[1.6rem] font-extrabold leading-[1.1]"><span x-text="weather.wind_speed_10m"></span> <span class="text-[0.8rem] font-normal text-gray-600">km/h</span></div>

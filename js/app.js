@@ -95,17 +95,17 @@ Alpine.data('windAnalyzer', () => {
             const midLat = (seg.p1.lat + seg.p2.lat) / 2;
             const midLon = (seg.p1.lon + seg.p2.lon) / 2;
             const km = (seg.cumDist / 1000).toFixed(1);
-            const typeClass = seg.type === 'headwind' ? 'st-head' : seg.type === 'tailwind' ? 'st-tail' : 'st-cross';
+            const typeClass = seg.type === 'headwind' ? 'text-red-600' : seg.type === 'tailwind' ? 'text-green-600' : 'text-amber-600';
             const tip = document.getElementById('stripTooltip');
-            tip.innerHTML = `<span class="st-type ${typeClass}">${seg.type.charAt(0).toUpperCase() + seg.type.slice(1)}</span> &middot; ${km} km<br>Head: ${seg.headComp.toFixed(1)} km/h &middot; Cross: ${Math.abs(seg.crossComp).toFixed(1)} km/h`;
+            tip.innerHTML = `<span class="font-semibold ${typeClass}">${seg.type.charAt(0).toUpperCase() + seg.type.slice(1)}</span> &middot; ${km} km<br>Head: ${seg.headComp.toFixed(1)} km/h &middot; Cross: ${Math.abs(seg.crossComp).toFixed(1)} km/h`;
             tip.style.left = (event.clientX - rect.left) + 'px';
-            tip.classList.add('visible');
+            tip.classList.remove('hidden');
             mapRenderer.showHoverMarker(midLat, midLon, seg.headFactor);
         },
 
         hideStripHover() {
             const tip = document.getElementById('stripTooltip');
-            if (tip) tip.classList.remove('visible');
+            if (tip) tip.classList.add('hidden');
             mapRenderer.removeHoverMarker();
         },
 
