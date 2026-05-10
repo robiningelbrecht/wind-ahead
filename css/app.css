@@ -1,7 +1,10 @@
 @import "tailwindcss" source(none);
 @import "driver.js/dist/driver.css";
 @import "./components/dark-mode.css";
+@import "./components/driver-popover.css";
 @source "../index.html";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme {
     --animate-fade-up: fade-up 0.35s ease;
@@ -16,12 +19,6 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
-/* Theme toggle icons */
-.icon-sun { display: none; }
-.icon-moon { display: block; }
-[data-theme="light"] .icon-sun { display: block; }
-[data-theme="light"] .icon-moon { display: none; }
 
 /* Dragover state (added by JS) */
 .dragover { border-color: var(--color-orange-600) !important; background: rgba(249, 115, 22, 0.05) !important; }
@@ -66,36 +63,3 @@
 .st-head { color: var(--color-red-600); }
 .st-tail { color: var(--color-green-600); }
 .st-cross { color: var(--color-amber-600); }
-
-/* Table striping */
-.segment-table tbody tr:nth-child(even) td { background: var(--color-gray-200); }
-
-/* FAQ dialog backdrop */
-dialog::backdrop { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
-
-/* Driver.js theme overrides */
-.driver-popover {
-    background: var(--color-white) !important;
-    color: var(--color-gray-900) !important;
-    border: 1px solid var(--color-gray-200) !important;
-}
-.driver-popover .driver-popover-title { color: var(--color-gray-900) !important; font-size: 0.9rem !important; }
-.driver-popover .driver-popover-description { color: var(--color-gray-600) !important; font-size: 0.8rem !important; }
-.driver-popover .driver-popover-progress-text { color: var(--color-gray-500) !important; }
-.driver-popover .driver-popover-prev-btn {
-    color: var(--color-gray-500) !important;
-    border-color: var(--color-gray-200) !important;
-    background: transparent !important;
-}
-.driver-popover .driver-popover-next-btn,
-.driver-popover .driver-popover-close-btn {
-    color: var(--color-orange-600) !important;
-    border: none !important;
-    text-shadow: none !important;
-}
-.driver-popover-arrow-side-left .driver-popover-arrow,
-.driver-popover-arrow-side-right .driver-popover-arrow,
-.driver-popover-arrow-side-top .driver-popover-arrow,
-.driver-popover-arrow-side-bottom .driver-popover-arrow {
-    border-color: var(--color-white) !important;
-}

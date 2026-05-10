@@ -1,0 +1,25 @@
+.driver-popover {
+    background: var(--color-white) !important;
+    color: var(--color-gray-900) !important;
+    border: 1px solid var(--color-gray-200) !important;
+}
+.driver-popover .driver-popover-title { color: var(--color-gray-900) !important; font-size: 0.9rem !important; }
+.driver-popover .driver-popover-description { color: var(--color-gray-600) !important; font-size: 0.8rem !important; }
+.driver-popover .driver-popover-progress-text { color: var(--color-gray-500) !important; }
+.driver-popover .driver-popover-prev-btn {
+    color: var(--color-gray-500) !important;
+    border-color: var(--color-gray-200) !important;
+    background: transparent !important;
+}
+.driver-popover .driver-popover-next-btn,
+.driver-popover .driver-popover-close-btn {
+    color: var(--color-orange-600) !important;
+    border: none !important;
+    text-shadow: none !important;
+}
+.driver-popover-arrow-side-left .driver-popover-arrow,
+.driver-popover-arrow-side-right .driver-popover-arrow,
+.driver-popover-arrow-side-top .driver-popover-arrow,
+.driver-popover-arrow-side-bottom .driver-popover-arrow {
+    border-color: var(--color-white) !important;
+}

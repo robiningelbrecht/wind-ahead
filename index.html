@@ -30,10 +30,10 @@
           </svg>
         </button>
         <button class="size-8.5 bg-gray-200 border border-gray-200 rounded-full cursor-pointer flex items-center justify-center text-gray-500 transition-colors shrink-0 p-0 hover:bg-gray-300 hover:text-gray-900" @click="toggleTheme()" title="Toggle light/dark mode">
-          <svg class="icon-moon size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="size-4 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
           </svg>
-          <svg class="icon-sun size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="size-4 block dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
           </svg>
         </button>
@@ -251,7 +251,7 @@
             </svg>
           </div>
           <div class="max-h-100 overflow-y-auto mt-3.5" x-show="kmTableOpen">
-            <table class="segment-table w-full border-collapse text-[0.78rem]">
+            <table class="w-full border-collapse text-[0.78rem]">
               <thead>
               <tr>
                 <th class="sticky top-0 bg-white text-left py-2 px-2.5 text-[0.62rem] uppercase tracking-[0.06em] text-gray-500 font-semibold border-b border-gray-200">KM</th>
@@ -264,7 +264,7 @@
               </thead>
               <tbody>
               <template x-for="row in kmTable" :key="row.km">
-                <tr>
+                <tr class="even:bg-gray-200">
                   <td class="py-1.75 px-2.5 tabular-nums border-b border-gray-200 text-gray-600" x-text="row.km"></td>
                   <td class="py-1.75 px-2.5 tabular-nums border-b border-gray-200 text-gray-600"><span x-text="row.bearing.toFixed(0)"></span>° <span class="text-[0.68rem] text-gray-500" x-text="windLabelFn(row.bearing)"></span></td>
                   <td class="py-1.75 px-2.5 tabular-nums border-b border-gray-200 text-gray-600" :class="row.headComp > 0.5 ? 'text-red-600' : row.headComp < -0.5 ? 'text-green-600' : ''" x-text="row.headComp.toFixed(1) + ' km/h'"></td>
@@ -295,7 +295,7 @@
 
 
   <!-- FAQ dialog -->
-  <dialog id="faqDialog" class="bg-white text-gray-900 border border-gray-200 rounded-xl p-0 max-w-140 w-[90vw] max-h-[80vh] overflow-y-auto shadow-[0_8px_32px_rgba(0,0,0,0.3)] fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0" @click="if ($event.target === $el) $el.close()">
+  <dialog id="faqDialog" class="bg-white text-gray-900 border border-gray-200 rounded-xl p-0 max-w-140 w-[90vw] max-h-[80vh] overflow-y-auto shadow-[0_8px_32px_rgba(0,0,0,0.3)] fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 backdrop:bg-black/50 backdrop:backdrop-blur-sm" @click="if ($event.target === $el) $el.close()">
     <div class="flex items-center justify-between py-4.5 px-5.5 border-b border-gray-200 sticky top-0 bg-white z-[1]">
       <h2 class="text-[0.95rem] font-bold">Frequently Asked Questions</h2>
       <button class="size-7 bg-gray-200 border border-gray-200 rounded-full cursor-pointer flex items-center justify-center text-gray-500 text-base leading-none p-0 transition-colors hover:bg-gray-300 hover:text-gray-900" @click="$el.closest('dialog').close()">&times;</button>
