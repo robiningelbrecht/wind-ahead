@@ -12,10 +12,6 @@
     --animate-fade-up: fade-up 0.35s ease;
 }
 
-@layer base {
-    [x-cloak] { display: none !important; }
-}
-
 /* Animations */
 @keyframes fade-up {
     from { opacity: 0; transform: translateY(10px); }
@@ -38,6 +34,7 @@ td { @apply py-1.75 px-2.5 tabular-nums border-b border-gray-200 text-gray-600; 
 .btn-icon { @apply size-8.5 bg-gray-200 border border-gray-200 rounded-full cursor-pointer flex items-center justify-center text-gray-500 transition-colors shrink-0 p-0 hover:bg-gray-300 hover:text-gray-900; }
 .btn-icon-sm { @apply size-7 bg-gray-200 border border-gray-200 rounded-full cursor-pointer flex items-center justify-center text-gray-500 transition-colors shrink-0 p-0 text-base leading-none hover:bg-gray-300 hover:text-gray-900; }
 .btn-primary { @apply inline-block py-2.5 px-8 bg-orange-600 text-white rounded-[20px] cursor-pointer font-semibold text-[0.85rem] transition-all border-none hover:bg-orange-700 active:scale-[0.97]; }
+.btn-icon.hidden, .btn-icon-sm.hidden { display: none; }
 
 /* FAQ */
 #faqDialog dt { @apply text-[0.82rem] font-semibold mb-1 text-gray-900; }

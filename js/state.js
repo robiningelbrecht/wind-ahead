@@ -16,7 +16,7 @@ export const state = {
     windSpeed: 0,
     windRose: [],
     segmentTable: [],
-    segmentTableOpen: false,
+    unitSystem: localStorage.getItem('wind-analyzer-units') || 'metric',
     _weatherCache: null,
 };
 

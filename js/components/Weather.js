@@ -1,12 +1,14 @@
 import { $ } from '../state';
 import { WEATHER_CODES } from '../constants';
 import { GeoUtils } from '../utils/GeoUtils';
+import { unitLabel, convertUnit } from '../utils/units';
 
 export class Weather {
     constructor() {
         this.title = $('weatherTitle');
-        this.windSpeed = $('weatherWindSpeed');
-        this.windLabel = $('weatherWindLabel');
+        this.windSpeedEl = $('weatherWindSpeed');
+        this.windLabelEl = $('weatherWindLabel');
+        this.speedUnit = $('weatherSpeedUnit');
         this.gusts = $('weatherGusts');
         this.needle = $('windNeedle');
         this.condition = $('conditionText');
@@ -18,19 +20,21 @@ export class Weather {
     }
 
     render(state) {
-        const { weather, windDir, dateTime } = state;
+        const { weather, windDir, dateTime, unitSystem } = state;
+        const speed = unitLabel(unitSystem, 'speed');
         const d = new Date(dateTime);
         const opts = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
         this.title.textContent = `Weather - ${d.toLocaleDateString(undefined, opts)}`;
-        this.windSpeed.textContent = weather.wind_speed_10m;
-        this.windLabel.textContent = GeoUtils.windLabel(windDir) + ' (' + windDir + '\u00b0)';
-        this.gusts.textContent = weather.wind_gusts_10m + ' km/h';
+        this.windSpeedEl.textContent = weather.wind_speed_10m;
+        this.windLabelEl.textContent = GeoUtils.windLabel(windDir) + ' (' + windDir + '\u00b0)';
+        this.speedUnit.textContent = speed;
+        this.gusts.textContent = weather.wind_gusts_10m + ' ' + speed;
         this.needle.style.transform = `rotate(${(windDir + 180) % 360}deg)`;
         this.condition.textContent = WEATHER_CODES[weather.weather_code] || `Code ${weather.weather_code}`;
-        this.feelsLike.textContent = weather.apparent_temperature + '\u00b0C';
+        this.feelsLike.textContent = weather.apparent_temperature + unitLabel(unitSystem, 'temp');
         this.humidity.textContent = weather.relative_humidity_2m + '%';
-        this.precipitation.textContent = weather.precipitation + ' mm';
+        this.precipitation.textContent = convertUnit(weather.precipitation, 'precip', unitSystem).toFixed(2) + ' ' + unitLabel(unitSystem, 'precip');
         this.clouds.textContent = weather.cloud_cover + '%';
-        this.pressure.textContent = weather.surface_pressure + ' hPa';
+        this.pressure.textContent = convertUnit(weather.surface_pressure, 'pressure', unitSystem).toFixed(unitSystem === 'imperial' ? 2 : 0) + ' ' + unitLabel(unitSystem, 'pressure');
     }
 }

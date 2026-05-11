@@ -3,8 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wind Analyzer</title>
+  <title>WindAhead | Wind analyzer for cycling and running routes</title>
+  <meta name="description" content="Upload a GPX file and instantly see headwind, tailwind, and crosswind conditions along your cycling, running, or walking route. 100% client-side, no data stored.">
+  <meta name="author" content="WindAhead">
+  <meta name="theme-color" content="#ea580c">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="WindAhead | Wind analyzer for cycling and running routes">
+  <meta property="og:description" content="Upload a GPX file and instantly see headwind, tailwind, and crosswind conditions along your route.">
+  <meta property="og:image" content="logo.svg">
+  <meta property="og:url" content="">
+
   <link rel="icon" href="logo.svg" />
+  <link rel="apple-touch-icon" href="logo.svg" />
+  <link rel="canonical" href="">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="dist/app.min.css" />
 </head>
@@ -13,9 +24,9 @@
   <nav class="text-gray-900 bg-white border-b border-gray-200 px-4 py-2.5 fixed left-0 right-0 top-0 z-1100">
     <div class="flex flex-wrap justify-between items-center">
       <a href="/" class="flex items-center justify-between mr-4" aria-selected="false">
-        <img src="logo.svg" class="rounded-full mr-3 h-8" alt="Wind Analyzer Logo">
+        <img src="logo.svg" class="rounded-full mr-3 h-8" alt="WindAhead Logo">
         <div class="flex gap-x-1 sm:text-lg md:text-2xl font-semibold whitespace-nowrap">
-          <div>Wind Analyzer</div>
+          <div>WindAhead</div>
         </div>
       </a>
       <div class="flex items-center text-gray-500 lg:order-2 gap-x-2">
@@ -28,6 +39,9 @@
           <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
+        </button>
+        <button id="unitBtn" data-driver="units" class="btn-icon text-[0.65rem] font-bold leading-none tracking-tight" title="Toggle metric/imperial">
+          <span id="unitBtnLabel">km</span>
         </button>
         <button id="themeBtn" class="btn-icon" title="Toggle light/dark mode">
           <svg class="size-4 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -68,8 +82,8 @@
             <input type="datetime-local" id="dateInput" class="form-input" />
             <div class="flex items-center gap-1.5 ml-2 pl-3 border-l border-gray-200 transition-opacity">
               <label class="form-label">Speed</label>
-              <input type="number" id="speedInput" class="form-input w-13 px-1.5 text-center tabular-nums" min="5" max="50" step="1" />
-              <span class="text-[0.72rem] text-gray-500">km/h</span>
+              <input type="number" id="speedInput" class="form-input w-17.5 px-1.5 text-center tabular-nums" min="5" max="50" step="1" />
+              <span id="speedUnit" class="text-[0.72rem] text-gray-500">km/h</span>
             </div>
             <span id="dateNote" class="text-[0.7rem] text-gray-500 ml-auto"></span>
           </div>
@@ -95,23 +109,23 @@
         <!-- Stats row -->
         <div id="statsRow" class="card grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-y-4 divide-x divide-gray-200 hidden">
           <div class="bg-white py-4 px-4.5 text-center">
-            <div class="text-2xl font-extrabold tabular-nums tracking-[-0.02em] leading-[1.2]"><span id="statDist"></span> <span class="text-xs font-normal text-gray-600">km</span></div>
+            <div class="text-2xl font-extrabold tabular-nums tracking-[-0.02em] leading-[1.2]"><span id="statDist"></span> <span id="distUnit" class="text-xs font-normal text-gray-600">km</span></div>
             <div class="text-[0.65rem] uppercase tracking-[0.08em] text-gray-500 mt-1">Distance</div>
           </div>
           <div id="elevContainer" class="bg-white py-4 px-4.5 text-center">
-            <div class="text-2xl font-extrabold tabular-nums tracking-[-0.02em] leading-[1.2]"><span id="statElev"></span> <span class="text-xs font-normal text-gray-600">m</span></div>
+            <div class="text-2xl font-extrabold tabular-nums tracking-[-0.02em] leading-[1.2]"><span id="statElev"></span> <span id="elevUnit" class="text-xs font-normal text-gray-600">m</span></div>
             <div class="text-[0.65rem] uppercase tracking-[0.08em] text-gray-500 mt-1">Elev. Gain</div>
           </div>
           <div class="bg-white py-4 px-4.5 text-center">
-            <div id="statNetValue" class="text-2xl font-extrabold tabular-nums tracking-[-0.02em] leading-[1.2]"><span id="statNet"></span> <span class="text-xs font-normal text-gray-600">km/h</span></div>
+            <div id="statNetValue" class="text-2xl font-extrabold tabular-nums tracking-[-0.02em] leading-[1.2]"><span id="statNet"></span> <span id="netWindUnit" class="text-xs font-normal text-gray-600">km/h</span></div>
             <div id="statNetLabel" class="text-[0.65rem] uppercase tracking-[0.08em] text-gray-500 mt-1"></div>
           </div>
           <div id="tempContainer" class="bg-white py-4 px-4.5 text-center hidden">
-            <div class="text-2xl font-extrabold tabular-nums tracking-[-0.02em] leading-[1.2]"><span id="statTemp"></span><span class="text-xs font-normal text-gray-600">°C</span></div>
+            <div class="text-2xl font-extrabold tabular-nums tracking-[-0.02em] leading-[1.2]"><span id="statTemp"></span><span id="tempUnit" class="text-xs font-normal text-gray-600">°C</span></div>
             <div class="text-[0.65rem] uppercase tracking-[0.08em] text-gray-500 mt-1">Temperature</div>
           </div>
           <div id="windSpeedContainer" class="bg-white py-4 px-4.5 text-center hidden">
-            <div class="text-2xl font-extrabold tabular-nums tracking-[-0.02em] leading-[1.2]"><span id="statWindSpeed"></span> <span class="text-xs font-normal text-gray-600">km/h</span></div>
+            <div class="text-2xl font-extrabold tabular-nums tracking-[-0.02em] leading-[1.2]"><span id="statWindSpeed"></span> <span id="windSpeedUnit" class="text-xs font-normal text-gray-600">km/h</span></div>
             <div class="text-[0.65rem] uppercase tracking-[0.08em] text-gray-500 mt-1">Wind Speed</div>
           </div>
         </div>
@@ -184,7 +198,7 @@
               <div class="flex-1">
                 <div class="text-[0.8rem] font-normal text-gray-600">
                   <span id="weatherWindSpeed" class="font-extrabold leading-[1.1]"></span>
-                  <span>km/h - </span>
+                  <span id="weatherSpeedUnit">km/h</span><span> - </span>
                   <span id="weatherWindLabel"></span>
                 </div>
                 <div class="text-[0.72rem] text-gray-500 mt-2">Gusts up to <span id="weatherGusts" class="text-gray-600 font-semibold"></span></div>
@@ -220,13 +234,8 @@
         </div>
         <!-- Segment details table -->
         <div id="segmentDetails" data-driver="segments" class="card hidden">
-          <div id="segmentToggle" class="flex items-center justify-between cursor-pointer select-none">
-            <div class="card-title">Segment details</div>
-            <svg id="segmentChevron" class="size-4 text-gray-500 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-          </div>
-          <div id="segmentTableWrap" class="max-h-100 overflow-y-auto mt-3.5 hidden">
+          <div class="card-title">Segment details</div>
+          <div class="max-h-100 overflow-y-auto mt-3.5">
             <table class="w-full border-collapse text-[0.78rem]">
               <thead>
               <tr>
@@ -272,10 +281,6 @@
           <dd>The analysis uses hourly wind forecasts sampled at the route's geographic center. Actual conditions may vary due to terrain, elevation, and local effects. Treat results as a useful estimate, not a guarantee.</dd>
         </div>
         <div class="mb-4.5">
-          <dt>What does "Best start" mean?</dt>
-          <dd>We run the analysis for every hour of the selected day and rank them by net headwind. The top 3 hours with the least headwind (or most tailwind) are shown as suggestions.</dd>
-        </div>
-        <div class="mb-4.5">
           <dt>How does average speed affect the results?</dt>
           <dd>Your speed determines how long you spend on each segment and which hourly forecast applies. A slower speed means the ride spans more hours, so wind shifts during the ride are taken into account.</dd>
         </div>
@@ -297,7 +302,7 @@
     <button class="text-gray-600 no-underline text-xs font-[inherit] bg-none border-none cursor-pointer p-0 transition-colors hover:text-orange-600" onclick="document.getElementById('faqDialog').showModal()">FAQ</button>
     <a class="text-gray-600 no-underline text-xs transition-colors hover:text-orange-600" href="#" target="_blank">GitHub</a>
   </div>
-  <span>Wind Analyzer - 100% client-side, no data stored</span>
+  <span>WindAhead - 100% client-side, no data stored</span>
 </footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

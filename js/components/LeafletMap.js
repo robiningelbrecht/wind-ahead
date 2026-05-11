@@ -1,5 +1,6 @@
 import { GeoUtils } from '../utils/GeoUtils';
 import { TILE_DARK, TILE_LIGHT } from '../constants';
+import { unitLabel } from '../utils/units';
 
 export class LeafletMap {
     constructor() {
@@ -42,7 +43,8 @@ export class LeafletMap {
     }
 
     render(state) {
-        const { points, analysis, windDir: wDir, windSpeed: wSpeed, waypoints } = state;
+        const { points, analysis, windDir: wDir, windSpeed: wSpeed, waypoints, unitSystem } = state;
+        const speed = unitLabel(unitSystem, 'speed');
         if (this.map) { this.map.remove(); this.map = null; }
         this.cachedWindDir = wDir;
         this.windOverlayVisible = true;
@@ -60,8 +62,8 @@ export class LeafletMap {
             line.bindPopup(
                 `<b>${seg.type.charAt(0).toUpperCase() + seg.type.slice(1)}</b><br>` +
                 `Bearing: ${seg.brng.toFixed(0)}\u00b0<br>` +
-                `Headwind: ${seg.headComp.toFixed(1)} km/h<br>` +
-                `Crosswind: ${Math.abs(seg.crossComp).toFixed(1)} km/h`
+                `Headwind: ${seg.headComp.toFixed(1)} ${speed}<br>` +
+                `Crosswind: ${Math.abs(seg.crossComp).toFixed(1)} ${speed}`
             );
             this.layerGroup.addLayer(line);
         });
@@ -81,7 +83,7 @@ export class LeafletMap {
             options: { position: 'topright' },
             onAdd() {
                 const btn = L.DomUtil.create('div', 'map-wind-toggle active');
-                btn.innerHTML = `Wind<br><span class="toggle-label">${GeoUtils.windLabel(wDir)} ${wSpeed} km/h</span>`;
+                btn.innerHTML = `Wind<br><span class="toggle-label">${GeoUtils.windLabel(wDir)} ${wSpeed} ${speed}</span>`;
                 btn.title = 'Toggle wind overlay';
                 L.DomEvent.disableClickPropagation(btn);
                 btn.addEventListener('click', () => {

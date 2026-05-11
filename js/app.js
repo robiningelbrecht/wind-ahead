@@ -1,5 +1,6 @@
 import { $, state, setView, setLoading, setError } from './state';
 import { GeoUtils } from './utils/GeoUtils';
+import { unitLabel } from './utils/units';
 import { GpxParser } from './services/GpxParser';
 import { WeatherService } from './services/WeatherService';
 import { RouteAnalyzer } from './services/RouteAnalyzer';
@@ -20,6 +21,12 @@ const windStrip = new WindStrip();
 const tour = new Tour();
 
 let stats, breakdown, windRose, weather, segmentTable;
+
+function updateUnitLabels() {
+    const u = state.unitSystem;
+    $('speedUnit').textContent = unitLabel(u, 'speed');
+    $('unitBtnLabel').textContent = u === 'metric' ? 'km' : 'mi';
+}
 
 function renderResults() {
     if (!state.analysis) return;
@@ -89,13 +96,13 @@ async function runAnalysis() {
         const lat = state.centroid.lat.toFixed(4);
         const lon = state.centroid.lon.toFixed(4);
         const dateStr = state.dateTime.split('T')[0];
-        const cacheKey = `${lat},${lon},${dateStr}`;
+        const cacheKey = `${lat},${lon},${dateStr},${state.unitSystem}`;
 
         let data;
         if (state._weatherCache && state._weatherCache.key === cacheKey) {
             data = state._weatherCache.data;
         } else {
-            data = await weatherService.fetch(lat, lon, state.dateTime);
+            data = await weatherService.fetch(lat, lon, state.dateTime, state.unitSystem);
             state._weatherCache = { key: cacheKey, data };
         }
         const w = weatherService.extract(data, state.dateTime);
@@ -128,7 +135,6 @@ function reset() {
     state.waypoints = [];
     state.windRose = [];
     state.segmentTable = [];
-    state.segmentTableOpen = false;
     state._weatherCache = null;
     $('fileInput').value = '';
     stats.hide();
@@ -143,9 +149,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('wind-analyzer-theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
     $('speedInput').value = state.avgSpeed;
+    updateUnitLabels();
 
     $('resetBtn').addEventListener('click', reset);
     $('tourBtn').addEventListener('click', () => { if (state.view === 'results') tour.run(); });
+    $('unitBtn').addEventListener('click', () => {
+        state.unitSystem = state.unitSystem === 'metric' ? 'imperial' : 'metric';
+        localStorage.setItem('wind-analyzer-units', state.unitSystem);
+        updateUnitLabels();
+        if (state.analysis) runAnalysis();
+    });
     $('themeBtn').addEventListener('click', () => {
         const next = map.isDark() ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', next);
