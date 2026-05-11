@@ -43,7 +43,7 @@ export class LeafletMap {
     }
 
     render(state) {
-        const { points, analysis, windDir: wDir, windSpeed: wSpeed, waypoints, unitSystem } = state;
+        const { points, analysis, windDir: wDir, windSpeed: wSpeed, unitSystem } = state;
         const speed = unitLabel(unitSystem, 'speed');
         if (this.map) { this.map.remove(); this.map = null; }
         this.cachedWindDir = wDir;

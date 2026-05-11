@@ -16,20 +16,9 @@ export class GpxParser {
 
         if (points.length < 2) throw new Error('GPX file needs at least 2 points');
 
-        const waypoints = [];
-        doc.querySelectorAll('wpt').forEach(wpt => {
-            const lat = parseFloat(wpt.getAttribute('lat'));
-            const lon = parseFloat(wpt.getAttribute('lon'));
-            const nameEl = wpt.querySelector('name');
-            const descEl = wpt.querySelector('desc');
-            if (!isNaN(lat) && !isNaN(lon)) {
-                waypoints.push({
-                    lat, lon,
-                    name: nameEl ? nameEl.textContent : null,
-                    desc: descEl ? descEl.textContent : null
-                });
-            }
-        });
-        return { points, waypoints };
+        const nameEl = doc.querySelector('metadata > name') || doc.querySelector('trk > name');
+        const name = nameEl ? nameEl.textContent.trim() : null;
+
+        return { points, name };
     }
 }

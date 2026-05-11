@@ -35,6 +35,14 @@ function renderResults() {
     $('dateInput').max = state.dateMax;
     $('speedInput').value = state.avgSpeed;
 
+    const mapRouteNameEl = $('mapRouteName');
+    if (state.routeName) {
+        mapRouteNameEl.textContent = state.routeName;
+        mapRouteNameEl.classList.remove('hidden');
+    } else {
+        mapRouteNameEl.classList.add('hidden');
+    }
+
     const d = new Date(state.dateTime);
     const opts = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     $('dateNote').textContent = d.toLocaleDateString(undefined, { weekday: 'short', ...opts });
@@ -62,7 +70,7 @@ async function processFile(file) {
         const text = await file.text();
         const parsed = gpxParser.parse(text);
         state.points = parsed.points;
-        state.waypoints = parsed.waypoints;
+        state.routeName = parsed.name;
         state.centroid = state.points.reduce(
             (acc, p) => ({ lat: acc.lat + p.lat / state.points.length, lon: acc.lon + p.lon / state.points.length }),
             { lat: 0, lon: 0 }
@@ -131,7 +139,7 @@ function reset() {
     state.weather = null;
     state.points = null;
     state.centroid = null;
-    state.waypoints = [];
+    state.routeName = null;
     state.windRose = [];
     state.segmentTable = [];
     state._weatherCache = null;

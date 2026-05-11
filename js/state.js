@@ -11,7 +11,7 @@ export const state = {
     avgSpeed: parseInt(localStorage.getItem('wind-analyzer-speed')) || 25,
     points: null,
     centroid: null,
-    waypoints: [],
+    routeName: null,
     analysis: null,
     weather: null,
     windDir: 0,

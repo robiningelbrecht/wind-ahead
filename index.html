@@ -22,7 +22,7 @@
   <link rel="apple-touch-icon" href="assets/logo.svg" />
   <link rel="canonical" href="">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="dist/app.min.css?v=5c9dc1d5" />
+  <link rel="stylesheet" href="dist/app.min.css?v=74fd0121" />
 </head>
 <body class="font-sans bg-gray-50 min-h-screen antialiased flex flex-col">
 <div class="flex-1">
@@ -151,8 +151,9 @@
           <div class="relative">
             <div id="map" data-driver="map" class="h-105 rounded-[10px] border border-gray-200 z-1"></div>
             <div class="absolute bottom-2.5 left-2.5 bg-white/90 backdrop-blur-sm py-2 px-3 rounded-md z-500 text-[0.72rem] text-gray-600 border border-gray-200">
+              <div id="mapRouteName" class="text-[0.68rem] font-semibold text-gray-900 truncate max-w-48 hidden"></div>
               <div class="font-semibold mb-1 text-gray-900 text-[0.68rem] uppercase tracking-wider">Wind Effect</div>
-              <div class="w-35 h-2 rounded-sm bg-linear-to-r from-green-600 via-amber-600 to-red-600"></div>
+              <div class="w-48 h-2 rounded-sm bg-linear-to-r from-green-600 via-amber-600 to-red-600"></div>
               <div class="flex justify-between mt-0.5 text-[0.6rem] text-gray-500">
                 <span>Tailwind</span><span>Cross</span><span>Headwind</span>
               </div>
@@ -360,6 +361,6 @@
 </footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="dist/app.min.js?v=5c9dc1d5"></script>
+<script src="dist/app.min.js?v=74fd0121"></script>
 </body>
 </html>
