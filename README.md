@@ -1,14 +1,14 @@
 <p align="center">
-    <img src="logo.svg" width="250" alt="WindAhead logo">
+    <img src="assets/logo.svg" width="250" alt="WindAhead logo">
 </p>
 
 <h1 align="center">WindAhead</h1>
 
----
-
 <h4 align="center">WindAhead is a client-side wind analyzer for cycling, running, and walking routes.</h4>
 
-![Example](showcase.png)
+---
+
+![Example](assets/showcase.png)
 
 ## Supported GPX sources
 
