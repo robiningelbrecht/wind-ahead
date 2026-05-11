@@ -146,8 +146,6 @@ function reset() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const savedTheme = localStorage.getItem('wind-analyzer-theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
     $('speedInput').value = state.avgSpeed;
     updateUnitLabels();
 

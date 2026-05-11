@@ -13,6 +13,11 @@
   <meta property="og:image" content="logo.svg">
   <meta property="og:url" content="">
 
+  <script>
+    const savedTheme = localStorage.getItem('wind-analyzer-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
+
   <link rel="icon" href="logo.svg" />
   <link rel="apple-touch-icon" href="logo.svg" />
   <link rel="canonical" href="">
