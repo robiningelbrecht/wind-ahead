@@ -1,6 +1,6 @@
 import { $, state, setView, setLoading, setError } from './state';
 import { GeoUtils } from './utils/GeoUtils';
-import { unitLabel } from './utils/units';
+import { unitLabel, METRIC, IMPERIAL } from './utils/units';
 import { GpxParser } from './services/GpxParser';
 import { WeatherService } from './services/WeatherService';
 import { RouteAnalyzer } from './services/RouteAnalyzer';
@@ -25,7 +25,7 @@ let stats, breakdown, windRose, weather, segmentTable;
 function updateUnitLabels() {
     const u = state.unitSystem;
     $('speedUnit').textContent = unitLabel(u, 'speed');
-    $('unitBtnLabel').textContent = u === 'metric' ? 'km' : 'mi';
+    $('unitBtnLabel').textContent = u === METRIC ? 'km' : 'mi';
 }
 
 function renderResults() {
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $('resetBtn').addEventListener('click', reset);
     $('tourBtn').addEventListener('click', () => { if (state.view === 'results') tour.run(); });
     $('unitBtn').addEventListener('click', () => {
-        state.unitSystem = state.unitSystem === 'metric' ? 'imperial' : 'metric';
+        state.unitSystem = state.unitSystem === METRIC ? IMPERIAL : METRIC;
         localStorage.setItem('wind-analyzer-units', state.unitSystem);
         updateUnitLabels();
         if (state.analysis) runAnalysis();

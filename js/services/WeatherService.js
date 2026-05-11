@@ -1,9 +1,10 @@
 import { WEATHER_PARAMS } from '../constants';
+import { IMPERIAL } from '../utils/units';
 
 export class WeatherService {
     async fetch(lat, lon, date, unitSystem) {
         const dateStr = date.split('T')[0];
-        const isImperial = unitSystem === 'imperial';
+        const isImperial = unitSystem === IMPERIAL;
         const tempUnit = isImperial ? 'fahrenheit' : 'celsius';
         const windUnit = isImperial ? 'mph' : 'kmh';
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=${WEATHER_PARAMS}&start_date=${dateStr}&end_date=${dateStr}&temperature_unit=${tempUnit}&wind_speed_unit=${windUnit}&timezone=auto`;

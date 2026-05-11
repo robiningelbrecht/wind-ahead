@@ -1,7 +1,7 @@
 import { $ } from '../state';
 import { WEATHER_CODES } from '../constants';
 import { GeoUtils } from '../utils/GeoUtils';
-import { unitLabel, convertUnit } from '../utils/units';
+import { unitLabel, convertUnit, IMPERIAL } from '../utils/units';
 
 export class Weather {
     constructor() {
@@ -35,6 +35,6 @@ export class Weather {
         this.humidity.textContent = weather.relative_humidity_2m + '%';
         this.precipitation.textContent = convertUnit(weather.precipitation, 'precip', unitSystem).toFixed(2) + ' ' + unitLabel(unitSystem, 'precip');
         this.clouds.textContent = weather.cloud_cover + '%';
-        this.pressure.textContent = convertUnit(weather.surface_pressure, 'pressure', unitSystem).toFixed(unitSystem === 'imperial' ? 2 : 0) + ' ' + unitLabel(unitSystem, 'pressure');
+        this.pressure.textContent = convertUnit(weather.surface_pressure, 'pressure', unitSystem).toFixed(unitSystem === IMPERIAL ? 2 : 0) + ' ' + unitLabel(unitSystem, 'pressure');
     }
 }

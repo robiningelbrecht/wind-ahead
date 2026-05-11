@@ -1,3 +1,5 @@
+import { METRIC } from './utils/units';
+
 export const $ = (id) => document.getElementById(id);
 
 export const state = {
@@ -16,7 +18,7 @@ export const state = {
     windSpeed: 0,
     windRose: [],
     segmentTable: [],
-    unitSystem: localStorage.getItem('wind-analyzer-units') || 'metric',
+    unitSystem: localStorage.getItem('wind-analyzer-units') || METRIC,
     _weatherCache: null,
 };
 
