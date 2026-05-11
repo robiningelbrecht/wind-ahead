@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="logo.svg" width="100" alt="WindAhead logo">
+    <img src="logo.svg" width="250" alt="WindAhead logo">
 </p>
 
 <h1 align="center">WindAhead</h1>
