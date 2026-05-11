@@ -12,6 +12,7 @@ import { Breakdown } from './components/Breakdown';
 import { WindRose } from './components/WindRose';
 import { Weather } from './components/Weather';
 import { SegmentTable } from './components/SegmentTable';
+import { Dropdown } from './components/Dropdown';
 
 const gpxParser = new GpxParser();
 const weatherService = new WeatherService();
@@ -23,9 +24,7 @@ const tour = new Tour();
 let stats, breakdown, windRose, weather, segmentTable;
 
 function updateUnitLabels() {
-    const u = state.unitSystem;
-    $('speedUnit').textContent = unitLabel(u, 'speed');
-    $('unitBtnLabel').textContent = u === METRIC ? 'km' : 'mi';
+    $('speedUnit').textContent = unitLabel(state.unitSystem, 'speed');
 }
 
 function renderResults() {
@@ -150,19 +149,32 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUnitLabels();
 
     $('resetBtn').addEventListener('click', reset);
-    $('tourBtn').addEventListener('click', () => { if (state.view === 'results') tour.run(); });
-    $('unitBtn').addEventListener('click', () => {
-        state.unitSystem = state.unitSystem === METRIC ? IMPERIAL : METRIC;
+    $('faqBtn').addEventListener('click', () => {
+        dropdown.close();
+        $('faqDialog').showModal();
+    });
+    $('tourBtn').addEventListener('click', () => {
+        dropdown.close();
+        tour.run();
+    });
+    const unitToggle = $('unitToggle');
+    unitToggle.checked = state.unitSystem === IMPERIAL;
+    unitToggle.addEventListener('change', () => {
+        state.unitSystem = unitToggle.checked ? IMPERIAL : METRIC;
         localStorage.setItem('wind-analyzer-units', state.unitSystem);
         updateUnitLabels();
         if (state.analysis) runAnalysis();
     });
-    $('themeBtn').addEventListener('click', () => {
-        const next = map.isDark() ? 'light' : 'dark';
+    const themeToggle = $('themeToggle');
+    themeToggle.checked = map.isDark();
+    themeToggle.addEventListener('change', () => {
+        const next = themeToggle.checked ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('wind-analyzer-theme', next);
         map.updateTiles();
     });
+
+    const dropdown = new Dropdown('dropdownBtn', 'dropdown');
 
     const dropZone = $('uploadView');
     dropZone.addEventListener('dragover', (e) => {

@@ -28,7 +28,7 @@ export function setView(view) {
     $('uploadView').classList.toggle('hidden', isResults);
     $('resultsView').classList.toggle('hidden', !isResults);
     $('resetBtn').classList.toggle('hidden', !isResults);
-    $('tourBtn').classList.toggle('hidden', !isResults);
+    $('tourItem').classList.toggle('hidden', !isResults);
 }
 
 export function setLoading(on) {
