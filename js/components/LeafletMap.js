@@ -1,7 +1,7 @@
 import { GeoUtils } from '../utils/GeoUtils';
 import { TILE_DARK, TILE_LIGHT } from '../constants';
 
-export class MapRenderer {
+export class LeafletMap {
     constructor() {
         this.map = null;
         this.tileLayer = null;
@@ -41,7 +41,8 @@ export class MapRenderer {
                 ).addTo(this.windOverlayGroup);
     }
 
-    render(points, analysis, wDir, wSpeed, waypoints) {
+    render(state) {
+        const { points, analysis, windDir: wDir, windSpeed: wSpeed, waypoints } = state;
         if (this.map) { this.map.remove(); this.map = null; }
         this.cachedWindDir = wDir;
         this.windOverlayVisible = true;

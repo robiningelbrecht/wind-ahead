@@ -4,7 +4,7 @@
 @import "./components/driver-popover.css";
 @import "./components/leaflet-controls.css";
 @source "../index.html";
-@source "../js/app.js";
+@source "../js/**/*.js";
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
