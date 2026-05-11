@@ -10,6 +10,19 @@ export const WEATHER_CODES = {
     95: 'Thunderstorm', 96: 'Thunderstorm + hail', 99: 'Thunderstorm + heavy hail'
 };
 
+export const WEATHER_ICONS = {
+    0: '\u2600\uFE0F',      1: '\u{1F324}\uFE0F',   2: '\u26C5',            3: '\u2601\uFE0F',
+    45: '\u{1F32B}\uFE0F',  48: '\u{1F32B}\uFE0F',
+    51: '\u{1F326}\uFE0F',  53: '\u{1F326}\uFE0F',  55: '\u{1F326}\uFE0F',
+    56: '\u2744\uFE0F',     57: '\u2744\uFE0F',
+    61: '\u{1F327}\uFE0F',  63: '\u{1F327}\uFE0F',  65: '\u{1F327}\uFE0F',
+    66: '\u{1F327}\uFE0F',  67: '\u{1F327}\uFE0F',
+    71: '\u{1F328}\uFE0F',  73: '\u{1F328}\uFE0F',  75: '\u{1F328}\uFE0F',  77: '\u{1F328}\uFE0F',
+    80: '\u{1F326}\uFE0F',  81: '\u{1F327}\uFE0F',  82: '\u{1F327}\uFE0F',
+    85: '\u{1F328}\uFE0F',  86: '\u{1F328}\uFE0F',
+    95: '\u26A1',           96: '\u26A1',           99: '\u26A1',
+};
+
 export const WIND_LABELS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
 
 export const TILE_DARK = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';

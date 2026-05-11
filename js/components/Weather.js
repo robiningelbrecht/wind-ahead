@@ -1,5 +1,5 @@
 import { $ } from '../state';
-import { WEATHER_CODES } from '../constants';
+import { WEATHER_CODES, WEATHER_ICONS } from '../constants';
 import { GeoUtils } from '../utils/GeoUtils';
 import { unitLabel, convertUnit, IMPERIAL } from '../utils/units';
 
@@ -30,7 +30,8 @@ export class Weather {
         this.speedUnit.textContent = speed;
         this.gusts.textContent = weather.wind_gusts_10m + ' ' + speed;
         this.needle.style.transform = `rotate(${(windDir + 180) % 360}deg)`;
-        this.condition.textContent = WEATHER_CODES[weather.weather_code] || `Code ${weather.weather_code}`;
+        const icon = WEATHER_ICONS[weather.weather_code] || '';
+        this.condition.textContent = icon + ' ' + (WEATHER_CODES[weather.weather_code] || `Code ${weather.weather_code}`);
         this.feelsLike.textContent = weather.apparent_temperature + unitLabel(unitSystem, 'temp');
         this.humidity.textContent = weather.relative_humidity_2m + '%';
         this.precipitation.textContent = convertUnit(weather.precipitation, 'precip', unitSystem).toFixed(2) + ' ' + unitLabel(unitSystem, 'precip');
