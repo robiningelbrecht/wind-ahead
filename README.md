@@ -20,3 +20,7 @@ Track points, route points, waypoints, and elevation data are all supported.
 1. **Upload** a GPX file
 2. **Pick** a date/time and average speed
 3. WindAhead fetches hourly wind forecasts from the [Open-Meteo API](https://open-meteo.com) and calculates headwind, crosswind, and tailwind for every segment of your route
+
+## Related
+
+[Statistics for Strava](https://statistics-for-strava.robiningelbrecht.be) - A self-hosted dashboard for your Strava data

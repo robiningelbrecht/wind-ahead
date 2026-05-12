@@ -1,18 +1,23 @@
-.wind-arrow-marker {
+.wind-arrow-marker,
+.weather-pill-marker {
     @apply bg-none! border-none!;
 }
-.map-wind-toggle {
+.weather-pill-marker span {
+    @apply inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full
+           bg-white/92 shadow-sm text-[11px] font-medium whitespace-nowrap text-gray-700;
+}
+.map-overlay-toggle {
     @apply bg-white/90 backdrop-blur-md py-1.5 px-2.5 rounded-md cursor-pointer
            text-[0.72rem] font-semibold text-gray-600
            border border-gray-200 select-none
            leading-tight text-center;
 }
-.map-wind-toggle:hover {
+.map-overlay-toggle:hover {
     @apply bg-gray-200;
 }
-.map-wind-toggle.active {
+.map-overlay-toggle.active {
     @apply text-orange-600;
 }
-.map-wind-toggle .toggle-label {
+.map-overlay-toggle .toggle-label {
     @apply text-[0.62rem] text-gray-500 font-normal;
 }

@@ -117,7 +117,12 @@ async function runAnalysis() {
         }
         const weather = weatherService.extract(data, state.dateTime);
 
-        const windData = { speeds: data.hourly.wind_speed_10m, dirs: data.hourly.wind_direction_10m };
+        const windData = {
+            speeds: data.hourly.wind_speed_10m,
+            dirs: data.hourly.wind_direction_10m,
+            codes: data.hourly.weather_code,
+            temps: data.hourly.temperature_2m,
+        };
         const targetHour = state.dateTime.slice(0, 13);
         let startIdx = data.hourly.time.findIndex(t => t.startsWith(targetHour));
         if (startIdx === -1) startIdx = 0;

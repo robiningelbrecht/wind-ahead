@@ -1,5 +1,5 @@
 import { GeoUtils } from '../utils/GeoUtils';
-import { TILE_DARK, TILE_LIGHT } from '../constants';
+import { TILE_DARK, TILE_LIGHT, WEATHER_CODES, WEATHER_ICONS } from '../constants';
 import { unitLabel } from '../utils/units';
 
 export class LeafletMap {
@@ -8,8 +8,8 @@ export class LeafletMap {
         this.tileLayer = null;
         this.layerGroup = null;
         this.windOverlayGroup = null;
+        this.weatherOverlayGroup = null;
         this.cachedWindDir = 0;
-        this.windOverlayVisible = true;
         this.hoverMarker = null;
     }
 
@@ -28,7 +28,7 @@ export class LeafletMap {
     updateWindOverlay() {
         if (!this.map || !this.windOverlayGroup) return;
         this.windOverlayGroup.clearLayers();
-        if (!this.windOverlayVisible) return;
+        if (!this.map.hasLayer(this.windOverlayGroup)) return;
         const bounds = this.map.getBounds();
         const rows = 5, cols = 5;
         const latStep = (bounds.getNorth() - bounds.getSouth()) / (rows + 1);
@@ -42,19 +42,29 @@ export class LeafletMap {
                 ).addTo(this.windOverlayGroup);
     }
 
-    render(state) {
-        const { points, analysis, windDir: wDir, windSpeed: wSpeed, unitSystem } = state;
-        const speed = unitLabel(unitSystem, 'speed');
-        if (this.map) { this.map.remove(); this.map = null; }
-        this.cachedWindDir = wDir;
-        this.windOverlayVisible = true;
-        this.map = L.map('map');
-        this.tileLayer = L.tileLayer(this.isDark() ? TILE_DARK : TILE_LIGHT, {
-            attribution: '&copy; OSM &copy; CARTO'
-        }).addTo(this.map);
-        this.layerGroup = L.layerGroup().addTo(this.map);
+    addOverlayToggle(layerGroup, title, label, { onShow } = {}) {
+        const self = this;
+        const Toggle = L.Control.extend({
+            options: { position: 'topright' },
+            onAdd() {
+                const btn = L.DomUtil.create('div', 'map-overlay-toggle active');
+                btn.innerHTML = `${title}<br><span class="toggle-label">${label}</span>`;
+                btn.title = `Toggle ${title.toLowerCase()} overlay`;
+                L.DomEvent.disableClickPropagation(btn);
+                btn.addEventListener('click', () => {
+                    const visible = self.map.hasLayer(layerGroup);
+                    btn.classList.toggle('active', !visible);
+                    if (visible) self.map.removeLayer(layerGroup);
+                    else { layerGroup.addTo(self.map); onShow?.(); }
+                });
+                return btn;
+            }
+        });
+        this.map.addControl(new Toggle());
+    }
 
-        analysis.segments.forEach(seg => {
+    renderRoute(segments, speed) {
+        segments.forEach(seg => {
             const line = L.polyline(
                 [[seg.p1.lat, seg.p1.lon], [seg.p2.lat, seg.p2.lon]],
                 { color: GeoUtils.segmentColor(seg.headFactor), weight: 4, opacity: 0.9 }
@@ -67,8 +77,9 @@ export class LeafletMap {
             );
             this.layerGroup.addLayer(line);
         });
+    }
 
-        const latlngs = points.map(p => [p.lat, p.lon]);
+    renderStartEnd(latlngs) {
         this.map.fitBounds(L.latLngBounds(latlngs).pad(0.1));
         L.circleMarker(latlngs[0], {
             radius: 7, color: '#303030', fillColor: '#4cd964', fillOpacity: 1, weight: 2.5
@@ -76,27 +87,55 @@ export class LeafletMap {
         L.circleMarker(latlngs[latlngs.length - 1], {
             radius: 7, color: '#303030', fillColor: '#FC4C02', fillOpacity: 1, weight: 2.5
         }).bindTooltip('End').addTo(this.map);
+    }
 
+    renderWindOverlay(wDir, wSpeed, speed) {
         this.windOverlayGroup = L.layerGroup().addTo(this.map);
-        const self = this;
-        const WindToggle = L.Control.extend({
-            options: { position: 'topright' },
-            onAdd() {
-                const btn = L.DomUtil.create('div', 'map-wind-toggle active');
-                btn.innerHTML = `Wind<br><span class="toggle-label">${GeoUtils.windLabel(wDir)} ${wSpeed} ${speed}</span>`;
-                btn.title = 'Toggle wind overlay';
-                L.DomEvent.disableClickPropagation(btn);
-                btn.addEventListener('click', () => {
-                    self.windOverlayVisible = !self.windOverlayVisible;
-                    btn.classList.toggle('active', self.windOverlayVisible);
-                    self.updateWindOverlay();
-                });
-                return btn;
-            }
+        this.cachedWindDir = wDir;
+        const windLabel = `${GeoUtils.windLabel(wDir)} ${wSpeed} ${speed}`;
+        this.addOverlayToggle(this.windOverlayGroup, 'Wind', windLabel, {
+            onShow: () => this.updateWindOverlay()
         });
-        this.map.addControl(new WindToggle());
         this.map.on('moveend', () => this.updateWindOverlay());
         this.updateWindOverlay();
+    }
+
+    renderWeatherOverlay(weatherMarkers, unitSystem) {
+        this.weatherOverlayGroup = L.layerGroup().addTo(this.map);
+        if (weatherMarkers) {
+            weatherMarkers.forEach(marker => {
+                const icon = WEATHER_ICONS[marker.weatherCode] || '';
+                const divIcon = L.divIcon({
+                    className: 'weather-pill-marker',
+                    html: `<span>${icon} ${Math.round(marker.temp)}°</span>`,
+                    iconSize: null, iconAnchor: [0, 14]
+                });
+                L.marker([marker.lat, marker.lon], { icon: divIcon, interactive: false })
+                    .addTo(this.weatherOverlayGroup);
+            });
+        }
+        const firstMarker = weatherMarkers?.[0];
+        const label = firstMarker
+            ? (WEATHER_ICONS[firstMarker.weatherCode] || '') + ' ' + (WEATHER_CODES[firstMarker.weatherCode] || '')
+            : 'Weather';
+        this.addOverlayToggle(this.weatherOverlayGroup, 'Weather', label);
+    }
+
+    render(state) {
+        const { points, analysis, windDir: wDir, windSpeed: wSpeed, unitSystem } = state;
+        const speed = unitLabel(unitSystem, 'speed');
+        if (this.map) { this.map.remove(); this.map = null; }
+        this.map = L.map('map');
+        this.tileLayer = L.tileLayer(this.isDark() ? TILE_DARK : TILE_LIGHT, {
+            attribution: '&copy; OSM &copy; CARTO'
+        }).addTo(this.map);
+        this.layerGroup = L.layerGroup().addTo(this.map);
+
+        this.renderRoute(analysis.segments, speed);
+        const latlngs = points.map(p => [p.lat, p.lon]);
+        this.renderStartEnd(latlngs);
+        this.renderWindOverlay(wDir, wSpeed, speed);
+        this.renderWeatherOverlay(analysis.weatherMarkers, unitSystem);
     }
 
     updateTiles() {

@@ -3,9 +3,11 @@ import {GeoUtils} from '../utils/GeoUtils';
 export class RouteAnalyzer {
     analyze(points, windData, startIdx, avgSpeed) {
         const segments = [];
+        const weatherMarkers = [];
         let totalDist = 0, headwindDist = 0, tailwindDist = 0, crosswindDist = 0;
         let weightedHeadwind = 0, weightedCrosswind = 0;
         let elevGain = 0, elevLoss = 0, cumDist = 0;
+        let prevWIdx = -1;
         const baseSpeed = avgSpeed / 3.6;
         const maxIdx = windData.speeds.length - 1;
         const smoothedEle = GeoUtils.smoothElevations(points);
@@ -15,6 +17,15 @@ export class RouteAnalyzer {
             const dist = GeoUtils.haversine(p1.lat, p1.lon, p2.lat, p2.lon);
             if (dist < 0.5) continue;
             const wIdx = Math.min(startIdx + Math.floor((cumDist / baseSpeed) / 3600), maxIdx);
+            if (wIdx !== prevWIdx) {
+                weatherMarkers.push({
+                    lat: p1.lat, lon: p1.lon,
+                    weatherCode: windData.codes[wIdx],
+                    temp: windData.temps[wIdx],
+                    hour: wIdx,
+                });
+                prevWIdx = wIdx;
+            }
             const windSpeed = windData.speeds[wIdx];
             const windDir = windData.dirs[wIdx];
             const brng = GeoUtils.bearing(p1.lat, p1.lon, p2.lat, p2.lon);
@@ -42,7 +53,7 @@ export class RouteAnalyzer {
 
         const elevations = points.map(p => p.ele).filter(e => e !== null);
         return {
-            segments, totalDist,
+            segments, totalDist, weatherMarkers,
             avgHead: totalDist > 0 ? weightedHeadwind / totalDist : 0,
             avgCross: totalDist > 0 ? weightedCrosswind / totalDist : 0,
             pctHead: totalDist > 0 ? headwindDist / totalDist * 100 : 0,
