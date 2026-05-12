@@ -218,6 +218,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.files[0]) processFile(e.target.files[0]);
     });
 
+    $('demoLink').addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const res = await fetch('./assets/tour-of-flanders.gpx');
+        const blob = await res.blob();
+        processFile(new File([blob], 'tour-of-flanders.gpx'));
+    });
+
     $('dateInput').addEventListener('change', (e) => {
         state.dateTime = e.target.value;
         runAnalysis();
