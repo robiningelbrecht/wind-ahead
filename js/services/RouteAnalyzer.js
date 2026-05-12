@@ -1,4 +1,4 @@
-import { GeoUtils } from '../utils/GeoUtils';
+import {GeoUtils} from '../utils/GeoUtils';
 
 export class RouteAnalyzer {
     analyze(points, windData, startIdx, avgSpeed) {
@@ -39,7 +39,7 @@ export class RouteAnalyzer {
         }
 
         const elevations = points.map(p => p.ele).filter(e => e !== null);
-        const result = {
+        return {
             segments, totalDist,
             avgHead: totalDist > 0 ? weightedHeadwind / totalDist : 0,
             avgCross: totalDist > 0 ? weightedCrosswind / totalDist : 0,
@@ -50,7 +50,6 @@ export class RouteAnalyzer {
             maxEle: elevations.length ? Math.max(...elevations) : null,
             minEle: elevations.length ? Math.min(...elevations) : null,
         };
-        return result;
     }
 
     buildWindRose(segments) {

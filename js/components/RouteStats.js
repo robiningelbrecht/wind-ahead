@@ -54,9 +54,9 @@ export class RouteStats {
         this.tempContainer.classList.toggle('hidden', !hasWeather);
         this.windSpeedContainer.classList.toggle('hidden', !hasWeather);
         if (hasWeather) {
-            this.statTemp.textContent = weather.temperature_2m;
+            this.statTemp.textContent = weather.temperature2m;
             this.tempUnit.textContent = unitLabel(unitSystem, 'temp');
-            this.statWindSpeed.textContent = weather.wind_speed_10m;
+            this.statWindSpeed.textContent = weather.windSpeed10m;
             this.windSpeedUnit.textContent = unitLabel(unitSystem, 'speed');
         }
     }

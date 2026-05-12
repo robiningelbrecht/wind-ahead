@@ -124,8 +124,8 @@ async function runAnalysis() {
         state.weather = w;
 
         debug.logAnalysis({ lat, lon, dateStr, unitSystem: state.unitSystem, weather: w, analysis: state.analysis, data });
-        state.windDir = w.wind_direction_10m;
-        state.windSpeed = w.wind_speed_10m;
+        state.windDir = w.windDirection10m;
+        state.windSpeed = w.windSpeed10m;
         state.windRose = routeAnalyzer.buildWindRose(state.analysis.segments);
         state.segmentTable = routeAnalyzer.buildSegmentTable(state.analysis.segments);
 

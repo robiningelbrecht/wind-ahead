@@ -26,16 +26,16 @@ export class WeatherService {
             });
         }
         return {
-            temperature_2m: h.temperature_2m[idx],
-            relative_humidity_2m: h.relative_humidity_2m[idx],
-            apparent_temperature: h.apparent_temperature[idx],
+            temperature2m: h.temperature_2m[idx],
+            relativeHumidity2m: h.relative_humidity_2m[idx],
+            apparentTemperature: h.apparent_temperature[idx],
             precipitation: h.precipitation[idx],
-            weather_code: h.weather_code[idx],
-            cloud_cover: h.cloud_cover[idx],
-            surface_pressure: h.surface_pressure[idx],
-            wind_speed_10m: h.wind_speed_10m[idx],
-            wind_direction_10m: h.wind_direction_10m[idx],
-            wind_gusts_10m: h.wind_gusts_10m[idx],
+            weatherCode: h.weather_code[idx],
+            cloudCover: h.cloud_cover[idx],
+            surfacePressure: h.surface_pressure[idx],
+            windSpeed10m: h.wind_speed_10m[idx],
+            windDirection10m: h.wind_direction_10m[idx],
+            windGusts10m: h.wind_gusts_10m[idx],
         };
     }
 }

@@ -25,17 +25,17 @@ export class Weather {
         const d = new Date(dateTime);
         const opts = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
         this.title.textContent = `Weather - ${d.toLocaleDateString(undefined, opts)}`;
-        this.windSpeedEl.textContent = weather.wind_speed_10m;
+        this.windSpeedEl.textContent = weather.windSpeed10m;
         this.windLabelEl.textContent = GeoUtils.windLabel(windDir) + ' (' + windDir + '\u00b0)';
         this.speedUnit.textContent = speed;
-        this.gusts.textContent = weather.wind_gusts_10m + ' ' + speed;
+        this.gusts.textContent = weather.windGusts10m + ' ' + speed;
         this.needle.style.transform = `rotate(${(windDir + 180) % 360}deg)`;
-        const icon = WEATHER_ICONS[weather.weather_code] || '';
-        this.condition.textContent = icon + ' ' + (WEATHER_CODES[weather.weather_code] || `Code ${weather.weather_code}`);
-        this.feelsLike.textContent = weather.apparent_temperature + unitLabel(unitSystem, 'temp');
-        this.humidity.textContent = weather.relative_humidity_2m + '%';
+        const icon = WEATHER_ICONS[weather.weatherCode] || '';
+        this.condition.textContent = icon + ' ' + (WEATHER_CODES[weather.weatherCode] || `Code ${weather.weatherCode}`);
+        this.feelsLike.textContent = weather.apparentTemperature + unitLabel(unitSystem, 'temp');
+        this.humidity.textContent = weather.relativeHumidity2m + '%';
         this.precipitation.textContent = convertUnit(weather.precipitation, 'precip', unitSystem).toFixed(2) + ' ' + unitLabel(unitSystem, 'precip');
-        this.clouds.textContent = weather.cloud_cover + '%';
-        this.pressure.textContent = convertUnit(weather.surface_pressure, 'pressure', unitSystem).toFixed(unitSystem === IMPERIAL ? 2 : 0) + ' ' + unitLabel(unitSystem, 'pressure');
+        this.clouds.textContent = weather.cloudCover + '%';
+        this.pressure.textContent = convertUnit(weather.surfacePressure, 'pressure', unitSystem).toFixed(unitSystem === IMPERIAL ? 2 : 0) + ' ' + unitLabel(unitSystem, 'pressure');
     }
 }
