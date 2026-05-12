@@ -1,8 +1,8 @@
 import { $, state, setView, setLoading, setError } from './state';
-import { GeoUtils } from './utils/GeoUtils';
+import { LocalDate } from './utils/LocalDate';
 import { unitLabel, METRIC, IMPERIAL } from './utils/units';
 import { GpxParser } from './services/GpxParser';
-import { WeatherService } from './services/WeatherService';
+import { OpenMeteo } from './services/OpenMeteo';
 import { RouteAnalyzer } from './services/RouteAnalyzer';
 import { LeafletMap } from './components/LeafletMap';
 import { WindStrip } from './components/WindStrip';
@@ -18,7 +18,7 @@ import { Debug } from './utils/Debug';
 const debug = new Debug(state);
 window.WindAhead = { debug: () => debug.snapshot() };
 const gpxParser = new GpxParser();
-const weatherService = new WeatherService();
+const openMeteo = new OpenMeteo();
 const routeAnalyzer = new RouteAnalyzer();
 const map = new LeafletMap();
 const windStrip = new WindStrip();
@@ -40,7 +40,7 @@ function renderResults() {
 
     $('mapLegendTitle').textContent = state.routeName || 'Wind Effect';
 
-    const date = new Date(state.dateTime);
+    const date = new LocalDate(state.dateTime);
     const opts = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     const dateStr = date.toLocaleDateString(undefined, { weekday: 'short', ...opts });
     $('dateNote').textContent = dateStr;
@@ -78,11 +78,10 @@ async function processFile(file) {
         );
         const now = new Date();
         now.setMinutes(0, 0, 0);
-        const maxDate = new Date(now);
-        maxDate.setDate(maxDate.getDate() + 7);
-        state.dateTime = GeoUtils.toLocalStr(now);
-        state.dateMin = GeoUtils.toLocalStr(now);
-        state.dateMax = GeoUtils.toLocalStr(maxDate);
+        const nowDate = LocalDate.fromDate(now);
+        state.dateTime = nowDate.toString();
+        state.dateMin = nowDate.toString();
+        state.dateMax = nowDate.addDays(7).toString();
 
         await runAnalysis();
         if (!tour.hasCompleted()) {
@@ -105,17 +104,17 @@ async function runAnalysis() {
     try {
         const lat = state.centroid.lat.toFixed(4);
         const lon = state.centroid.lon.toFixed(4);
-        const dateStr = state.dateTime.split('T')[0];
-        const cacheKey = `${lat},${lon},${dateStr},${state.unitSystem}`;
+        const localDate = new LocalDate(state.dateTime);
+        const cacheKey = `${lat},${lon},${localDate.dateStr},${state.unitSystem}`;
 
         let data;
         if (state._weatherCache && state._weatherCache.key === cacheKey) {
             data = state._weatherCache.data;
         } else {
-            data = await weatherService.fetch(lat, lon, state.dateTime, state.unitSystem);
+            data = await openMeteo.fetch(lat, lon, localDate, state.unitSystem);
             state._weatherCache = { key: cacheKey, data };
         }
-        const weather = weatherService.extract(data, state.dateTime);
+        const weather = openMeteo.extract(data, localDate);
 
         const windData = {
             speeds: data.hourly.wind_speed_10m,
@@ -123,15 +122,14 @@ async function runAnalysis() {
             codes: data.hourly.weather_code,
             temps: data.hourly.temperature_2m,
         };
-        const targetHour = state.dateTime.slice(0, 13);
-        let startIdx = data.hourly.time.findIndex(t => t.startsWith(targetHour));
+        let startIdx = data.hourly.time.findIndex(t => t.startsWith(localDate.hourPrefix));
         if (startIdx === -1) startIdx = 0;
 
         const pts = state.reversed ? state.reversedPoints : state.points;
         state.analysis = routeAnalyzer.analyze(pts, windData, startIdx, state.avgSpeed);
         state.weather = weather;
 
-        debug.logAnalysis({ lat, lon, dateStr, unitSystem: state.unitSystem, weather, analysis: state.analysis, data });
+        debug.logAnalysis({ lat, lon, dateStr: localDate.dateStr, unitSystem: state.unitSystem, weather, analysis: state.analysis, data });
         state.windDir = weather.windDirection10m;
         state.windSpeed = weather.windSpeed10m;
         state.windRose = routeAnalyzer.buildWindRose(state.analysis.segments);
