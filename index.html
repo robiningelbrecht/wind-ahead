@@ -23,7 +23,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="canonical" href="">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="dist/app.min.css?v=fdb69731" />
+  <link rel="stylesheet" href="dist/app.min.css?v=e73697e6" />
 </head>
 <body class="font-sans bg-gray-50 min-h-screen antialiased flex flex-col">
 <div class="flex-1">
@@ -147,6 +147,10 @@
               <span id="speedUnit" class="text-[0.72rem] text-gray-500">km/h</span>
               <span id="dateNote" class="text-[0.7rem] text-gray-500 ml-auto sm:hidden"></span>
             </div>
+            <button id="reverseToggle" type="button" title="Analyze reversed route" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-200 bg-gray-50 text-[0.78rem] font-medium text-gray-700 cursor-pointer hover:bg-gray-100 hover:border-gray-400 active:scale-95 transition-transform duration-100 [&.active]:bg-orange-600 [&.active]:text-white [&.active]:border-orange-600 [&.active]:hover:bg-orange-700">
+              <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+              Reverse
+            </button>
             <span id="dateNoteLg" class="text-[0.7rem] text-gray-500 ml-auto hidden sm:inline"></span>
           </div>
         </div>
@@ -367,5 +371,5 @@
 </footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="dist/app.min.js?v=fdb69731"></script></body>
+<script src="dist/app.min.js?v=e73697e6"></script></body>
 </html>

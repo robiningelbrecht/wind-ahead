@@ -22,9 +22,9 @@ export class Weather {
     render(state) {
         const { weather, windDir, dateTime, unitSystem } = state;
         const speed = unitLabel(unitSystem, 'speed');
-        const d = new Date(dateTime);
+        const date = new Date(dateTime);
         const opts = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-        this.title.textContent = `Weather - ${d.toLocaleDateString(undefined, opts)}`;
+        this.title.textContent = `Weather - ${date.toLocaleDateString(undefined, opts)}`;
         this.windSpeedEl.textContent = weather.windSpeed10m;
         this.windLabelEl.textContent = GeoUtils.windLabel(windDir) + ' (' + windDir + '\u00b0)';
         this.speedUnit.textContent = speed;

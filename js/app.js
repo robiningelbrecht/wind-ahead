@@ -40,9 +40,9 @@ function renderResults() {
 
     $('mapLegendTitle').textContent = state.routeName || 'Wind Effect';
 
-    const d = new Date(state.dateTime);
+    const date = new Date(state.dateTime);
     const opts = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    const dateStr = d.toLocaleDateString(undefined, { weekday: 'short', ...opts });
+    const dateStr = date.toLocaleDateString(undefined, { weekday: 'short', ...opts });
     $('dateNote').textContent = dateStr;
     $('dateNoteLg').textContent = dateStr;
 
@@ -70,6 +70,7 @@ async function processFile(file) {
         const parsed = gpxParser.parse(text);
         debug.logUpload(file, parsed);
         state.points = parsed.points;
+        state.reversedPoints = [...parsed.points].reverse();
         state.routeName = parsed.name;
         state.centroid = state.points.reduce(
             (acc, p) => ({ lat: acc.lat + p.lat / state.points.length, lon: acc.lon + p.lon / state.points.length }),
@@ -113,19 +114,20 @@ async function runAnalysis() {
             data = await weatherService.fetch(lat, lon, state.dateTime, state.unitSystem);
             state._weatherCache = { key: cacheKey, data };
         }
-        const w = weatherService.extract(data, state.dateTime);
+        const weather = weatherService.extract(data, state.dateTime);
 
         const windData = { speeds: data.hourly.wind_speed_10m, dirs: data.hourly.wind_direction_10m };
         const targetHour = state.dateTime.slice(0, 13);
         let startIdx = data.hourly.time.findIndex(t => t.startsWith(targetHour));
         if (startIdx === -1) startIdx = 0;
 
-        state.analysis = routeAnalyzer.analyze(state.points, windData, startIdx, state.avgSpeed);
-        state.weather = w;
+        const pts = state.reversed ? state.reversedPoints : state.points;
+        state.analysis = routeAnalyzer.analyze(pts, windData, startIdx, state.avgSpeed);
+        state.weather = weather;
 
-        debug.logAnalysis({ lat, lon, dateStr, unitSystem: state.unitSystem, weather: w, analysis: state.analysis, data });
-        state.windDir = w.windDirection10m;
-        state.windSpeed = w.windSpeed10m;
+        debug.logAnalysis({ lat, lon, dateStr, unitSystem: state.unitSystem, weather, analysis: state.analysis, data });
+        state.windDir = weather.windDirection10m;
+        state.windSpeed = weather.windSpeed10m;
         state.windRose = routeAnalyzer.buildWindRose(state.analysis.segments);
         state.segmentTable = routeAnalyzer.buildSegmentTable(state.analysis.segments);
 
@@ -142,12 +144,15 @@ function reset() {
     state.analysis = null;
     state.weather = null;
     state.points = null;
+    state.reversedPoints = null;
     state.centroid = null;
     state.routeName = null;
     state.windRose = [];
     state.segmentTable = [];
+    state.reversed = false;
     state._weatherCache = null;
     $('fileInput').value = '';
+    $('reverseToggle').classList.remove('active');
     stats.hide();
     $('cardsSection').classList.add('hidden');
     segmentTable.hide();
@@ -219,6 +224,13 @@ document.addEventListener('DOMContentLoaded', () => {
     $('speedInput').addEventListener('change', (e) => {
         state.avgSpeed = parseInt(e.target.value) || 25;
         localStorage.setItem('wind-analyzer-speed', state.avgSpeed);
+        runAnalysis();
+    });
+    $('reverseToggle').addEventListener('click', () => {
+        state.reversed = !state.reversed;
+        const btn = $('reverseToggle');
+        btn.classList.toggle('active', state.reversed);
+        btn.lastChild.textContent = state.reversed ? 'Original' : 'Reverse';
         runAnalysis();
     });
 

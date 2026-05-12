@@ -62,26 +62,26 @@ export class RouteAnalyzer {
             bins[idx].headW += seg.headFactor * seg.dist;
             totalDist += seg.dist;
         }
-        const maxDist = Math.max(...bins.map(b => b.dist), 1);
+        const maxDist = Math.max(...bins.map(bin => bin.dist), 1);
         const cx = 50, cy = 50, maxR = 36;
         return DIRS.map((label, i) => {
-            const b = bins[i];
-            const pctOfMax = b.dist / maxDist;
-            const r = maxR * Math.max(pctOfMax, 0.06);
+            const bin = bins[i];
+            const pctOfMax = bin.dist / maxDist;
+            const radius = maxR * Math.max(pctOfMax, 0.06);
             const angleDeg = i * 45;
-            const avgHeadFactor = b.dist > 0 ? b.headW / b.dist : 0;
-            const a1 = GeoUtils.toRad(angleDeg - 22.5 - 90);
-            const a2 = GeoUtils.toRad(angleDeg + 22.5 - 90);
-            const x1 = cx + r * Math.cos(a1);
-            const y1 = cy + r * Math.sin(a1);
-            const x2 = cx + r * Math.cos(a2);
-            const y2 = cy + r * Math.sin(a2);
+            const avgHeadFactor = bin.dist > 0 ? bin.headW / bin.dist : 0;
+            const arcStart = GeoUtils.toRad(angleDeg - 22.5 - 90);
+            const arcEnd = GeoUtils.toRad(angleDeg + 22.5 - 90);
+            const x1 = cx + radius * Math.cos(arcStart);
+            const y1 = cy + radius * Math.sin(arcStart);
+            const x2 = cx + radius * Math.cos(arcEnd);
+            const y2 = cy + radius * Math.sin(arcEnd);
             return {
                 label,
-                path: `M${cx},${cy} L${x1.toFixed(1)},${y1.toFixed(1)} A${r.toFixed(1)},${r.toFixed(1)} 0 0,1 ${x2.toFixed(1)},${y2.toFixed(1)} Z`,
+                path: `M${cx},${cy} L${x1.toFixed(1)},${y1.toFixed(1)} A${radius.toFixed(1)},${radius.toFixed(1)} 0 0,1 ${x2.toFixed(1)},${y2.toFixed(1)} Z`,
                 color: GeoUtils.segmentColor(avgHeadFactor),
                 pct: (pctOfMax * 100).toFixed(0),
-                distPct: totalDist > 0 ? (b.dist / totalDist * 100).toFixed(0) : '0',
+                distPct: totalDist > 0 ? (bin.dist / totalDist * 100).toFixed(0) : '0',
             };
         });
     }

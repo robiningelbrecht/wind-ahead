@@ -10,6 +10,7 @@ export const state = {
     dateMax: '',
     avgSpeed: parseInt(localStorage.getItem('wind-analyzer-speed')) || 25,
     points: null,
+    reversedPoints: null,
     centroid: null,
     routeName: null,
     analysis: null,
@@ -18,6 +19,7 @@ export const state = {
     windSpeed: 0,
     windRose: [],
     segmentTable: [],
+    reversed: false,
     unitSystem: localStorage.getItem('wind-analyzer-units') || METRIC,
     _weatherCache: null,
 };

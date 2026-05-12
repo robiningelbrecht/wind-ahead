@@ -14,28 +14,28 @@ export class WeatherService {
     }
 
     extract(data, targetDateTime) {
-        const h = data.hourly;
+        const hourly = data.hourly;
         const targetHour = targetDateTime.slice(0, 13);
-        let idx = h.time.findIndex(t => t.startsWith(targetHour));
+        let idx = hourly.time.findIndex(t => t.startsWith(targetHour));
         if (idx === -1) {
             const target = new Date(targetDateTime).getTime();
             let minDiff = Infinity;
-            h.time.forEach((t, i) => {
+            hourly.time.forEach((t, i) => {
                 const diff = Math.abs(new Date(t).getTime() - target);
                 if (diff < minDiff) { minDiff = diff; idx = i; }
             });
         }
         return {
-            temperature2m: h.temperature_2m[idx],
-            relativeHumidity2m: h.relative_humidity_2m[idx],
-            apparentTemperature: h.apparent_temperature[idx],
-            precipitation: h.precipitation[idx],
-            weatherCode: h.weather_code[idx],
-            cloudCover: h.cloud_cover[idx],
-            surfacePressure: h.surface_pressure[idx],
-            windSpeed10m: h.wind_speed_10m[idx],
-            windDirection10m: h.wind_direction_10m[idx],
-            windGusts10m: h.wind_gusts_10m[idx],
+            temperature2m: hourly.temperature_2m[idx],
+            relativeHumidity2m: hourly.relative_humidity_2m[idx],
+            apparentTemperature: hourly.apparent_temperature[idx],
+            precipitation: hourly.precipitation[idx],
+            weatherCode: hourly.weather_code[idx],
+            cloudCover: hourly.cloud_cover[idx],
+            surfacePressure: hourly.surface_pressure[idx],
+            windSpeed10m: hourly.wind_speed_10m[idx],
+            windDirection10m: hourly.wind_direction_10m[idx],
+            windGusts10m: hourly.wind_gusts_10m[idx],
         };
     }
 }
