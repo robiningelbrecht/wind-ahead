@@ -22,7 +22,7 @@
   <link rel="apple-touch-icon" href="assets/logo.svg" />
   <link rel="canonical" href="">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="dist/app.min.css?v=74fd0121" />
+  <link rel="stylesheet" href="dist/app.min.css?v=4b4fe61d" />
 </head>
 <body class="font-sans bg-gray-50 min-h-screen antialiased flex flex-col">
 <div class="flex-1">
@@ -117,7 +117,7 @@
     <div id="uploadView"
          class="border-2 border-dashed border-gray-200 rounded-xl py-16 px-6 text-center cursor-pointer transition-all bg-white relative hover:border-orange-600 hover:bg-orange-500/5">
       <div class="size-14 mx-auto mb-4 bg-gray-200 rounded-full flex items-center justify-center">
-        <svg class="size-6 stroke-orange-600 fill-none [stroke-width:1.5]" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <svg class="size-6 stroke-orange-600 fill-none stroke-[1.5]" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="17 8 12 3 7 8"/>
           <line x1="12" y1="3" x2="12" y2="15"/>
@@ -135,15 +135,18 @@
       <div class="grid grid-cols-1 gap-4">
         <!-- Inputs -->
         <div class="card">
-          <div data-driver="input" class="flex items-center gap-2.5 flex-wrap">
-            <label class="form-label">When</label>
-            <input type="datetime-local" id="dateInput" class="form-input" />
-            <div class="flex items-center gap-1.5 ml-2 pl-3 border-l border-gray-200 transition-opacity">
+          <div data-driver="input" class="flex flex-col sm:flex-row sm:items-center gap-2.5">
+            <div class="flex items-center gap-2.5">
+              <label class="form-label">When</label>
+              <input type="datetime-local" id="dateInput" class="form-input min-w-0 flex-1 sm:flex-none" />
+            </div>
+            <div class="flex items-center gap-1.5 sm:ml-2 sm:pl-3 sm:border-l sm:border-gray-200">
               <label class="form-label">Speed</label>
               <input type="number" id="speedInput" class="form-input w-17.5 px-1.5 text-center tabular-nums" min="5" max="50" step="1" />
               <span id="speedUnit" class="text-[0.72rem] text-gray-500">km/h</span>
+              <span id="dateNote" class="text-[0.7rem] text-gray-500 ml-auto sm:hidden"></span>
             </div>
-            <span id="dateNote" class="text-[0.7rem] text-gray-500 ml-auto"></span>
+            <span id="dateNoteLg" class="text-[0.7rem] text-gray-500 ml-auto hidden sm:inline"></span>
           </div>
         </div>
         <div>
@@ -361,6 +364,6 @@
 </footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="dist/app.min.js?v=74fd0121"></script>
+<script src="dist/app.min.js?v=4b4fe61d"></script>
 </body>
 </html>

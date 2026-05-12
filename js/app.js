@@ -45,7 +45,9 @@ function renderResults() {
 
     const d = new Date(state.dateTime);
     const opts = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    $('dateNote').textContent = d.toLocaleDateString(undefined, { weekday: 'short', ...opts });
+    const dateStr = d.toLocaleDateString(undefined, { weekday: 'short', ...opts });
+    $('dateNote').textContent = dateStr;
+    $('dateNoteLg').textContent = dateStr;
 
     stats.render(state);
 
