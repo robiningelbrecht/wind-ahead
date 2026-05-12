@@ -13,7 +13,10 @@ import { WindRose } from './components/WindRose';
 import { Weather } from './components/Weather';
 import { SegmentTable } from './components/SegmentTable';
 import { Dropdown } from './components/Dropdown';
+import { Debug } from './utils/Debug';
 
+const debug = new Debug(state);
+window.WindAhead = { debug: () => debug.snapshot() };
 const gpxParser = new GpxParser();
 const weatherService = new WeatherService();
 const routeAnalyzer = new RouteAnalyzer();
@@ -35,13 +38,7 @@ function renderResults() {
     $('dateInput').max = state.dateMax;
     $('speedInput').value = state.avgSpeed;
 
-    const mapRouteNameEl = $('mapRouteName');
-    if (state.routeName) {
-        mapRouteNameEl.textContent = state.routeName;
-        mapRouteNameEl.classList.remove('hidden');
-    } else {
-        mapRouteNameEl.classList.add('hidden');
-    }
+    $('mapLegendTitle').textContent = state.routeName || 'Wind Effect';
 
     const d = new Date(state.dateTime);
     const opts = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -71,6 +68,7 @@ async function processFile(file) {
     try {
         const text = await file.text();
         const parsed = gpxParser.parse(text);
+        debug.logUpload(file, parsed);
         state.points = parsed.points;
         state.routeName = parsed.name;
         state.centroid = state.points.reduce(
@@ -91,6 +89,7 @@ async function processFile(file) {
             tour.markCompleted();
         }
     } catch (err) {
+        debug.logError('GPX processing', err);
         setLoading(false);
         setView('upload');
         setError(err.message || 'Something went wrong');
@@ -123,6 +122,8 @@ async function runAnalysis() {
 
         state.analysis = routeAnalyzer.analyze(state.points, windData, startIdx, state.avgSpeed);
         state.weather = w;
+
+        debug.logAnalysis({ lat, lon, dateStr, unitSystem: state.unitSystem, weather: w, analysis: state.analysis, data });
         state.windDir = w.wind_direction_10m;
         state.windSpeed = w.wind_speed_10m;
         state.windRose = routeAnalyzer.buildWindRose(state.analysis.segments);
@@ -131,6 +132,7 @@ async function runAnalysis() {
         setLoading(false);
         renderResults();
     } catch (err) {
+        debug.logError('Weather/Analysis', err);
         setLoading(false);
         setError(err.message || 'Failed to fetch weather data');
     }
