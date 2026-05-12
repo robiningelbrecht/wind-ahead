@@ -4,7 +4,7 @@
   "description": "Upload a GPX file and instantly see headwind, tailwind, and crosswind conditions along your route.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#111827",
+  "background_color": "#f9fafb",
   "theme_color": "#FC5201",
   "icons": [
     {

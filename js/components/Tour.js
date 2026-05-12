@@ -14,7 +14,6 @@ export class Tour {
                 { element: '[data-driver="rose"]', popover: { title: 'Wind Rose', description: 'Shows which directions your route travels. Petal size = distance, color = wind effect. The orange arrow shows wind direction.', side: 'top' } },
                 { element: '[data-driver="weather"]', popover: { title: 'Weather Conditions', description: 'Forecast details for the selected hour: temperature, humidity, precipitation, wind speed & gusts with compass.', side: 'top' } },
                 { element: '[data-driver="segments"]', popover: { title: 'Segment Details', description: 'A per-kilometer table with bearing, headwind, crosswind, and elevation for each km.', side: 'top' } },
-                { element: '[data-driver="units"]', popover: { title: 'Unit System', description: 'Switch between metric (km, °C) and imperial (mi, °F).', side: 'bottom' } },
             ]
         });
         tour.drive();
