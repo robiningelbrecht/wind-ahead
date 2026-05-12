@@ -100,6 +100,7 @@ async function processFile(file) {
 async function runAnalysis() {
     setLoading(true);
     setError(null);
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
     try {
         const lat = state.centroid.lat.toFixed(4);

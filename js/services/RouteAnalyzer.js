@@ -8,6 +8,7 @@ export class RouteAnalyzer {
         let elevGain = 0, elevLoss = 0, cumDist = 0;
         const baseSpeed = avgSpeed / 3.6;
         const maxIdx = windData.speeds.length - 1;
+        const smoothedEle = GeoUtils.smoothElevations(points);
 
         for (let i = 0; i < points.length - 1; i++) {
             const p1 = points[i], p2 = points[i + 1];
@@ -31,8 +32,9 @@ export class RouteAnalyzer {
             weightedCrosswind += Math.abs(crossComp) * dist;
             cumDist += dist;
             totalDist += dist;
-            if (p1.ele !== null && p2.ele !== null) {
-                const diff = p2.ele - p1.ele;
+            const ele1 = smoothedEle[i], ele2 = smoothedEle[i + 1];
+            if (ele1 !== null && ele2 !== null) {
+                const diff = ele2 - ele1;
                 if (diff > 0) elevGain += diff; else elevLoss += Math.abs(diff);
             }
             segments.push({ p1, p2, dist, brng, headComp, crossComp, headFactor, type });

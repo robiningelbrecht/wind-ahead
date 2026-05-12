@@ -33,6 +33,30 @@ export class GeoUtils {
         return `rgb(${Math.round(251 - 12 * t)},${Math.round(191 - 123 * t)},${Math.round(36 + 32 * t)})`;
     }
 
+    static smoothElevations(points) {
+        const eles = points.map(p => p.ele);
+        const diffs = [];
+        for (let i = 0; i < eles.length - 1; i++) {
+            if (eles[i] !== null && eles[i + 1] !== null) diffs.push(Math.abs(eles[i + 1] - eles[i]));
+        }
+        if (!diffs.length) return eles;
+        const medianNoise = diffs.slice().sort((a, b) => a - b)[Math.floor(diffs.length / 2)];
+        const windowSize = Math.max(1, Math.round(medianNoise ** 2 * 65)) | 1;
+        if (windowSize <= 1) return eles;
+
+        const half = Math.floor(windowSize / 2);
+        const smoothed = [];
+        for (let i = 0; i < points.length; i++) {
+            if (eles[i] === null) { smoothed.push(null); continue; }
+            let sum = 0, count = 0;
+            for (let j = Math.max(0, i - half); j <= Math.min(points.length - 1, i + half); j++) {
+                if (eles[j] !== null) { sum += eles[j]; count++; }
+            }
+            smoothed.push(count > 0 ? sum / count : null);
+        }
+        return smoothed;
+    }
+
     static toLocalStr(d) {
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}T${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
     }
