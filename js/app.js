@@ -196,6 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
     dropZone.addEventListener('dragleave', () => {
         dropZone.classList.remove('!border-orange-600', '!bg-orange-500/5');
     });
+    dropZone.addEventListener('click', (e) => {
+        if (e.target.closest('label') || e.target.id === 'fileInput') return;
+        $('fileInput').click();
+    });
     dropZone.addEventListener('drop', (e) => {
         e.preventDefault();
         dropZone.classList.remove('!border-orange-600', '!bg-orange-500/5');
