@@ -4,7 +4,8 @@
 
 <h1 align="center">WindAhead</h1>
 
-<h4 align="center">WindAhead is a client-side wind analyzer for cycling, running, and walking routes.</h4>
+<h3 align="center">A weather and wind analysis tool for your cycling and running routes.</h3>
+<h4 align="center">Runs 100% in your browser. No uploads. No data stored.</h4>
 
 ---
 
