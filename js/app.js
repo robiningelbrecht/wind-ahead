@@ -222,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     $('demoLink').addEventListener('click', async (e) => {
-        e.preventDefault();
         e.stopPropagation();
         const res = await fetch('./assets/tour-of-flanders.gpx');
         const blob = await res.blob();

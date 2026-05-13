@@ -100,7 +100,7 @@ export class LeafletMap {
         this.updateWindOverlay();
     }
 
-    renderWeatherOverlay(weatherMarkers, unitSystem) {
+    renderWeatherOverlay(weatherMarkers) {
         this.weatherOverlayGroup = L.layerGroup().addTo(this.map);
         if (weatherMarkers) {
             weatherMarkers.forEach(marker => {
@@ -135,7 +135,7 @@ export class LeafletMap {
         const latlngs = points.map(p => [p.lat, p.lon]);
         this.renderStartEnd(latlngs);
         this.renderWindOverlay(wDir, wSpeed, speed);
-        this.renderWeatherOverlay(analysis.weatherMarkers, unitSystem);
+        this.renderWeatherOverlay(analysis.weatherMarkers);
     }
 
     updateTiles() {
