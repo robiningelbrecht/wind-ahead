@@ -14,6 +14,7 @@ import { Breakdown } from './components/Breakdown';
 import { WindRose } from './components/WindRose';
 import { Weather } from './components/Weather';
 import { SegmentTable } from './components/SegmentTable';
+import { DropZone } from './components/DropZone';
 import { Dropdown } from './components/Dropdown';
 import { Debug } from './utils/Debug';
 
@@ -215,44 +216,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const dropdown = new Dropdown('dropdownBtn', 'dropdown');
 
-    const dropZone = $('uploadView');
-    dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.classList.add('!border-orange-600', '!bg-orange-500/5');
-    });
-    dropZone.addEventListener('dragleave', () => {
-        dropZone.classList.remove('!border-orange-600', '!bg-orange-500/5');
-    });
-    dropZone.addEventListener('click', (e) => {
-        if (e.target.closest('label') || e.target.id === 'fileInput') {
-            return;
-        }
-        $('fileInput').click();
-    });
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('!border-orange-600', '!bg-orange-500/5');
-        const file = e.dataTransfer.files[0];
-        if (file && file.name.endsWith('.gpx')) {
-            processFile(file);
-        } else {
-            setError('Please drop a .gpx file');
-        }
-    });
-
-    $('fileInput').addEventListener('change', (e) => {
-        if (e.target.files[0]) {
-            processFile(e.target.files[0]);
-        }
-    });
-
-    $('demoLink').addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const res = await fetch('./assets/tour-of-flanders.gpx');
-        const blob = await res.blob();
-        const text = await blob.text();
-        processGpx('tour-of-flanders.gpx', text, { persist: false });
-    });
+    const dropZone = new DropZone();
+    dropZone.bind(processFile, processGpx);
 
     $('dateInput').addEventListener('change', (e) => {
         state.dateTime = e.target.value;
@@ -280,12 +245,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const cachedGpx = await keyValueRepository.get('lastGpx');
     if (cachedGpx) {
-        const lastGpxButton = $('lastGpxLink');
-        $('lastGpxName').textContent = cachedGpx.name;
-        $('lastGpxContainer').classList.remove('hidden');
-        lastGpxButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            processGpx(cachedGpx.name, cachedGpx.text);
-        });
+        dropZone.showLastGpx(cachedGpx.name, cachedGpx.text, processGpx);
     }
 });
