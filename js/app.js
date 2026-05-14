@@ -1,9 +1,11 @@
 import { $, state, setView, setLoading, setError } from './state';
 import { LocalDate } from './utils/LocalDate';
 import { unitLabel, METRIC, IMPERIAL } from './utils/units';
+import { SPEED_KEY, UNITS_KEY, THEME_KEY } from './constants';
 import { GpxParser } from './services/GpxParser';
 import { OpenMeteo } from './services/OpenMeteo';
 import { RouteAnalyzer } from './services/RouteAnalyzer';
+import { keyValueRepository } from './services/KeyValueRepository';
 import { LeafletMap } from './components/LeafletMap';
 import { WindStrip } from './components/WindStrip';
 import { Tour } from './components/Tour';
@@ -31,7 +33,9 @@ function updateUnitLabels() {
 }
 
 function renderResults() {
-    if (!state.analysis) return;
+    if (!state.analysis) {
+        return;
+    }
 
     $('dateInput').value = state.dateTime;
     $('dateInput').min = state.dateMin;
@@ -60,15 +64,14 @@ function renderResults() {
     windStrip.render(state);
 }
 
-async function processFile(file) {
+async function processGpx(name, text, { persist = true } = {}) {
     setView('results');
     setLoading(true);
     setError(null);
 
     try {
-        const text = await file.text();
         const parsed = gpxParser.parse(text);
-        debug.logUpload(file, parsed);
+        debug.logUpload({ name, size: text.length }, parsed);
         state.points = parsed.points;
         state.reversedPoints = [...parsed.points].reverse();
         state.routeName = parsed.name;
@@ -83,6 +86,10 @@ async function processFile(file) {
         state.dateMin = nowDate.toString();
         state.dateMax = nowDate.addDays(7).toString();
 
+        if (persist) {
+            keyValueRepository.set('lastGpx', { name, text });
+        }
+
         await runAnalysis();
         if (!tour.hasCompleted()) {
             setTimeout(() => tour.run(), 600);
@@ -94,6 +101,11 @@ async function processFile(file) {
         setView('upload');
         setError(err.message || 'Something went wrong');
     }
+}
+
+async function processFile(file) {
+    const text = await file.text();
+    await processGpx(file.name, text);
 }
 
 async function runAnalysis() {
@@ -123,7 +135,9 @@ async function runAnalysis() {
             temps: data.hourly.temperature_2m,
         };
         let startIdx = data.hourly.time.findIndex(t => t.startsWith(localDate.hourPrefix));
-        if (startIdx === -1) startIdx = 0;
+        if (startIdx === -1) {
+            startIdx = 0;
+        }
 
         const pts = state.reversed ? state.reversedPoints : state.points;
         state.analysis = routeAnalyzer.analyze(pts, windData, startIdx, state.avgSpeed);
@@ -161,11 +175,12 @@ function reset() {
     $('cardsSection').classList.add('hidden');
     segmentTable.hide();
     map.destroy();
+    keyValueRepository.delete('lastGpx');
     setView('upload');
     setError(null);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     $('speedInput').value = state.avgSpeed;
     updateUnitLabels();
 
@@ -182,16 +197,19 @@ document.addEventListener('DOMContentLoaded', () => {
     unitToggle.checked = state.unitSystem === IMPERIAL;
     unitToggle.addEventListener('change', () => {
         state.unitSystem = unitToggle.checked ? IMPERIAL : METRIC;
-        localStorage.setItem('wind-analyzer-units', state.unitSystem);
+        localStorage.setItem(UNITS_KEY, state.unitSystem);
         updateUnitLabels();
-        if (state.analysis) runAnalysis();
+        if (state.analysis) {
+            runAnalysis();
+        }
     });
     const themeToggle = $('themeToggle');
-    themeToggle.checked = map.isDark();
+    themeToggle.checked = state.isDarkMode;
     themeToggle.addEventListener('change', () => {
         const next = themeToggle.checked ? 'dark' : 'light';
+        state.isDarkMode = next === 'dark';
         document.documentElement.setAttribute('data-theme', next);
-        localStorage.setItem('wind-analyzer-theme', next);
+        localStorage.setItem(THEME_KEY, next);
         map.updateTiles();
     });
 
@@ -206,26 +224,34 @@ document.addEventListener('DOMContentLoaded', () => {
         dropZone.classList.remove('!border-orange-600', '!bg-orange-500/5');
     });
     dropZone.addEventListener('click', (e) => {
-        if (e.target.closest('label') || e.target.id === 'fileInput') return;
+        if (e.target.closest('label') || e.target.id === 'fileInput') {
+            return;
+        }
         $('fileInput').click();
     });
     dropZone.addEventListener('drop', (e) => {
         e.preventDefault();
         dropZone.classList.remove('!border-orange-600', '!bg-orange-500/5');
         const file = e.dataTransfer.files[0];
-        if (file && file.name.endsWith('.gpx')) processFile(file);
-        else setError('Please drop a .gpx file');
+        if (file && file.name.endsWith('.gpx')) {
+            processFile(file);
+        } else {
+            setError('Please drop a .gpx file');
+        }
     });
 
     $('fileInput').addEventListener('change', (e) => {
-        if (e.target.files[0]) processFile(e.target.files[0]);
+        if (e.target.files[0]) {
+            processFile(e.target.files[0]);
+        }
     });
 
     $('demoLink').addEventListener('click', async (e) => {
         e.stopPropagation();
         const res = await fetch('./assets/tour-of-flanders.gpx');
         const blob = await res.blob();
-        processFile(new File([blob], 'tour-of-flanders.gpx'));
+        const text = await blob.text();
+        processGpx('tour-of-flanders.gpx', text, { persist: false });
     });
 
     $('dateInput').addEventListener('change', (e) => {
@@ -234,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     $('speedInput').addEventListener('change', (e) => {
         state.avgSpeed = parseInt(e.target.value) || 25;
-        localStorage.setItem('wind-analyzer-speed', state.avgSpeed);
+        localStorage.setItem(SPEED_KEY, state.avgSpeed);
         runAnalysis();
     });
     $('reverseToggle').addEventListener('click', () => {
@@ -251,4 +277,15 @@ document.addEventListener('DOMContentLoaded', () => {
     weather = new Weather();
     segmentTable = new SegmentTable();
     windStrip.bind(map);
+
+    const cachedGpx = await keyValueRepository.get('lastGpx');
+    if (cachedGpx) {
+        const lastGpxButton = $('lastGpxLink');
+        $('lastGpxName').textContent = cachedGpx.name;
+        $('lastGpxContainer').classList.remove('hidden');
+        lastGpxButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            processGpx(cachedGpx.name, cachedGpx.text);
+        });
+    }
 });

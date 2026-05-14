@@ -28,7 +28,7 @@ export class Debug {
             'Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone,
             'Viewport': `${window.innerWidth}x${window.innerHeight}`,
             'Screen': `${screen.width}x${screen.height} @${devicePixelRatio}x`,
-            'Theme': localStorage.getItem('wind-analyzer-theme') || 'dark',
+            'Theme': this.state.isDarkMode ? 'dark' : 'light',
             'Unit System': this.state.unitSystem,
             'Touch': 'ontouchstart' in window,
         });

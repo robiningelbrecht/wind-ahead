@@ -1,6 +1,7 @@
 import { GeoUtils } from '../utils/GeoUtils';
 import { TILE_DARK, TILE_LIGHT, WEATHER_CODES, WEATHER_ICONS } from '../constants';
 import { unitLabel } from '../utils/units';
+import { state as appState } from '../state';
 
 export class LeafletMap {
     constructor() {
@@ -11,10 +12,6 @@ export class LeafletMap {
         this.weatherOverlayGroup = null;
         this.cachedWindDir = 0;
         this.hoverMarker = null;
-    }
-
-    isDark() {
-        return document.documentElement.getAttribute('data-theme') !== 'light';
     }
 
     createWindArrowIcon(blowsTo) {
@@ -126,7 +123,7 @@ export class LeafletMap {
         const speed = unitLabel(unitSystem, 'speed');
         if (this.map) { this.map.remove(); this.map = null; }
         this.map = L.map('map');
-        this.tileLayer = L.tileLayer(this.isDark() ? TILE_DARK : TILE_LIGHT, {
+        this.tileLayer = L.tileLayer(appState.isDarkMode ? TILE_DARK : TILE_LIGHT, {
             attribution: '&copy; OSM &copy; CARTO'
         }).addTo(this.map);
         this.layerGroup = L.layerGroup().addTo(this.map);
@@ -140,7 +137,7 @@ export class LeafletMap {
 
     updateTiles() {
         if (this.map && this.tileLayer) {
-            this.tileLayer.setUrl(this.isDark() ? TILE_DARK : TILE_LIGHT);
+            this.tileLayer.setUrl(appState.isDarkMode ? TILE_DARK : TILE_LIGHT);
         }
     }
 

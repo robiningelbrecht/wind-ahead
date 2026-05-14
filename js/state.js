@@ -1,4 +1,5 @@
 import { METRIC } from './utils/units';
+import { SPEED_KEY, UNITS_KEY, THEME_KEY } from './constants';
 
 export const $ = (id) => document.getElementById(id);
 
@@ -8,7 +9,7 @@ export const state = {
     dateTime: '',
     dateMin: '',
     dateMax: '',
-    avgSpeed: parseInt(localStorage.getItem('wind-analyzer-speed')) || 25,
+    avgSpeed: parseInt(localStorage.getItem(SPEED_KEY)) || 25,
     points: null,
     reversedPoints: null,
     centroid: null,
@@ -20,7 +21,8 @@ export const state = {
     windRose: [],
     segmentTable: [],
     reversed: false,
-    unitSystem: localStorage.getItem('wind-analyzer-units') || METRIC,
+    unitSystem: localStorage.getItem(UNITS_KEY) || METRIC,
+    isDarkMode: (localStorage.getItem(THEME_KEY) || 'dark') === 'dark',
     _weatherCache: null,
 };
 
