@@ -12,18 +12,17 @@
   <meta property="og:description" content="Upload a GPX file and instantly see headwind, tailwind, and crosswind conditions along your route.">
   <meta property="og:image" content="logo.svg">
   <meta property="og:url" content="">
-
   <script>
     const savedTheme = localStorage.getItem('wind-analyzer-theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
   </script>
-
   <link rel="icon" href="assets/logo.png" />
   <link rel="apple-touch-icon" href="assets/icon-192.png" />
   <link rel="manifest" href="manifest.json" />
   <link rel="canonical" href="">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="dist/app.min.css?v=d5adafaa" />
+  <script defer src="https://analytics.robiningelbrecht.be/script.js" data-website-id="d76855f7-bd25-47d3-a042-b4a8a9af3f77" data-domains="windahead.app,windahead.app"></script>
 </head>
 <body class="font-sans bg-gray-50 min-h-screen antialiased flex flex-col">
 <div class="flex-1">
