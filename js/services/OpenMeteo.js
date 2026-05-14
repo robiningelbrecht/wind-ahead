@@ -7,8 +7,15 @@ export class OpenMeteo {
         const tempUnit = isImperial ? 'fahrenheit' : 'celsius';
         const windUnit = isImperial ? 'mph' : 'kmh';
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=${WEATHER_PARAMS}&start_date=${localDate.dateStr}&end_date=${localDate.nextDayStr}&temperature_unit=${tempUnit}&wind_speed_unit=${windUnit}&timezone=auto`;
-        const res = await window.fetch(url);
-        if (!res.ok) throw new Error('Weather API request failed');
+        let res;
+        try {
+            res = await window.fetch(url);
+        } catch {
+            throw new Error('Could not reach the weather service. Check your internet connection.');
+        }
+        if (!res.ok) {
+            throw new Error(`Weather service returned an error (${res.status}). Try again later.`);
+        }
         return await res.json();
     }
 
