@@ -3,6 +3,7 @@
 @import "./components/dark-mode.css";
 @import "./components/driver-popover.css";
 @import "./components/leaflet-controls.css";
+@import "./components/popover.css";
 @source "../index.html";
 @source "../js/**/*.js";
 

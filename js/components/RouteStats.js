@@ -1,6 +1,8 @@
 import { $ } from '../state';
-import { unitLabel, convertUnit } from '../utils/units';
+import { unitLabel, convertUnit, IMPERIAL } from '../utils/units';
 import { UV_BANDS } from '../constants';
+import { GeoUtils } from '../utils/GeoUtils';
+import { Popover } from './Popover';
 
 const STAT_VALUE_CLASS = 'text-2xl font-extrabold tabular-nums tracking-[-0.02em] leading-[1.2]';
 
@@ -22,10 +24,13 @@ export class RouteStats {
         this.windSpeedContainer = $('windSpeedContainer');
         this.statWindSpeed = $('statWindSpeed');
         this.windSpeedUnit = $('windSpeedUnit');
+        this.beaufortChip = $('beaufortChip');
+        this.windSpeedPopover = new Popover('windSpeedInfoBtn', 'windSpeedPopover');
         this.uvContainer = $('uvContainer');
         this.statUvValue = $('statUvValue');
         this.statUv = $('statUv');
         this.statUvLabel = $('statUvLabel');
+        this.uvPopover = new Popover('uvInfoBtn', 'uvPopover');
     }
 
     render(state) {
@@ -65,17 +70,31 @@ export class RouteStats {
             this.tempUnit.textContent = unitLabel(unitSystem, 'temp');
             this.statWindSpeed.textContent = weather.windSpeed10m;
             this.windSpeedUnit.textContent = unitLabel(unitSystem, 'speed');
+            this.renderBeaufort(weather.windSpeed10m, unitSystem);
         }
 
         const hasUv = hasWeather && weather.uvIndexMax != null;
         this.uvContainer.classList.toggle('hidden', !hasUv);
         if (hasUv) {
-            const band = UV_BANDS.find(b => weather.uvIndexMax < b.max);
-            this.statUv.textContent = weather.uvIndexMax.toFixed(0);
-            this.statUvLabel.textContent = band.label;
-            this.statUvValue.className = `${STAT_VALUE_CLASS} ${band.color}`.trim();
-            this.uvContainer.title = `${band.label} - ${band.advice}`;
+            this.renderUv(weather.uvIndexMax);
         }
+    }
+
+    renderBeaufort(windSpeed, unitSystem) {
+        const kmh = unitSystem === IMPERIAL ? windSpeed * 1.609344 : windSpeed;
+        const b = GeoUtils.beaufort(kmh);
+        const [r, g, bl] = b.color;
+        this.beaufortChip.textContent = `Force ${b.force} - ${b.name}`;
+        this.beaufortChip.style.color = `rgb(${r},${g},${bl})`;
+        this.beaufortChip.style.backgroundColor = `rgba(${r},${g},${bl},0.15)`;
+    }
+
+    renderUv(uvIndex) {
+        const band = UV_BANDS.find(b => uvIndex < b.max);
+        this.statUv.textContent = uvIndex.toFixed(0);
+        this.statUvLabel.textContent = band.label;
+        this.statUvValue.className = `${STAT_VALUE_CLASS} ${band.color}`.trim();
+        this.uvPopover.setContent(band.advice);
     }
 
     hide() {

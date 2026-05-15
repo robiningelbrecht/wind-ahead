@@ -11,7 +11,6 @@ export class Weather {
         this.windLabelEl = $('weatherWindLabel');
         this.speedUnit = $('weatherSpeedUnit');
         this.gusts = $('weatherGusts');
-        this.beaufortChip = $('beaufortChip');
         this.needle = $('windNeedle');
         this.condition = $('conditionText');
         this.feelsLike = $('feelsLike');
@@ -32,7 +31,6 @@ export class Weather {
         this.speedUnit.textContent = speed;
         this.gusts.textContent = weather.windGusts10m + ' ' + speed;
         this.needle.style.transform = `rotate(${(windDir + 180) % 360}deg)`;
-        this.renderBeaufort(weather.windSpeed10m, unitSystem);
         const icon = WEATHER_ICONS[weather.weatherCode] || '';
         this.condition.textContent = icon + ' ' + (WEATHER_CODES[weather.weatherCode] || `Code ${weather.weatherCode}`);
         this.feelsLike.textContent = weather.apparentTemperature + unitLabel(unitSystem, 'temp');
@@ -40,15 +38,5 @@ export class Weather {
         this.precipitation.textContent = convertUnit(weather.precipitation, 'precip', unitSystem).toFixed(2) + ' ' + unitLabel(unitSystem, 'precip');
         this.clouds.textContent = weather.cloudCover + '%';
         this.pressure.textContent = convertUnit(weather.surfacePressure, 'pressure', unitSystem).toFixed(unitSystem === IMPERIAL ? 2 : 0) + ' ' + unitLabel(unitSystem, 'pressure');
-    }
-
-    renderBeaufort(windSpeed, unitSystem) {
-        const kmh = unitSystem === IMPERIAL ? windSpeed * 1.609344 : windSpeed;
-        const b = GeoUtils.beaufort(kmh);
-        const [r, g, bl] = b.color;
-        this.beaufortChip.textContent = `Force ${b.force} - ${b.name}`;
-        this.beaufortChip.title = `Beaufort scale: a 0-12 rating of wind strength based on its observable effects.`;
-        this.beaufortChip.style.color = `rgb(${r},${g},${bl})`;
-        this.beaufortChip.style.backgroundColor = `rgba(${r},${g},${bl},0.15)`;
     }
 }
