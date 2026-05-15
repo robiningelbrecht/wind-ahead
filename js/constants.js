@@ -34,7 +34,6 @@ export const WEATHER_PARAMS = [
     'wind_speed_10m', 'wind_direction_10m', 'wind_gusts_10m'
 ].join(',');
 
-export const TOUR_KEY = 'wind-analyzer-tour-done';
 export const SPEED_KEY = 'wind-analyzer-speed';
 export const UNITS_KEY = 'wind-analyzer-units';
 export const THEME_KEY = 'wind-analyzer-theme';

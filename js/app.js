@@ -8,7 +8,6 @@ import { RouteAnalyzer } from './services/RouteAnalyzer';
 import { keyValueRepository } from './services/KeyValueRepository';
 import { LeafletMap } from './components/LeafletMap';
 import { WindStrip } from './components/WindStrip';
-import { Tour } from './components/Tour';
 import { RouteStats } from './components/RouteStats';
 import { Breakdown } from './components/Breakdown';
 import { WindRose } from './components/WindRose';
@@ -25,7 +24,6 @@ const openMeteo = new OpenMeteo();
 const routeAnalyzer = new RouteAnalyzer();
 const map = new LeafletMap();
 const windStrip = new WindStrip();
-const tour = new Tour();
 
 let stats, breakdown, windRose, weather, segmentTable;
 
@@ -92,10 +90,6 @@ async function processGpx(name, text, { persist = true } = {}) {
         }
 
         await runAnalysis();
-        if (!tour.hasCompleted()) {
-            setTimeout(() => tour.run(), 600);
-            tour.markCompleted();
-        }
     } catch (err) {
         debug.logError('GPX processing', err);
         setLoading(false);

@@ -1,5 +1,4 @@
 import { driver } from 'driver.js';
-import { TOUR_KEY } from '../constants';
 
 export class Tour {
     run() {
@@ -17,13 +16,5 @@ export class Tour {
             ]
         });
         tour.drive();
-    }
-
-    hasCompleted() {
-        return !!localStorage.getItem(TOUR_KEY);
-    }
-
-    markCompleted() {
-        localStorage.setItem(TOUR_KEY, '1');
     }
 }
