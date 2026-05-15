@@ -22,6 +22,18 @@ Track points, route points, waypoints, and elevation data are all supported.
 2. **Pick** a date/time and average speed
 3. WindAhead fetches hourly wind forecasts from the [Open-Meteo API](https://open-meteo.com) and calculates headwind, crosswind, and tailwind for every segment of your route
 
+## Run it locally
+
+Requires [Node.js](https://nodejs.org/) (no other dependencies needed to serve).
+
+```bash
+git clone https://github.com/robiningelbrecht/wind-ahead.git
+cd wind-ahead
+npm start
+```
+
+Then open [http://127.0.0.1:3000](http://127.0.0.1:3000). Override the port with `PORT=8080 npm start`.
+
 ## Related
 
 [Statistics for Strava](https://statistics-for-strava.robiningelbrecht.be) - A self-hosted dashboard for your Strava data

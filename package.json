@@ -2,7 +2,8 @@
   "scripts": {
     "webpack": "node_modules/.bin/webpack --config webpack.config.js",
     "tailwind": "npx @tailwindcss/cli -i css/app.css -o dist/app.min.css --minify",
-    "build": "npm run webpack && npm run tailwind && bash scripts/cachebust.sh"
+    "build": "npm run webpack && npm run tailwind && bash scripts/cachebust.sh",
+    "start": "node scripts/serve.js"
   },
   "devDependencies": {
     "tailwindcss": "^4.2.4",
