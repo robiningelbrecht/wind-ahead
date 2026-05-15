@@ -15,6 +15,7 @@ import { Weather } from './components/Weather';
 import { SegmentTable } from './components/SegmentTable';
 import { DropZone } from './components/DropZone';
 import { Dropdown } from './components/Dropdown';
+import { Tour } from './components/Tour';
 import { Debug } from './utils/Debug';
 
 const debug = new Debug(state);
@@ -24,6 +25,7 @@ const openMeteo = new OpenMeteo();
 const routeAnalyzer = new RouteAnalyzer();
 const map = new LeafletMap();
 const windStrip = new WindStrip();
+const tour = new Tour();
 
 let stats, breakdown, windRose, weather, segmentTable;
 
@@ -204,7 +206,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         map.updateTiles();
     });
 
-    const dropdown = new Dropdown('dropdownBtn', 'dropdown');
+    const dropdown = new Dropdown('mainMenu');
 
     const dropZone = new DropZone();
     dropZone.bind(processFile, processGpx);

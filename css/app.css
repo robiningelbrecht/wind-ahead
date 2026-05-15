@@ -2,6 +2,7 @@
 @import "driver.js/dist/driver.css";
 @import "./components/dark-mode.css";
 @import "./components/driver-popover.css";
+@import "./components/dropdown.css";
 @import "./components/leaflet-controls.css";
 @import "./components/popover.css";
 @source "../index.html";

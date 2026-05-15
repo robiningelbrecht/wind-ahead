@@ -21,7 +21,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="canonical" href="">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="dist/app.min.css?v=c0443967" />
+  <link rel="stylesheet" href="dist/app.min.css?v=9450b659" />
   <script defer src="https://analytics.robiningelbrecht.be/script.js" data-website-id="d76855f7-bd25-47d3-a042-b4a8a9af3f77" data-domains="windahead.app,windahead.app"></script>
 </head>
 <body class="font-sans bg-gray-50 min-h-screen antialiased flex flex-col">
@@ -56,13 +56,13 @@
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
           </svg>
         </button>
-        <div class="relative">
-          <button data-component="dropdownBtn" class="btn-icon" type="button" title="Open menu">
+        <div data-dropdown="mainMenu">
+          <button class="btn-icon" type="button" title="Open menu" aria-haspopup="true" aria-expanded="false">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
           </button>
-          <div data-component="dropdown" class="hidden absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg w-56 z-1100">
+          <div>
             <ul class="p-2 text-[0.82rem] font-medium text-gray-600">
               <li>
                 <button data-component="faqBtn" class="inline-flex items-center w-full p-2 hover:bg-gray-50 rounded transition-colors bg-transparent border-none cursor-pointer font-[inherit] text-[0.82rem] font-medium text-gray-600">
@@ -391,5 +391,5 @@
   </div>
 </footer>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="dist/app.min.js?v=c0443967"></script></body>
+<script src="dist/app.min.js?v=9450b659"></script></body>
 </html>

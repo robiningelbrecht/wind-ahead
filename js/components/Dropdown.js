@@ -1,25 +1,35 @@
-import { $ } from '../state';
-
 export class Dropdown {
-    constructor(btnId, menuId) {
-        this.btn = $(btnId);
-        this.menu = $(menuId);
+    constructor(name) {
+        const wrapper = document.querySelector(`[data-dropdown="${name}"]`);
+        this.trigger = wrapper.querySelector('button');
+        this.menu = this.trigger.nextElementSibling;
 
-        this.btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.toggle();
-        });
+        this.trigger.addEventListener('click', () => this.toggle());
 
         document.addEventListener('click', (e) => {
-            if (!this.menu.contains(e.target)) this.close();
+            if (this.menu.contains(e.target) || this.trigger.contains(e.target)) return;
+            this.close();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') this.close();
         });
     }
 
-    toggle() {
-        this.menu.classList.toggle('hidden');
+    isOpen() {
+        return this.trigger.getAttribute('aria-expanded') === 'true';
+    }
+
+    open() {
+        this.trigger.setAttribute('aria-expanded', 'true');
     }
 
     close() {
-        this.menu.classList.add('hidden');
+        this.trigger.setAttribute('aria-expanded', 'false');
+    }
+
+    toggle() {
+        if (this.isOpen()) this.close();
+        else this.open();
     }
 }
