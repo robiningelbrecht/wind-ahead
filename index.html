@@ -21,7 +21,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="canonical" href="">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="dist/app.min.css?v=bd20ad00" />
+  <link rel="stylesheet" href="dist/app.min.css?v=c0443967" />
   <script defer src="https://analytics.robiningelbrecht.be/script.js" data-website-id="d76855f7-bd25-47d3-a042-b4a8a9af3f77" data-domains="windahead.app,windahead.app"></script>
 </head>
 <body class="font-sans bg-gray-50 min-h-screen antialiased flex flex-col">
@@ -198,9 +198,9 @@
             <div class="text-2xl font-extrabold tabular-nums tracking-[-0.02em] leading-[1.2]"><span data-component="statWindSpeed"></span> <span data-component="windSpeedUnit" class="text-xs font-normal text-gray-600">km/h</span></div>
             <div class="flex items-center justify-center gap-1 mt-1">
               <span class="text-[0.65rem] uppercase tracking-[0.08em] text-gray-500">Wind Speed</span>
-              <div class="relative">
-                <button data-component="windSpeedInfoBtn" type="button" aria-label="Beaufort scale info" aria-expanded="false" class="popover-trigger">?</button>
-                <div data-component="windSpeedPopover" role="tooltip" class="popover hidden">
+              <div data-popover="windSpeedPopover">
+                <button type="button" aria-label="Beaufort scale info" aria-expanded="false">?</button>
+                <div role="tooltip">
                   <span data-component="beaufortChip" class="inline-flex items-center px-2 py-0.5 rounded-full text-[0.65rem] font-semibold tabular-nums whitespace-nowrap"></span>
                   <p class="mt-2">Beaufort scale: a 0-12 rating of wind strength based on its observable effects.</p>
                 </div>
@@ -211,9 +211,9 @@
             <div data-component="statUvValue" class="text-2xl font-extrabold tabular-nums tracking-[-0.02em] leading-[1.2]"><span data-component="statUv"></span> <span data-component="statUvLabel" class="text-xs font-normal"></span></div>
             <div class="flex items-center justify-center gap-1 mt-1">
               <span class="text-[0.65rem] uppercase tracking-[0.08em] text-gray-500">UV Index</span>
-              <div class="relative">
-                <button data-component="uvInfoBtn" type="button" aria-label="UV index advice" aria-expanded="false" class="popover-trigger">?</button>
-                <div data-component="uvPopover" role="tooltip" class="popover hidden"></div>
+              <div data-popover="uvPopover">
+                <button type="button" aria-label="UV index advice" aria-expanded="false">?</button>
+                <div role="tooltip"></div>
               </div>
             </div>
           </div>
@@ -391,5 +391,5 @@
   </div>
 </footer>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="dist/app.min.js?v=bd20ad00"></script></body>
+<script src="dist/app.min.js?v=c0443967"></script></body>
 </html>

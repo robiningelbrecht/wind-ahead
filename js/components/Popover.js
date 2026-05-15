@@ -1,14 +1,13 @@
-import { $ } from '../state';
-
 export class Popover {
-    constructor(triggerId, popoverId) {
-        this.trigger = $(triggerId);
-        this.element = $(popoverId);
+    constructor(name) {
+        const wrapper = document.querySelector(`[data-popover="${name}"]`);
+        this.trigger = wrapper.querySelector('button');
+        this.element = this.trigger.nextElementSibling;
 
         this.trigger.addEventListener('click', () => this.toggle());
 
         document.addEventListener('click', (e) => {
-            if (this.element.contains(e.target) || e.target === this.trigger) return;
+            if (this.element.contains(e.target) || this.trigger.contains(e.target)) return;
             this.close();
         });
 
@@ -27,8 +26,11 @@ export class Popover {
         this.element.textContent = text;
     }
 
+    isOpen() {
+        return this.trigger.getAttribute('aria-expanded') === 'true';
+    }
+
     open() {
-        this.element.classList.remove('hidden');
         this.trigger.setAttribute('aria-expanded', 'true');
         this.element.style.left = '';
 
@@ -44,15 +46,11 @@ export class Popover {
     }
 
     close() {
-        this.element.classList.add('hidden');
         this.trigger.setAttribute('aria-expanded', 'false');
     }
 
     toggle() {
-        if (this.element.classList.contains('hidden')) {
-            this.open();
-        } else {
-            this.close();
-        }
+        if (this.isOpen()) this.close();
+        else this.open();
     }
 }

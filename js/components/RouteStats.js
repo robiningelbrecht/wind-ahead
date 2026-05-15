@@ -25,12 +25,12 @@ export class RouteStats {
         this.statWindSpeed = $('statWindSpeed');
         this.windSpeedUnit = $('windSpeedUnit');
         this.beaufortChip = $('beaufortChip');
-        this.windSpeedPopover = new Popover('windSpeedInfoBtn', 'windSpeedPopover');
+        this.windSpeedPopover = new Popover('windSpeedPopover');
         this.uvContainer = $('uvContainer');
         this.statUvValue = $('statUvValue');
         this.statUv = $('statUv');
         this.statUvLabel = $('statUvLabel');
-        this.uvPopover = new Popover('uvInfoBtn', 'uvPopover');
+        this.uvPopover = new Popover('uvPopover');
     }
 
     render(state) {

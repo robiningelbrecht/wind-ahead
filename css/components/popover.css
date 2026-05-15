@@ -1,13 +1,19 @@
-.popover-trigger {
+div[data-popover] {
+    @apply relative;
+}
+div[data-popover] > button {
     @apply size-3.5 rounded-full bg-gray-200 text-gray-500 text-[0.6rem] font-bold leading-none
            flex items-center justify-center cursor-pointer;
 }
-.popover-trigger:hover {
+div[data-popover] > button:hover {
     @apply bg-gray-300 text-gray-900;
 }
-.popover {
-    @apply absolute z-10 left-1/2 -translate-x-1/2 top-full mt-1
+div[data-popover] > button + * {
+    @apply hidden absolute z-10 left-1/2 -translate-x-1/2 top-full mt-1
            w-56 max-w-[80vw] p-3
            bg-white border border-gray-200 rounded-lg shadow-lg
            text-[0.78rem] text-gray-600 text-left leading-relaxed;
+}
+div[data-popover] > button[aria-expanded="true"] + * {
+    @apply block;
 }
