@@ -141,8 +141,6 @@ async function runAnalysis() {
         debug.logAnalysis({ lat, lon, dateStr: localDate.dateStr, unitSystem: state.unitSystem, weather, analysis: state.analysis, data });
         state.windDir = weather.windDirection10m;
         state.windSpeed = weather.windSpeed10m;
-        state.windRose = routeAnalyzer.buildWindRose(state.analysis.segments);
-        state.segmentTable = routeAnalyzer.buildSegmentTable(state.analysis.segments);
 
         setLoading(false);
         renderResults();
@@ -160,8 +158,6 @@ function reset() {
     state.reversedPoints = null;
     state.centroid = null;
     state.routeName = null;
-    state.windRose = [];
-    state.segmentTable = [];
     state.reversed = false;
     state._weatherCache = null;
     $('fileInput').value = '';

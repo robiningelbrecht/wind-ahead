@@ -18,8 +18,6 @@ export const state = {
     weather: null,
     windDir: 0,
     windSpeed: 0,
-    windRose: [],
-    segmentTable: [],
     reversed: false,
     unitSystem: localStorage.getItem(UNITS_KEY) || METRIC,
     isDarkMode: (localStorage.getItem(THEME_KEY) || 'dark') === 'dark',

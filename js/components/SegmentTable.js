@@ -9,7 +9,7 @@ export class SegmentTable {
     }
 
     render(state) {
-        const rows = state.segmentTable;
+        const rows = this.compute(state.analysis.segments);
         const { unitSystem } = state;
         const speed = unitLabel(unitSystem, 'speed');
         const elev = unitLabel(unitSystem, 'elev');
@@ -35,5 +35,40 @@ export class SegmentTable {
 
     hide() {
         this.container.classList.add('hidden');
+    }
+
+    compute(segments) {
+        const rows = [];
+        let cumDist = 0, bucketDist = 0;
+        let bucketHeadW = 0, bucketCrossW = 0;
+        let bucketBrngX = 0, bucketBrngY = 0;
+        let lastEle = null;
+        let nextInterval = 1000;
+        for (const seg of segments) {
+            cumDist += seg.dist;
+            bucketDist += seg.dist;
+            bucketHeadW += seg.headComp * seg.dist;
+            bucketCrossW += Math.abs(seg.crossComp) * seg.dist;
+            bucketBrngX += Math.cos(GeoUtils.toRad(seg.brng)) * seg.dist;
+            bucketBrngY += Math.sin(GeoUtils.toRad(seg.brng)) * seg.dist;
+            lastEle = seg.p2.ele;
+            if (cumDist >= nextInterval) {
+                const avgHead = bucketDist > 0 ? bucketHeadW / bucketDist : 0;
+                const avgCross = bucketDist > 0 ? bucketCrossW / bucketDist : 0;
+                const avgBrng = (GeoUtils.toDeg(Math.atan2(bucketBrngY, bucketBrngX)) + 360) % 360;
+                const type = avgHead > 2 ? 'headwind' : avgHead < -2 ? 'tailwind' : 'crosswind';
+                rows.push({ index: rows.length + 1, bearing: avgBrng, headComp: avgHead, crossComp: avgCross, elevation: lastEle, type });
+                bucketDist = 0; bucketHeadW = 0; bucketCrossW = 0; bucketBrngX = 0; bucketBrngY = 0;
+                nextInterval += 1000;
+            }
+        }
+        if (bucketDist > 100) {
+            const avgHead = bucketHeadW / bucketDist;
+            const avgCross = bucketCrossW / bucketDist;
+            const avgBrng = (GeoUtils.toDeg(Math.atan2(bucketBrngY, bucketBrngX)) + 360) % 360;
+            const type = avgHead > 2 ? 'headwind' : avgHead < -2 ? 'tailwind' : 'crosswind';
+            rows.push({ index: rows.length + 1, bearing: avgBrng, headComp: avgHead, crossComp: avgCross, elevation: lastEle, type });
+        }
+        return rows;
     }
 }
