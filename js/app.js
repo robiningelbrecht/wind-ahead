@@ -13,6 +13,7 @@ import { Breakdown } from './components/Breakdown';
 import { WindRose } from './components/WindRose';
 import { Weather } from './components/Weather';
 import { SegmentTable } from './components/SegmentTable';
+import { Advisory } from './components/Advisory';
 import { DropZone } from './components/DropZone';
 import { Dropdown } from './components/Dropdown';
 import { Debug } from './utils/Debug';
@@ -25,7 +26,7 @@ const routeAnalyzer = new RouteAnalyzer();
 const map = new LeafletMap();
 const windStrip = new WindStrip();
 
-let stats, breakdown, windRose, weather, segmentTable;
+let stats, breakdown, windRose, weather, segmentTable, advisory;
 
 function updateUnitLabels() {
     $('speedUnit').textContent = unitLabel(state.unitSystem, 'speed');
@@ -59,6 +60,7 @@ function renderResults() {
     }
 
     segmentTable.render(state);
+    advisory.render(state);
     map.render(state);
     windStrip.render(state);
 }
@@ -165,6 +167,7 @@ function reset() {
     stats.hide();
     $('cardsSection').classList.add('hidden');
     segmentTable.hide();
+    advisory.hide();
     map.destroy();
     keyValueRepository.delete('lastGpx');
     setView('upload');
@@ -231,6 +234,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     windRose = new WindRose();
     weather = new Weather();
     segmentTable = new SegmentTable();
+    advisory = new Advisory();
     windStrip.bind(map);
 
     const cachedGpx = await keyValueRepository.get('lastGpx');

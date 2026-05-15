@@ -1,5 +1,8 @@
 import { $ } from '../state';
 import { unitLabel, convertUnit } from '../utils/units';
+import { UV_BANDS } from '../constants';
+
+const STAT_VALUE_CLASS = 'text-2xl font-extrabold tabular-nums tracking-[-0.02em] leading-[1.2]';
 
 export class RouteStats {
     constructor() {
@@ -19,6 +22,10 @@ export class RouteStats {
         this.windSpeedContainer = $('windSpeedContainer');
         this.statWindSpeed = $('statWindSpeed');
         this.windSpeedUnit = $('windSpeedUnit');
+        this.uvContainer = $('uvContainer');
+        this.statUvValue = $('statUvValue');
+        this.statUv = $('statUv');
+        this.statUvLabel = $('statUvLabel');
     }
 
     render(state) {
@@ -36,7 +43,7 @@ export class RouteStats {
             this.elevUnit.textContent = unitLabel(unitSystem, 'elev');
         }
 
-        this.statNetValue.className = 'text-2xl font-extrabold tabular-nums tracking-[-0.02em] leading-[1.2]';
+        this.statNetValue.className = STAT_VALUE_CLASS;
         if (analysis.avgHead > 0.5) {
             this.statNetValue.classList.add('text-red-600');
             this.statNetLabel.textContent = 'Net Headwind';
@@ -58,6 +65,16 @@ export class RouteStats {
             this.tempUnit.textContent = unitLabel(unitSystem, 'temp');
             this.statWindSpeed.textContent = weather.windSpeed10m;
             this.windSpeedUnit.textContent = unitLabel(unitSystem, 'speed');
+        }
+
+        const hasUv = hasWeather && weather.uvIndexMax != null;
+        this.uvContainer.classList.toggle('hidden', !hasUv);
+        if (hasUv) {
+            const band = UV_BANDS.find(b => weather.uvIndexMax < b.max);
+            this.statUv.textContent = weather.uvIndexMax.toFixed(0);
+            this.statUvLabel.textContent = band.label;
+            this.statUvValue.className = `${STAT_VALUE_CLASS} ${band.color}`.trim();
+            this.uvContainer.title = `${band.label} - ${band.advice}`;
         }
     }
 

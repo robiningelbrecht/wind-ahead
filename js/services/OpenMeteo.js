@@ -6,7 +6,7 @@ export class OpenMeteo {
         const isImperial = unitSystem === IMPERIAL;
         const tempUnit = isImperial ? 'fahrenheit' : 'celsius';
         const windUnit = isImperial ? 'mph' : 'kmh';
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=${WEATHER_PARAMS}&start_date=${localDate.dateStr}&end_date=${localDate.nextDayStr}&temperature_unit=${tempUnit}&wind_speed_unit=${windUnit}&timezone=auto`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=${WEATHER_PARAMS}&daily=uv_index_max&start_date=${localDate.dateStr}&end_date=${localDate.nextDayStr}&temperature_unit=${tempUnit}&wind_speed_unit=${windUnit}&timezone=auto`;
         let res;
         try {
             res = await window.fetch(url);
@@ -30,6 +30,11 @@ export class OpenMeteo {
                 if (diff < minDiff) { minDiff = diff; idx = i; }
             });
         }
+        const daily = data.daily;
+        let dailyIdx = daily?.time?.findIndex(t => t === localDate.dateStr) ?? -1;
+        if (dailyIdx < 0) dailyIdx = 0;
+        const uvIndexMax = daily?.uv_index_max?.[dailyIdx] ?? null;
+
         return {
             temperature2m: hourly.temperature_2m[idx],
             relativeHumidity2m: hourly.relative_humidity_2m[idx],
@@ -41,6 +46,7 @@ export class OpenMeteo {
             windSpeed10m: hourly.wind_speed_10m[idx],
             windDirection10m: hourly.wind_direction_10m[idx],
             windGusts10m: hourly.wind_gusts_10m[idx],
+            uvIndexMax,
         };
     }
 }

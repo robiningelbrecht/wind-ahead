@@ -21,7 +21,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="canonical" href="">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="dist/app.min.css?v=1e0a1e8b" />
+  <link rel="stylesheet" href="dist/app.min.css?v=e3ab7687" />
   <script defer src="https://analytics.robiningelbrecht.be/script.js" data-website-id="d76855f7-bd25-47d3-a042-b4a8a9af3f77" data-domains="windahead.app,windahead.app"></script>
 </head>
 <body class="font-sans bg-gray-50 min-h-screen antialiased flex flex-col">
@@ -198,7 +198,13 @@
             <div class="text-2xl font-extrabold tabular-nums tracking-[-0.02em] leading-[1.2]"><span id="statWindSpeed"></span> <span id="windSpeedUnit" class="text-xs font-normal text-gray-600">km/h</span></div>
             <div class="text-[0.65rem] uppercase tracking-[0.08em] text-gray-500 mt-1">Wind Speed</div>
           </div>
+          <div id="uvContainer" class="bg-white py-4 px-4.5 text-center hidden">
+            <div id="statUvValue" class="text-2xl font-extrabold tabular-nums tracking-[-0.02em] leading-[1.2]"><span id="statUv"></span> <span id="statUvLabel" class="text-xs font-normal"></span></div>
+            <div class="text-[0.65rem] uppercase tracking-[0.08em] text-gray-500 mt-1">UV Index</div>
+          </div>
         </div>
+        <!-- Advisories -->
+        <div id="advisories" data-driver="advisories" class="flex flex-col gap-4 hidden"></div>
         <!-- Cards row -->
         <div id="cardsSection" class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4 max-md:grid-cols-1 hidden">
           <!-- Wind breakdown card -->
@@ -375,5 +381,5 @@
   </div>
 </footer>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="dist/app.min.js?v=1e0a1e8b"></script></body>
+<script src="dist/app.min.js?v=e3ab7687"></script></body>
 </html>

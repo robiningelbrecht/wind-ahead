@@ -41,6 +41,14 @@ export const BEAUFORT_SCALE = [
     { maxKmh: Infinity, force: 12, name: 'Hurricane',       color: [127, 29, 29]   },
 ];
 
+export const UV_BANDS = [
+    { max: 3,        label: 'Low',       color: '',               severity: 'info',    advice: 'No sun protection needed for most rides.' },
+    { max: 6,        label: 'Moderate',  color: 'text-amber-600', severity: 'info',    advice: 'Sunscreen and sunglasses recommended, especially on long rides.' },
+    { max: 8,        label: 'High',      color: 'text-amber-600', severity: 'warning', advice: 'Apply SPF 30+, wear sunglasses, cover exposed skin.' },
+    { max: 11,       label: 'Very High', color: 'text-red-600',   severity: 'danger',  advice: 'Strong protection essential. Limit sun exposure between 10:00 and 16:00.' },
+    { max: Infinity, label: 'Extreme',   color: 'text-red-600',   severity: 'danger',  advice: 'Maximum protection required. Consider rescheduling, or ride early or late.' },
+];
+
 export const TILE_DARK = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 export const TILE_LIGHT = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
 
