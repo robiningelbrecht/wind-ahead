@@ -5,10 +5,7 @@ export class Popover {
         this.trigger = $(triggerId);
         this.element = $(popoverId);
 
-        this.trigger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.toggle();
-        });
+        this.trigger.addEventListener('click', () => this.toggle());
 
         document.addEventListener('click', (e) => {
             if (this.element.contains(e.target) || e.target === this.trigger) return;

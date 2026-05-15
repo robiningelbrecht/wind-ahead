@@ -1,7 +1,7 @@
 import { METRIC } from './utils/units';
 import { SPEED_KEY, UNITS_KEY, THEME_KEY } from './constants';
 
-export const $ = (id) => document.getElementById(id);
+export const $ = (name) => document.querySelector(`[data-component="${name}"]`);
 
 export const state = {
     view: 'upload',

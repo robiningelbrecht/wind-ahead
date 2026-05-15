@@ -1,13 +1,13 @@
 import { GeoUtils } from '../utils/GeoUtils';
 import { unitLabel, convertUnit } from '../utils/units';
-import { state } from '../state';
+import { $, state } from '../state';
 
 export class WindStrip {
     constructor() {
         this.segments = [];
-        this.strip = document.getElementById('windStrip');
-        this.tooltip = document.getElementById('stripTooltip');
-        this.container = document.getElementById('stripContainer');
+        this.strip = $('windStrip');
+        this.tooltip = $('stripTooltip');
+        this.container = $('stripContainer');
     }
 
     render(s) {
