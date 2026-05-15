@@ -1,4 +1,5 @@
 import { $, state, setView, setLoading, setError } from './state';
+import { assertUniqueDataComponents } from './utils/assertUniqueDataComponents';
 import { LocalDate } from './utils/LocalDate';
 import { unitLabel, METRIC, IMPERIAL } from './utils/units';
 import { SPEED_KEY, UNITS_KEY, THEME_KEY } from './constants';
@@ -174,6 +175,8 @@ function reset() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    assertUniqueDataComponents();
+
     $('speedInput').value = state.avgSpeed;
     updateUnitLabels();
 
