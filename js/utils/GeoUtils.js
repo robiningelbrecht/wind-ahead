@@ -1,4 +1,4 @@
-import { WIND_LABELS } from '../constants';
+import { WIND_LABELS, BEAUFORT_SCALE } from '../constants';
 
 export class GeoUtils {
     static toRad(d) { return d * Math.PI / 180; }
@@ -6,6 +6,10 @@ export class GeoUtils {
 
     static windLabel(deg) {
         return WIND_LABELS[Math.round(((deg % 360) + 360) % 360 / 22.5) % 16];
+    }
+
+    static beaufort(kmh) {
+        return BEAUFORT_SCALE.find(b => kmh < b.maxKmh) || BEAUFORT_SCALE[BEAUFORT_SCALE.length - 1];
     }
 
     static bearing(lat1, lon1, lat2, lon2) {

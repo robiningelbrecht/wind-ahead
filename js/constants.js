@@ -25,6 +25,22 @@ export const WEATHER_ICONS = {
 
 export const WIND_LABELS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
 
+export const BEAUFORT_SCALE = [
+    { maxKmh: 1,        force: 0,  name: 'Calm',            color: [107, 114, 128] },
+    { maxKmh: 6,        force: 1,  name: 'Light air',       color: [107, 114, 128] },
+    { maxKmh: 12,       force: 2,  name: 'Light breeze',    color: [22, 163, 74]   },
+    { maxKmh: 20,       force: 3,  name: 'Gentle breeze',   color: [22, 163, 74]   },
+    { maxKmh: 29,       force: 4,  name: 'Moderate breeze', color: [217, 119, 6]   },
+    { maxKmh: 39,       force: 5,  name: 'Fresh breeze',    color: [217, 119, 6]   },
+    { maxKmh: 50,       force: 6,  name: 'Strong breeze',   color: [234, 88, 12]   },
+    { maxKmh: 62,       force: 7,  name: 'Near gale',       color: [220, 38, 38]   },
+    { maxKmh: 75,       force: 8,  name: 'Gale',            color: [220, 38, 38]   },
+    { maxKmh: 89,       force: 9,  name: 'Strong gale',     color: [220, 38, 38]   },
+    { maxKmh: 103,      force: 10, name: 'Storm',           color: [185, 28, 28]   },
+    { maxKmh: 118,      force: 11, name: 'Violent storm',   color: [185, 28, 28]   },
+    { maxKmh: Infinity, force: 12, name: 'Hurricane',       color: [127, 29, 29]   },
+];
+
 export const TILE_DARK = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 export const TILE_LIGHT = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
 
