@@ -12,6 +12,7 @@ export class LeafletMap {
         this.weatherOverlayGroup = null;
         this.cachedWindDir = 0;
         this.hoverMarker = null;
+        this.routeBounds = null;
     }
 
     createWindArrowIcon(blowsTo) {
@@ -77,13 +78,34 @@ export class LeafletMap {
     }
 
     renderStartEnd(latlngs) {
-        this.map.fitBounds(L.latLngBounds(latlngs).pad(0.1));
+        this.routeBounds = L.latLngBounds(latlngs).pad(0.1);
+        this.map.fitBounds(this.routeBounds);
         L.circleMarker(latlngs[0], {
             radius: 7, color: '#303030', fillColor: '#4cd964', fillOpacity: 1, weight: 2.5
         }).bindTooltip('Start').addTo(this.map);
         L.circleMarker(latlngs[latlngs.length - 1], {
             radius: 7, color: '#303030', fillColor: '#FC4C02', fillOpacity: 1, weight: 2.5
         }).bindTooltip('End').addTo(this.map);
+    }
+
+    addRecenterControl() {
+        const self = this;
+        const Recenter = L.Control.extend({
+            options: { position: 'topleft' },
+            onAdd() {
+                const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+                const link = L.DomUtil.create('a', 'leaflet-control-recenter', container);
+                link.href = '#';
+                link.title = 'Re-center route';
+                link.setAttribute('role', 'button');
+                link.setAttribute('aria-label', 'Re-center route');
+                link.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>';
+                L.DomEvent.on(link, 'click', L.DomEvent.stop)
+                          .on(link, 'click', () => self.map.fitBounds(self.routeBounds));
+                return container;
+            }
+        });
+        this.map.addControl(new Recenter());
     }
 
     renderWindOverlay(wDir, wSpeed, speed) {
@@ -131,6 +153,7 @@ export class LeafletMap {
         this.renderRoute(analysis.segments, speed);
         const latlngs = points.map(p => [p.lat, p.lon]);
         this.renderStartEnd(latlngs);
+        this.addRecenterControl();
         this.renderWindOverlay(wDir, wSpeed, speed);
         this.renderWeatherOverlay(analysis.weatherMarkers);
     }

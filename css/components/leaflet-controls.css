@@ -21,3 +21,6 @@
 .map-overlay-toggle .toggle-label {
     @apply text-[0.62rem] text-gray-500 font-normal;
 }
+.leaflet-control-recenter {
+    @apply flex! items-center justify-center;
+}
